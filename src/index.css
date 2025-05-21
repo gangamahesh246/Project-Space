@@ -17,9 +17,9 @@
   --color-ivory: #fffff0
 }
 
-html, body {
+/* html, body {
   overflow-x: hidden;
-}
+} */
 .font_primary {
   font-family: "Source Sans 3", sans-serif;
 }
