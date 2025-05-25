@@ -63,19 +63,19 @@ export default function FlowChart() {
       <Grid container spacing={4} justifyContent="center" alignItems="center">
         {steps.map((step, index) => (
           <React.Fragment key={step.title}>
-            <Grid item>
+            <Grid width={250}>
               <StepCard>
                 <Typography variant="h6" gutterBottom className="text-primary">{step.title}</Typography>
                 <ul style={{ paddingLeft: 16, textAlign: "left" }}>
                   {step.points.map((point, i) => (
-                    <li key={i} style={{ fontSize: "0.9rem", color: "#555" }}>{point}</li>
+                    <li key={i} style={{ fontSize: "0.9rem", color: "#555" }}>- {point}</li>
                   ))}
                 </ul>
               </StepCard>
             </Grid>
             {index < steps.length - 1 && (
               <Grid item>
-                <ArrowForwardIcon fontSize="large" className="text-primary sm:rotate-90" />
+                <ArrowForwardIcon fontSize="medium" className="text-primary sm:rotate-90 md:rotate-0" />
               </Grid>
             )}
           </React.Fragment>
