@@ -1,6 +1,10 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setBasic } from "../../../slices/BasicInfoSlice";
 
-const BasicInfo = () => {
+const BasicInfo = ({ setActiveTab }) => {
+  const dispatch = useDispatch();
+
   const [basicInfo, setBasicInfo] = useState({
     title: "",
     category: "",
@@ -37,6 +41,7 @@ const BasicInfo = () => {
             type="text"
             name="title"
             value={basicInfo.title}
+            required
             className="capitalize w-full p-2 mb-6 ml-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
             placeholder="Enter exam title"
             onChange={handleInputChange}
@@ -48,6 +53,7 @@ const BasicInfo = () => {
             type="text"
             name="category"
             value={basicInfo.category}
+            required
             className="capitalize w-full p-2 mb-6 ml-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
             placeholder="Enter Exam Category"
             onChange={handleInputChange}
@@ -55,12 +61,13 @@ const BasicInfo = () => {
           <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
             Exam Cover
           </label>
-          <div className='w-50 h-50 rounded-lg mb-6 ml-2 flex justify-center items-center cursor-pointer'
-          style={{
-            backgroundImage: `url(${basicInfo.coverPreview})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+          <div
+            className="w-50 h-50 rounded-lg mb-6 ml-2 flex justify-center items-center cursor-pointer"
+            style={{
+              backgroundImage: `url(${basicInfo.coverPreview})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
             <input
               type="file"
@@ -82,18 +89,27 @@ const BasicInfo = () => {
           />
         </form>
         <div className="flex justify-end">
-          <button 
-          className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-green-500 transition duration-300 cursor-pointer"
-          onClick={() => {
-            console.log("Basic Info Submitted:", basicInfo);
-            setBasicInfo({
-              title: "",
-              category: "",
-              cover: null,
-              coverPreview: "/exam.jpg",
-              description: "",
-            });
-          }}
+          <button
+            className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-green-500 transition duration-300 cursor-pointer "
+            onClick={() => {
+              if (!basicInfo.title || !basicInfo.category) {
+                alert("Please fill in all fields.");
+                return;
+              }
+
+              const { title, category, description } = basicInfo;
+              dispatch(setBasic({ title, category, description }));
+
+              console.log("Basic Info Submitted:", basicInfo);
+              setBasicInfo({
+                title: "",
+                category: "",
+                cover: null,
+                coverPreview: "/exam.jpg",
+                description: "",
+              });
+              setActiveTab("addQuestions");
+            }}
           >
             Next
           </button>

@@ -8,7 +8,9 @@ import { IoSettings } from "react-icons/io5";
 import { LuLogOut } from "react-icons/lu";
 import { IoNotifications } from "react-icons/io5";
 
-const FlowChart = React.lazy(() => import("../Home_page/sections/Flow_Chart"))
+const StepWrapper = React.lazy(() =>
+  import("./Components/CreateExam/StepWrapper")
+);
 
 let dashboardNavs = [
   {
@@ -30,16 +32,16 @@ let dashboardNavs = [
   {
     name: "more",
     icon: <LuBlocks />,
-  }
+  },
 ];
 
 const MainPanel = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
-const renderActiveComponent = () => {
+  const renderActiveComponent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <FlowChart />;
+        return <StepWrapper />;
       case "exam":
         return <div>Exam Component</div>;
       case "questions":
@@ -51,7 +53,7 @@ const renderActiveComponent = () => {
       default:
         return <div>Select a tab to view content</div>;
     }
-  }
+  };
 
   return (
     <div className="w-full h-screen bg-aliceblue p-5">
@@ -73,7 +75,9 @@ const renderActiveComponent = () => {
                   onClick={() => setActiveTab(navs.name)}
                 >
                   {navs.icon}
-                  <p className="ml-3 font_primary font-semibold capitalize tracking-wide">{navs.name}</p>
+                  <p className="ml-3 font_primary font-semibold capitalize tracking-wide">
+                    {navs.name}
+                  </p>
                 </div>
               );
             })}
@@ -104,12 +108,15 @@ const renderActiveComponent = () => {
               </p>
             </div>
           </div>
-          <p className="capitalize text-[40px] font_primary text-aliceblue mt-5 tracking-wide">
-            {activeTab}
-          </p>
-          <div className="w-full h-4/5 rounded-3xl overflow-auto hide-scrollbar border-2">
-            
-
+          <div className="w-full h-11/12 rounded-3xl overflow-auto hide-scrollbar mt-5 p-2">
+            <p className="capitalize text-[30px] font_primary text-aliceblue tracking-wide"
+              style={activeTab === "dashboard" ? { display: "block" } : { display: "none"}}
+              >
+              {activeTab}
+            </p>
+            <Suspense fallback={<div>Loading...</div>}>
+              {renderActiveComponent()}
+            </Suspense>
           </div>
         </div>
       </div>
@@ -118,4 +125,3 @@ const renderActiveComponent = () => {
 };
 
 export default MainPanel;
-
