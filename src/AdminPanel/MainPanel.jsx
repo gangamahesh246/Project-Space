@@ -11,6 +11,9 @@ import { IoNotifications } from "react-icons/io5";
 const StepWrapper = React.lazy(() =>
   import("./Components/CreateExam/StepWrapper")
 );
+const AddQuestions = React.lazy(() =>
+  import("./Components/CreateExam/AddQuestions")
+);
 
 let dashboardNavs = [
   {
@@ -41,9 +44,9 @@ const MainPanel = () => {
   const renderActiveComponent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <StepWrapper />;
+        return ;
       case "exam":
-        return <div>Exam Component</div>;
+        return <StepWrapper />;
       case "questions":
         return <div>Questions Component</div>;
       case "students":
@@ -86,7 +89,7 @@ const MainPanel = () => {
             <div className="w-5/6 h-fit flex flex-col justify-evenly items-center border-t-2 border-[#a4bfce]">
               <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
                 <IoSettings size={17} />
-                <p className="ml-3 font_primary font-semibold">Settings</p>
+                <p className="ml-3 font_primary font-semibold">Add Admin</p>
               </div>
               <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
                 <LuLogOut size={17} />
@@ -108,7 +111,7 @@ const MainPanel = () => {
               </p>
             </div>
           </div>
-          <div className="w-full h-11/12 rounded-3xl overflow-auto hide-scrollbar mt-5 p-2">
+          <div className="w-full h-11/12  overflow-auto hide-scrollbar mt-5">
             <p className="capitalize text-[30px] font_primary text-aliceblue tracking-wide"
               style={activeTab === "dashboard" ? { display: "block" } : { display: "none"}}
               >

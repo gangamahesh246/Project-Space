@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setBasic } from "../../../slices/BasicInfoSlice";
+import { setBasic } from "../../../slices/ExamSlice";
 
 const BasicInfo = ({ setActiveTab }) => {
   const dispatch = useDispatch();
@@ -90,7 +90,7 @@ const BasicInfo = ({ setActiveTab }) => {
         </form>
         <div className="flex justify-end">
           <button
-            className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-green-500 transition duration-300 cursor-pointer "
+            className="text-white px-4 py-2 rounded-lg bg-green-500 cursor-pointer "
             onClick={() => {
               if (!basicInfo.title || !basicInfo.category) {
                 alert("Please fill in all fields.");
@@ -100,7 +100,6 @@ const BasicInfo = ({ setActiveTab }) => {
               const { title, category, description } = basicInfo;
               dispatch(setBasic({ title, category, description }));
 
-              console.log("Basic Info Submitted:", basicInfo);
               setBasicInfo({
                 title: "",
                 category: "",

@@ -8,8 +8,7 @@ const initialState = {
     description: "",
   },
   questions: [], 
-  settings: {},  
-  schedule: {},  
+  settings: {},    
 };
 
 const examSlice = createSlice({
@@ -24,9 +23,6 @@ const examSlice = createSlice({
     },
     setSettings(state, action) {
       state.settings = { ...state.settings, ...action.payload };
-    },
-    setSchedule(state, action) {
-      state.schedule = { ...state.schedule, ...action.payload };
     }
   },
 });

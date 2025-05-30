@@ -8,6 +8,8 @@ import { PiNumberSquareThreeFill } from "react-icons/pi";
 import { PiNumberSquareFour } from "react-icons/pi";
 
 const BasicInfo = React.lazy(() => import("./BasicInfo"));
+const AddQuestions = React.lazy(() => import("./AddQuestions"));
+const ConfigureSettings = React.lazy(() => import("./ConfigureSettings"));
 
 let steps = [
   {
@@ -45,9 +47,9 @@ const StepWrapper = () => {
       case "basicInfo":
         return <BasicInfo setActiveTab={setActiveTab} />;
       case "addQuestions":
-        return <div>Exam Component</div>;
+        return <AddQuestions setActiveTab={setActiveTab} />;
       case "customizedSettings":
-        return <div>Questions Component</div>;
+        return <ConfigureSettings />;
       case "finish":
         return <div>Students Component</div>;
       default:
