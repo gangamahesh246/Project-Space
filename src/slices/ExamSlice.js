@@ -7,9 +7,11 @@ const initialState = {
     coverPreview: "/exam.jpg",
     description: "",
   },
-  questions: [], 
-  settings: {},    
+  questions: [],
+
+  settings: {},
 };
+
 
 const examSlice = createSlice({
   name: "exam",

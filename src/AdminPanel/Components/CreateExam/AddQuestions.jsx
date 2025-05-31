@@ -6,7 +6,7 @@ import { FaPencilAlt } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import { setQuestions, setSettings } from "../../../slices/ExamSlice";
 
-const PreSelected = ({handleFileUpload}) => (
+const PreSelected = ({ handleFileUpload }) => (
   <div className="p-4 h-5/6 flex flex-col items-center justify-center gap-4">
     <RiFileExcel2Fill size={100} color="#00C951" />
     <input
@@ -19,8 +19,8 @@ const PreSelected = ({handleFileUpload}) => (
 );
 const Categories = () => <div className="p-4">Categories Content</div>;
 
-const AddQuestions = ({setActiveTab}) => {
-    const dispatch = useDispatch();
+const AddQuestions = ({ setActiveTab }) => {
+  const dispatch = useDispatch();
 
   const title = useSelector((state) => state.exam.basicInfo.title);
 
@@ -31,43 +31,42 @@ const AddQuestions = ({setActiveTab}) => {
     questionTime: 0,
   });
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-const handleFileUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const reader = new FileReader();
 
-  const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = evt.target.result;
+      const workbook = XLSX.read(data, { type: "binary" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: true });
 
-  reader.onload = (evt) => {
-    const data = evt.target.result;
-    const workbook = XLSX.read(data, { type: "binary" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: true });
+      const formattedQuestions = jsonData.map((q, index) => {
+        const keys = Object.keys(q).reduce((acc, key) => {
+          acc[key.toLowerCase().replace(/\s+/g, "")] = q[key];
+          return acc;
+        }, {});
 
-    const formattedQuestions = jsonData.map((q, index) => {
-      const keys = Object.keys(q).reduce((acc, key) => {
-        acc[key.toLowerCase().replace(/\s+/g, "")] = q[key];
-        return acc;
-      }, {});
+        return {
+          id: index + 1,
+          question: keys["question"],
+          options: [
+            keys["optiona"],
+            keys["optionb"],
+            keys["optionc"],
+            keys["optiond"],
+          ],
+          correct: keys["correctanswer"],
+        };
+      });
 
-      return {
-        id: index + 1,
-        question: keys["question"],
-        options: [
-          keys["optiona"],
-          keys["optionb"],
-          keys["optionc"],
-          keys["optiond"]
-        ],
-        correct: keys["correctanswer"],
-      };
-    });
+      dispatch(setQuestions(formattedQuestions));
+    };
 
-    dispatch(setQuestions(formattedQuestions));
+    reader.readAsBinaryString(file);
   };
-
-  reader.readAsBinaryString(file);
-};
 
   return (
     <div className="w-full h-fit bg-aliceblue flex justify-center gap-4 p-4">
@@ -105,7 +104,11 @@ const handleFileUpload = (e) => {
           </p>
         </div>
         <div className="w-full h-98.5">
-          {isActive === "PreSelected" ? <PreSelected handleFileUpload={handleFileUpload} /> : <Categories />}
+          {isActive === "PreSelected" ? (
+            <PreSelected handleFileUpload={handleFileUpload} />
+          ) : (
+            <Categories />
+          )}
         </div>
       </div>
       <div className="w-2/6 h-fit bg-white rounded-md p-4 flex flex-col justify-center items-start gap-4">
@@ -128,53 +131,76 @@ const handleFileUpload = (e) => {
             Edit
           </p>
         </div>
-        <div className="w-full h-10 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951]"
-        onClick={() => {
+        <div
+          className="w-full h-10 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
+          onClick={() => {
             setActiveTab("customizedSettings");
-        }}
+            const { examTime, questionTime } = time;
+            dispatch(setSettings({ examTime, questionTime }));
+          }}
         >
           Save & Next
         </div>
       </div>
-      {isopen && <TimeSelector setIsOpen={setIsOpen} time={time} setTime={setTime} dispatch={dispatch} />}
+      {isopen && (
+        <TimeSelector
+          setIsOpen={setIsOpen}
+          time={time}
+          setTime={setTime}
+          dispatch={dispatch}
+        />
+      )}
     </div>
   );
 };
 
 export default AddQuestions;
 
-const QuestionTimeSetting = ({handleInputChange, time}) => {
+const QuestionTimeSetting = ({ handleInputChange, time }) => {
   return (
     <div className="w-full h-full flex justify-center items-center gap-2">
       Time limitation of each question is{" "}
-      <input type="number" className="w-12 h-8 border-2" name="questionTime" value={time.questionTime} onChange={handleInputChange} /> seconds.
+      <input
+        type="number"
+        className="w-12 h-8 border-2 "
+        name="questionTime"
+        value={time.questionTime}
+        onChange={handleInputChange}
+      />{" "}
+      seconds.
     </div>
   );
 };
-const ExamTimeSetting = ({handleInputChange, time}) => {
+const ExamTimeSetting = ({ handleInputChange, time }) => {
   return (
     <div className="w-full h-full flex justify-center items-center gap-2">
       After
-      <input type="number" className="w-12 h-8 border-2" name="examTime" value={time.examTime} onChange={handleInputChange} /> minutes.
+      <input
+        type="number"
+        className="w-12 h-8 border-2"
+        name="examTime"
+        value={time.examTime}
+        onChange={handleInputChange}
+      />{" "}
+      minutes.
     </div>
   );
 };
 
-const TimeSelector = ({ setIsOpen, time, setTime, dispatch }) => {
-    const [selectedOption, setSelectedOption] = useState("Question time setting");
+const TimeSelector = ({ setIsOpen, time, setTime }) => {
+  const [selectedOption, setSelectedOption] = useState("Question time setting");
 
-    const handleInputChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setTime((prevTime) => ({
-      ...prevTime,
-      [name]: value,
+
+    setTime((prev) => ({
+      ...prev,
+      [name]: Number(value),
     }));
   };
 
   const handleSave = () => {
     setIsOpen(false);
-    const { examTime, questionTime } = time;
-    dispatch(setSettings({ examTime, questionTime }));
   };
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-black/30 backdrop-blur-[0.5px] flex justify-center items-center z-50 ">
@@ -193,7 +219,7 @@ const TimeSelector = ({ setIsOpen, time, setTime, dispatch }) => {
           <div className="flex justify-center items-center gap-1 text-sm">
             <input
               type="radio"
-              className="cursor-pointer"
+              className="cursor-pointer text-green-500"
               onChange={() => setSelectedOption("Question time setting")}
               checked={
                 selectedOption === "Question time setting" ? true : false
@@ -213,9 +239,15 @@ const TimeSelector = ({ setIsOpen, time, setTime, dispatch }) => {
         </div>
         <div className="w-full h-40">
           {selectedOption === "Question time setting" ? (
-            <QuestionTimeSetting handleInputChange={handleInputChange} time={time} />
+            <QuestionTimeSetting
+              handleInputChange={handleInputChange}
+              time={time}
+            />
           ) : (
-            <ExamTimeSetting handleInputChange={handleInputChange} time={time} />
+            <ExamTimeSetting
+              handleInputChange={handleInputChange}
+              time={time}
+            />
           )}
         </div>
         <div>

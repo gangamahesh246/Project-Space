@@ -6,10 +6,12 @@ import { PiNumberSquareTwoFill } from "react-icons/pi";
 import { PiNumberSquareThree } from "react-icons/pi";
 import { PiNumberSquareThreeFill } from "react-icons/pi";
 import { PiNumberSquareFour } from "react-icons/pi";
+import { PiNumberSquareFourFill } from "react-icons/pi";
 
 const BasicInfo = React.lazy(() => import("./BasicInfo"));
 const AddQuestions = React.lazy(() => import("./AddQuestions"));
 const ConfigureSettings = React.lazy(() => import("./ConfigureSettings"));
+const Finish = React.lazy(() => import("./Finish"));
 
 let steps = [
   {
@@ -34,24 +36,26 @@ let steps = [
     key: "finish",
     name: "Finish",
     normal: <PiNumberSquareFour size={20} />,
+    fill: <PiNumberSquareFourFill size={20} color="#00C951" />,
   },
 ];
 
 const StepWrapper = () => {
   const [activeTab, setActiveTab] = React.useState("basicInfo");
+  const [coverFile, setCoverFile] = React.useState(null);
 
   const activeStepIndex = steps.findIndex((step) => step.key === activeTab);
 
   const renderActiveComponent = () => {
     switch (activeTab) {
       case "basicInfo":
-        return <BasicInfo setActiveTab={setActiveTab} />;
+        return <BasicInfo setActiveTab={setActiveTab} setCoverFile={setCoverFile} />;
       case "addQuestions":
         return <AddQuestions setActiveTab={setActiveTab} />;
       case "customizedSettings":
-        return <ConfigureSettings />;
+        return <ConfigureSettings setActiveTab={setActiveTab} />;
       case "finish":
-        return <div>Students Component</div>;
+        return <Finish coverFile={coverFile} />;
       default:
         return <BasicInfo />;
     }

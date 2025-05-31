@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setBasic } from "../../../slices/ExamSlice";
 
-const BasicInfo = ({ setActiveTab }) => {
+const BasicInfo = ({ setActiveTab, setCoverFile }) => {
   const dispatch = useDispatch();
 
   const [basicInfo, setBasicInfo] = useState({
@@ -97,8 +97,10 @@ const BasicInfo = ({ setActiveTab }) => {
                 return;
               }
 
-              const { title, category, description } = basicInfo;
+              const { title, category, description, cover } = basicInfo;
               dispatch(setBasic({ title, category, description }));
+
+              setCoverFile(cover);
 
               setBasicInfo({
                 title: "",
