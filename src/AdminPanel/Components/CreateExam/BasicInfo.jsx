@@ -31,8 +31,8 @@ const BasicInfo = ({ setActiveTab, setCoverFile }) => {
   };
 
   return (
-    <div className="w-full h-fit bg-aliceblue p-10">
-      <div className="w-4/5 h-fit mx-auto bg-white shadow-lg rounded-lg p-8 ">
+    <div className="w-full h-fit bg-aliceblue sm:p-3 xl:p-10">
+      <div className="sm:w-78 sm:p-5 md:w-145 xl:w-4/5 h-fit xl:mx-auto bg-white shadow-lg rounded-lg xl:p-8 ">
         <form>
           <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
             Exam Title

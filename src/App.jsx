@@ -1,17 +1,15 @@
-import React from "react";
-import Home from "./Home_page/home";
-import MainPanel from "./AdminPanel/MainPanel";
-import BasicInfo from "./AdminPanel/Components/CreateExam/BasicInfo";
-import StepWrapper from "./AdminPanel/Components/CreateExam/StepWrapper";
-import AddQuestions from "./AdminPanel/Components/CreateExam/AddQuestions";
-import ConfigureSettings from "./AdminPanel/Components/CreateExam/ConfigureSettings";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainPanel from './AdminPanel/MainPanel';
 
 const App = () => {
-  return (
-    <div>
-      <MainPanel />
-    </div>
-  );
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainPanel />}>
+        </Route>
+      </Routes>
+    </Router>
+  );
 };
 
 export default App;

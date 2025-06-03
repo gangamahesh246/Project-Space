@@ -40,7 +40,7 @@ let steps = [
   },
 ];
 
-const StepWrapper = () => {
+const StepWrapper = ({setactiveTab}) => {
   const [activeTab, setActiveTab] = React.useState("basicInfo");
   const [coverFile, setCoverFile] = React.useState(null);
 
@@ -53,9 +53,9 @@ const StepWrapper = () => {
       case "addQuestions":
         return <AddQuestions setActiveTab={setActiveTab} />;
       case "customizedSettings":
-        return <ConfigureSettings setActiveTab={setActiveTab} />;
+        return <ConfigureSettings setActiveTab={setActiveTab} coverFile={coverFile} />;
       case "finish":
-        return <Finish coverFile={coverFile} />;
+        return <Finish coverFile={coverFile} setactiveTab={setactiveTab} />;
       default:
         return <BasicInfo />;
     }
@@ -67,7 +67,8 @@ const StepWrapper = () => {
           return (
             <>
               <div className="flex items-center gap-1">
-                {index < activeStepIndex ? step.fill : step.normal} {step.name}
+                {index < activeStepIndex ? step.fill : step.normal} 
+                <span className="sm:hidden xl:inline">{step.name}</span>
               </div>
               {index < steps.length - 1 && (
                 <div
@@ -82,7 +83,7 @@ const StepWrapper = () => {
           );
         })}
       </div>
-      <div className="w-full h-full p-5">
+      <div className="w-full h-full sm:pt-3 md:p-3 xl:p-5">
         <Suspense fallback={<div>Loading...</div>}>
           {renderActiveComponent()}
         </Suspense>

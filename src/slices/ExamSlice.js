@@ -25,7 +25,8 @@ const examSlice = createSlice({
     },
     setSettings(state, action) {
       state.settings = { ...state.settings, ...action.payload };
-    }
+    },
+    resetExamState: () => initialState,
   },
 });
 
@@ -33,7 +34,7 @@ export const {
   setBasic,
   setQuestions,
   setSettings,
-  setSchedule,
+  resetExamState,
 } = examSlice.actions;
 
 export default examSlice.reducer;

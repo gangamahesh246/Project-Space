@@ -7,13 +7,13 @@ import { IoIosClose } from "react-icons/io";
 import { setQuestions, setSettings } from "../../../slices/ExamSlice";
 
 const PreSelected = ({ handleFileUpload }) => (
-  <div className="p-4 h-5/6 flex flex-col items-center justify-center gap-4">
+  <div className="p-4 xl:h-5/6 flex flex-col items-center justify-center gap-4">
     <RiFileExcel2Fill size={100} color="#00C951" />
     <input
       type="file"
       accept=".xlsx, .xls"
       onChange={handleFileUpload}
-      className="border-2 border-dashed border-gray-300 rounded-md p-4 cursor-pointer w-fit "
+      className="border-2 border-dashed border-gray-300 rounded-md md:p-2 xl:p-4 cursor-pointer w-fit "
     />
   </div>
 );
@@ -59,6 +59,7 @@ const AddQuestions = ({ setActiveTab }) => {
             keys["optiond"],
           ],
           correct: keys["correctanswer"],
+          marks: keys["marks"]
         };
       });
 
@@ -69,8 +70,8 @@ const AddQuestions = ({ setActiveTab }) => {
   };
 
   return (
-    <div className="w-full h-fit bg-aliceblue flex justify-center gap-4 p-4">
-      <div className="w-4/6 h-full bg-white rounded-md p-4">
+    <div className="w-full h-fit bg-aliceblue sm:flex sm:flex-col xl:flex-row justify-center gap-4 p-4">
+      <div className="xl:w-4/6 h-full bg-white rounded-md p-4">
         <div className="w-full h-10 border-b-2 border-aliceblue text-primary flex items-center font-semibold text-md gap-15">
           <p
             className="cursor-pointer"
@@ -103,7 +104,7 @@ const AddQuestions = ({ setActiveTab }) => {
             Categories
           </p>
         </div>
-        <div className="w-full h-98.5">
+        <div className="w-full xl:h-98.5">
           {isActive === "PreSelected" ? (
             <PreSelected handleFileUpload={handleFileUpload} />
           ) : (
@@ -111,7 +112,7 @@ const AddQuestions = ({ setActiveTab }) => {
           )}
         </div>
       </div>
-      <div className="w-2/6 h-fit bg-white rounded-md p-4 flex flex-col justify-center items-start gap-4">
+      <div className="xl:w-2/6 h-fit bg-white rounded-md p-4 flex flex-col justify-center items-start gap-4">
         <p className="text-primary font-semibold text-md underline">
           Exam Title
         </p>
@@ -204,7 +205,7 @@ const TimeSelector = ({ setIsOpen, time, setTime }) => {
   };
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-black/30 backdrop-blur-[0.5px] flex justify-center items-center z-50 ">
-      <div className="bg-white w-140 rounded-md p-6 flex flex-col items-center gap-4 shadow-lg">
+      <div className="bg-white xl:w-140 rounded-md p-6 flex flex-col items-center sm:gap-2 xl:gap-4 shadow-lg">
         <div className="w-full flex justify-between items-center border-b-2 border-aliceblue">
           <p className="text-primary font-bold text-sm capitalize">
             Edit Test Time
