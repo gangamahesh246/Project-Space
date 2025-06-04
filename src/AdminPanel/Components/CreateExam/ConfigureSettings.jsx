@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import * as XLSX from "xlsx";
 import { useDispatch, useSelector } from "react-redux";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { setSettings } from "../../../slices/ExamSlice";
 
-const ConfigureSettings = ({ setActiveTab, coverFile }) => {
+const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const dispatch = useDispatch();
   const time = useSelector((state) => state.exam.settings);
+  useEffect(() => {
+    if (isOpen && id) {
+      axios.get(`http://localhost:3000/getexam/${id}`).then((res) => {
+        setLocalSettings(res.data.settings);
+      });
+    }
+  }, [isOpen, id]);
 
   const [settings, setLocalSettings] = useState({
     availability: {
@@ -37,8 +45,9 @@ const ConfigureSettings = ({ setActiveTab, coverFile }) => {
       displayScore: {
         enabled: true,
         showRankingList: false,
+        totalPoints: 0,
         passPercentage: 0,
-        negativeMarking: false,
+        negativeMarking: 0,
       },
     },
     antiCheating: {
@@ -46,8 +55,23 @@ const ConfigureSettings = ({ setActiveTab, coverFile }) => {
       copyPastePrevention: false,
       forceFullscreen: false,
       webcam: false,
-    }
+    },
   });
+
+  const updateExam = async (id, examData) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3000/updateexam/${id}`,
+        {
+          examData,
+        }
+      );
+
+      console.log("Exam updated:", response.data);
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
 
   const handleAvailabilityChange = (e, field) => {
     const selectedDate = e.target.value;
@@ -100,13 +124,13 @@ const ConfigureSettings = ({ setActiveTab, coverFile }) => {
     }));
   };
 
-  const handleNegativeMarkingChange = (e) => {
+  const handleTotalPoints = (e) => {
     setLocalSettings((prev) => ({
       ...prev,
       results: {
         displayScore: {
           ...prev.results.displayScore,
-          negativeMarking: e.target.checked,
+          totalPoints: +e.target.value,
         },
       },
     }));
@@ -213,6 +237,32 @@ const ConfigureSettings = ({ setActiveTab, coverFile }) => {
       antiCheating: {
         ...prev.antiCheating,
         [field]: value,
+      },
+    }));
+  };
+
+  const handleNegativeMarkingToggle = (checked) => {
+    setLocalSettings((prev) => ({
+      ...prev,
+      results: {
+        ...prev.results,
+        displayScore: {
+          ...prev.results.displayScore,
+          negativeMarking: checked ? 0.25 : 0,
+        },
+      },
+    }));
+  };
+
+  const handleNegativeMarkingValueChange = (value) => {
+    setLocalSettings((prev) => ({
+      ...prev,
+      results: {
+        ...prev.results,
+        displayScore: {
+          ...prev.results.displayScore,
+          negativeMarking: parseFloat(value),
+        },
       },
     }));
   };
@@ -471,20 +521,39 @@ const ConfigureSettings = ({ setActiveTab, coverFile }) => {
          {" "}
         <input
           type="number"
+          value={settings.results.displayScore.totalPoints}
+          className="w-10 border-2"
+          onChange={handleTotalPoints}
+        />
+          Total Points
+      </p>
+      <p className="ml-10 mt-3 flex gap-2">
+         {" "}
+        <input
+          type="number"
           value={settings.results.displayScore.passPercentage}
           className="w-10 border-2"
           onChange={handlePassPercentageChange}
         />
           Pass percentage(%)
       </p>
-      <p className="ml-10 mt-3 flex gap-2">
+      <p className="ml-10 mt-3 flex gap-2 items-center">
          {" "}
         <input
           type="checkbox"
-          checked={settings.results.displayScore.negativeMarking}
-          onChange={handleNegativeMarkingChange}
+          checked={settings.results.displayScore.negativeMarking !== 0}
+          onChange={(e) => handleNegativeMarkingToggle(e.target.checked)}
         />
-          Enable negative marking
+          Negative Marking  {" "}
+        <select
+          disabled={settings.results.displayScore.negativeMarking === 0}
+          value={settings.results.displayScore.negativeMarking}
+          onChange={(e) => handleNegativeMarkingValueChange(e.target.value)}
+          className="border-2"
+        >
+          <option value="0.25">0.25</option> <option value="0.5">0.5</option>
+          <option value="1">1</option> {" "}
+        </select>
       </p>
 
       <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
@@ -544,16 +613,68 @@ const ConfigureSettings = ({ setActiveTab, coverFile }) => {
           Enable webcam
         </p>
       </div>
-
-      <div
-        className="w-full h-10 mt-5 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
-        onClick={() => {
-          setActiveTab("finish");
-          dispatch(setSettings(settings));
-        }}
-      >
-        Save & Next
-      </div>
+      {isOpen ? (
+        <div
+          className="w-full h-10 mt-5 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
+          onClick={() => {
+            setisOpen(!isOpen);
+            updateExam(id, settings);
+          }}
+        >
+          Update
+        </div>
+      ) : (
+        <div
+          className="w-full h-10 mt-5 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
+          onClick={() => {
+            setActiveTab("finish");
+            dispatch(setSettings(settings));
+            setLocalSettings({
+              availability: {
+                timeLimitDays: {
+                  from: "",
+                  to: "",
+                },
+                permanent: false,
+                lateTime: "",
+              },
+              examTakenTimes: {
+                type: "unlimited",
+                multiple: 0,
+              },
+              answerTimeControl: {
+                type: "fixed",
+                examTime: time.examTime,
+                questionTime: time.questionTime,
+              },
+              assignExamTo: {
+                specificUsers: [],
+              },
+              autoSubmit: {
+                disableAutoSubmit: true,
+                autoSubmitAtEnd: false,
+              },
+              results: {
+                displayScore: {
+                  enabled: true,
+                  showRankingList: false,
+                  totalPoints: 0,
+                  passPercentage: 0,
+                  negativeMarking: 0,
+                },
+              },
+              antiCheating: {
+                switchingScreen: 0,
+                copyPastePrevention: false,
+                forceFullscreen: false,
+                webcam: false,
+              },
+            });
+          }}
+        >
+          Save & Next
+        </div>
+      )}
     </div>
   );
 };

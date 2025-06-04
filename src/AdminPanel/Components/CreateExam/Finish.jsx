@@ -177,14 +177,16 @@ const Preview = ({ setIsOpen, data, coverFile }) => {
               : "No"}
           </p>
           <p>
+            <strong>Total Points:</strong>{" "}
+            {data.settings?.results?.displayScore?.totalPoints}
+          </p>
+          <p>
             <strong>Pass Percentage:</strong>{" "}
             {data.settings?.results?.displayScore?.passPercentage}%
           </p>
           <p>
             <strong>Negative Marking:</strong>{" "}
-            {data.settings?.results?.displayScore?.negativeMarking
-              ? "Yes"
-              : "No"}
+            {data.settings?.results?.displayScore?.negativeMarking}
           </p>
         </div>
         <div className="mt-4 space-y-2">
