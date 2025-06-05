@@ -4,40 +4,66 @@ import { GoPlus } from "react-icons/go";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
 import { IoIosClose } from "react-icons/io";
+
 import ConfigureSettings from "../Components/CreateExam/ConfigureSettings";
 
+import { useNavigate } from "react-router-dom";
+import { LuExternalLink } from "react-icons/lu";
+
 const ExamPage = ({ onCreateExam }) => {
+  const navigate = useNavigate();
   const [status, setStatus] = useState("all status");
   const [exam, setExam] = useState([]);
   const [isOpen, setisOpen] = useState(false);
   const [id, setId] = useState("");
+  const [search, setSearch] = useState("");
+
+  const fetchExams = () => {
+    axios
+      .get("http://localhost:3000/getexam")
+      .then((res) => {
+        const today = new Date().toISOString().split("T")[0];
+
+        const updatedExams = res.data.map((exam) => {
+          const { from, to } = exam.settings.availability.timeLimitDays;
+
+          const fromDate = new Date(from).toISOString().split("T")[0];
+          const toDate = new Date(to).toISOString().split("T")[0];
+
+          const isActive =
+            fromDate && toDate && today >= fromDate && today <= toDate;
+
+          return {
+            ...exam,
+            status: isActive ? "active" : "inactive",
+          };
+        });
+
+        setExam(updatedExams);
+      })
+      .catch((err) => console.log(err));
+  };
+  console.log(exam);
 
   useEffect(() => {
-    if (!isOpen) {
-      axios
-        .get("http://localhost:3000/getexam")
-        .then((res) => {
-          const today = new Date().toISOString().split("T")[0];
+    fetchExams();
+  }, [isOpen, id]);
 
-          const updatedExams = res.data.map((exam) => {
-            const { from, to } = exam.settings.availability.timeLimitDays;
+  const deleteExam = (id) => {
+    axios
+      .delete(`http://localhost:3000/deleteexam/${id}`)
+      .then((res) => {
+        console.log("Deleted:", res.data);
+        fetchExams();
+      })
+      .catch((err) => console.log(err));
+  };
 
-            if (from && to && today >= from && today <= to) {
-              return { ...exam, status: "active" };
-            } else {
-              return { ...exam, status: "inactive" };
-            }
-          });
-
-          setExam(updatedExams);
-        })
-        .catch((err) => console.log(err));
-    }
-  }, [isOpen]);
-  const filteredExams = exam.filter((e) =>
-    status === "all status" ? true : e.status === status
+  const filteredExams = exam.filter(
+    (e) =>
+      (status === "all status" || e.status === status) &&
+      e.basicInfo.title.toLowerCase().includes(search.toLowerCase())
   );
-
 
   return (
     <div className="w-full h-full bg-aliceblue flex gap-5 overflow-y-auto hide-scrollbar">
@@ -52,8 +78,9 @@ const ExamPage = ({ onCreateExam }) => {
           <div className="flex items-center gap-2">
             <input
               type="text"
-              className="border border-gray-300 rounded-lg p-2"
+              className="border border-gray-300 rounded-lg p-2 text-sm"
               placeholder="Search"
+              onChange={(e) => setSearch(e.target.value)}
             />
             <select
               value={status}
@@ -70,7 +97,7 @@ const ExamPage = ({ onCreateExam }) => {
           return (
             <div
               key={i}
-              className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex items-center sm:gap-1 xl:gap-3 border-t-1 border-gray-300"
+              className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex items-center sm:gap-1 xl:gap-2 border-t-1 border-gray-300"
             >
               <img
                 src={`http://localhost:3000/public${item.basicInfo.coverPreview}`}
@@ -79,7 +106,14 @@ const ExamPage = ({ onCreateExam }) => {
               />
               <div>
                 <div className="flex items-center justify-between text-lg font_primary font-semibold">
-                  <p>{item.basicInfo.title}</p>{" "}
+                  <p className="flex items-center gap-2">
+                    {item.basicInfo.title}{" "}
+                    <LuExternalLink
+                      className="cursor-pointer"
+                      color="green"
+                      onClick={() => navigate("takenlist")}
+                    />
+                  </p>{" "}
                   <p
                     className={`text-xs font-semibold px-2 py-1 rounded ${
                       item.status === "active"
@@ -102,7 +136,7 @@ const ExamPage = ({ onCreateExam }) => {
                   <p className="sm:hidden md:block">
                     Questions Count: {item.questionsCount} |
                   </p>
-                  <p className="sm:hidden md:block">
+                  <p className="sm:hidden lg:block">
                     Late Time: {item.settings.availability.lateTime} sec |
                   </p>
                   <p className="sm:hidden xl:block">
@@ -123,7 +157,13 @@ const ExamPage = ({ onCreateExam }) => {
                       - {item.settings.availability.timeLimitDays.to}
                     </p>
                   </div>
-                  <p className="md:ml-30">Questions</p> |<p>Statistics</p>
+                  <p
+                    className="md:ml-30 hover:underline cursor-pointer"
+                    onClick={() => navigate('examquestion')}
+                  >
+                    Questions
+                  </p>{" "}
+                  |<p>Statistics</p>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-5 pl-2 sm:pr-1 md:pr-0 border-l-1 border-gray-500">
@@ -135,7 +175,11 @@ const ExamPage = ({ onCreateExam }) => {
                     setId(item._id);
                   }}
                 />
-                <MdOutlineDelete className="cursor-pointer" color="red" />
+                <MdOutlineDelete
+                  className="cursor-pointer"
+                  color="red"
+                  onClick={() => deleteExam(item._id)}
+                />
               </div>
               {isOpen && (
                 <UpdatePage

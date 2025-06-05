@@ -10,9 +10,16 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const time = useSelector((state) => state.exam.settings);
   useEffect(() => {
     if (isOpen && id) {
-      axios.get(`http://localhost:3000/getexam/${id}`).then((res) => {
-        setLocalSettings(res.data.settings);
-      });
+      axios
+        .get(`http://localhost:3000/getexam/${id}`)
+        .then((res) => {
+          if (res.data?.settings) {
+            setLocalSettings(res.data.settings);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch settings:", err);
+        });
     }
   }, [isOpen, id]);
 

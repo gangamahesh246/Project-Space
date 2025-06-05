@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense } from "react";
+import { Routes, Route } from "react-router-dom";
 import { MdSpaceDashboard } from "react-icons/md";
 import { FaPencilAlt } from "react-icons/fa";
 import { RiBookShelfFill } from "react-icons/ri";
@@ -8,6 +9,9 @@ import { IoSettings } from "react-icons/io5";
 import { LuLogOut } from "react-icons/lu";
 import { IoNotifications } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
+
+import TakenList from "./Components/Takenlist/TakenList";
+import ExamQuestions from "./Components/Takenlist/ExamQuestions";
 
 const ExamPage = React.lazy(() =>
   import("./pages/ExamPage")
@@ -55,7 +59,12 @@ const MainPanel = () => {
       case "dashboard":
         return ;
       case "exam":
-        return <ExamPage onCreateExam={() => setactiveTab("create-exam") } />;
+        return (
+        <Routes>
+          <Route path="*" element={<ExamPage onCreateExam={() => setactiveTab("create-exam")} />} />
+          <Route path="takenlist" element={<TakenList />} />
+        </Routes>
+      );
       case "questions":
         return <div>Questions Component</div>;
       case "students":
@@ -65,7 +74,7 @@ const MainPanel = () => {
       case "create-exam":
         return <StepWrapper setactiveTab={setactiveTab} />
       default:
-        return <div>Select a tab to view content</div>;
+        return ;
     }
   };
 
@@ -78,9 +87,10 @@ const MainPanel = () => {
             <img src="Qube.png" alt="Logo" />
           </div>
           <div className="w-full h-[350px] flex flex-col justify-evenly items-center mt-5 lg:border-r-1 lg:border-[#a4bfce]">
-            {dashboardNavs.map((navs) => {
+            {dashboardNavs.map((navs, i) => {
               return (
                 <div
+                key={i}
                   className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer"
                   style={
                     activeTab === navs.name
