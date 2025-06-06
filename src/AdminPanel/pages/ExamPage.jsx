@@ -10,7 +10,7 @@ import ConfigureSettings from "../Components/CreateExam/ConfigureSettings";
 import { useNavigate } from "react-router-dom";
 import { LuExternalLink } from "react-icons/lu";
 
-const ExamPage = ({ onCreateExam }) => {
+const ExamPage = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState("all status");
   const [exam, setExam] = useState([]);
@@ -71,7 +71,7 @@ const ExamPage = ({ onCreateExam }) => {
         <div className="w-full h-16 bg-white shadow-lg flex items-center justify-between px-4">
           <button
             className="bg-green-500 p-2 rounded-lg flex items-center gap-1 cursor-pointer text-aliceblue"
-            onClick={onCreateExam}
+            onClick={() => {navigate("/exam/create-exam")}}
           >
             <GoPlus size={20} /> <p className="sm:hidden md:block">New exam</p>
           </button>
@@ -97,7 +97,7 @@ const ExamPage = ({ onCreateExam }) => {
           return (
             <div
               key={i}
-              className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex items-center sm:gap-1 xl:gap-2 border-t-1 border-gray-300"
+              className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex justify-evenly items-center sm:gap-1 xl:gap-2 border-t-1 border-gray-300"
             >
               <img
                 src={`http://localhost:3000/public${item.basicInfo.coverPreview}`}
@@ -136,7 +136,7 @@ const ExamPage = ({ onCreateExam }) => {
                   <p className="sm:hidden md:block">
                     Questions Count: {item.questionsCount} |
                   </p>
-                  <p className="sm:hidden lg:block">
+                  <p className="sm:hidden md:block">
                     Late Time: {item.settings.availability.lateTime} sec |
                   </p>
                   <p className="sm:hidden xl:block">

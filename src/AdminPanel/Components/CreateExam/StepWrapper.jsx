@@ -55,7 +55,7 @@ const StepWrapper = ({setactiveTab}) => {
       case "customizedSettings":
         return <ConfigureSettings setActiveTab={setActiveTab} coverFile={coverFile} />;
       case "finish":
-        return <Finish coverFile={coverFile} setactiveTab={setactiveTab} />;
+        return <Finish coverFile={coverFile} />;
       default:
         return <BasicInfo />;
     }

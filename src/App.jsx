@@ -1,18 +1,15 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MainPanel from "./AdminPanel/MainPanel";
-import TakenList from "./AdminPanel/Components/Takenlist/TakenList";
-import ExamQuestions from "./AdminPanel/Components/Takenlist/ExamQuestions";
 
 const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainPanel />}>
-          <Route path="takenlist" element={<TakenList />} />
-        </Route>
-      </Routes>
-    </Router>
-  );
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route path="/*" element={<MainPanel />} /> 
+      </Routes>
+    </Router>
+  );
 };
 
 export default App;

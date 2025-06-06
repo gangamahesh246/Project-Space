@@ -4,8 +4,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { IoIosClose } from "react-icons/io";
 import { resetExamState } from "../../../slices/ExamSlice";
+import { useNavigate } from "react-router-dom";
 
-const Finish = ({ coverFile, setactiveTab }) => {
+
+const Finish = ({ coverFile }) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const data = useSelector((state) => state.exam);
   console.log(data);
@@ -39,7 +42,9 @@ const Finish = ({ coverFile, setactiveTab }) => {
       console.log("Published Successfully", response.data);
       alert("Exam published successfully!");
       dispatch(resetExamState());
-      setactiveTab("exam");
+      setTimeout(() => {
+      navigate("/exam");
+    }, 5000);
     } catch (err) {
       console.error("Publish failed", err);
       alert("Failed to publish exam");

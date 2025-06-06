@@ -2,7 +2,7 @@ import React from 'react'
 
 const StudentsPage = () => {
   return (
-    <div>
+    <div className='w-full h-full bg-red-400'>
       
     </div>
   )

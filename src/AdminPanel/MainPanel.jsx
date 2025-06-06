@@ -1,5 +1,6 @@
-import React, { useState, useEffect, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { MdSpaceDashboard } from "react-icons/md";
 import { FaPencilAlt } from "react-icons/fa";
 import { RiBookShelfFill } from "react-icons/ri";
@@ -10,38 +11,24 @@ import { LuLogOut } from "react-icons/lu";
 import { IoNotifications } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
 
-import TakenList from "./Components/Takenlist/TakenList";
-import ExamQuestions from "./Components/Takenlist/ExamQuestions";
-
-const ExamPage = React.lazy(() =>
-  import("./pages/ExamPage")
-);
-const StepWrapper = React.lazy(() => import("./Components/CreateExam/StepWrapper"))
+import DashBoard from "./pages/DashBoard";
+import ExamPage from "./pages/ExamPage";
+import QuestionsPage from "./pages/QuestionsPage";
+import StudentsPage from "./pages/StudentsPage";
+import StepWrapper from "./Components/CreateExam/StepWrapper";
 
 let dashboardNavs = [
-  {
-    name: "dashboard",
-    icon: <MdSpaceDashboard />,
-  },
-  {
-    name: "exam",
-    icon: <FaPencilAlt />,
-  },
-  {
-    name: "questions",
-    icon: <RiBookShelfFill />,
-  },
-  {
-    name: "students",
-    icon: <IoPersonSharp />,
-  },
-  {
-    name: "more",
-    icon: <LuBlocks />,
-  },
+  { name: "dashboard", icon: <MdSpaceDashboard /> },
+  { name: "exam", icon: <FaPencilAlt /> },
+  { name: "questions", icon: <RiBookShelfFill /> },
+  { name: "students", icon: <IoPersonSharp /> },
+  { name: "more", icon: <LuBlocks /> },
 ];
 
 const MainPanel = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [activeTab, setactiveTab] = useState("dashboard");
   const [menu, setMenu] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -52,100 +39,116 @@ const MainPanel = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const isSidebarVisible = windowWidth < 480 || windowWidth > 768 || menu;
+  useEffect(() => {
+    const firstSegment = location.pathname.split("/")[1] || "dashboard";
 
-  const renderActiveComponent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return ;
-      case "exam":
-        return (
-        <Routes>
-          <Route path="*" element={<ExamPage onCreateExam={() => setactiveTab("create-exam")} />} />
-          <Route path="takenlist" element={<TakenList />} />
-        </Routes>
-      );
-      case "questions":
-        return <div>Questions Component</div>;
-      case "students":
-        return <div>Students Component</div>;
-      case "more":
-        return <div>More Component</div>;
-      case "create-exam":
-        return <StepWrapper setactiveTab={setactiveTab} />
-      default:
-        return ;
+    if (dashboardNavs.some(nav => nav.name === firstSegment)) {
+      setactiveTab(firstSegment);
+    } else {
+      setactiveTab("");
     }
-  };
+  }, [location.pathname]);''
+const isMobile = windowWidth <= 768;
+const isSidebarAnimated = isMobile && menu;
+const isSidebarVisible = !isMobile || menu; // visible always on large screen or menu open on mobile
+
+  
 
   return (
-    <div className="w-full h-screen bg-aliceblue p-3">
+    <div className="w-full h-screen bg-aliceblue">
       <div className="w-full h-full shadow-2xl overflow-hidden flex">
+        <AnimatePresence>
         {isSidebarVisible && (
-        <div className="sm:w-2/4 md:w-2/6 md:h-fit sm:absolute sm:z-50 xl:w-1/5 lg:h-full lg:relative lg:block lg:pt-5 bg-primary" id="sidebar">
-          <div className="sm:w-[170px] sm:h-[40px] sm:mt-5 lg:mt-0 lg:w-[220px] lg:h-[70px] flex justify-center items-center">
-            <img src="Qube.png" alt="Logo" />
-          </div>
-          <div className="w-full h-[350px] flex flex-col justify-evenly items-center mt-5 lg:border-r-1 lg:border-[#a4bfce]">
-            {dashboardNavs.map((navs, i) => {
-              return (
-                <div
-                key={i}
-                  className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer"
-                  style={
-                    activeTab === navs.name
-                      ? { border: "2px solid #a4bfce" }
-                      : {}
-                  }
-                  onClick={() => {setactiveTab(navs.name); setMenu(false)}}
-                >
-                  {navs.icon}
-                  <p className="ml-3 font_primary font-semibold capitalize tracking-wide">
-                    {navs.name}
-                  </p>
+          <motion.div
+            initial={isSidebarAnimated ? { x: "-100%" } : false}
+            animate={isSidebarAnimated ? { x: 0 } : false}
+            exit={isSidebarAnimated ? { x: "-100%" } : false}
+            transition={isSidebarAnimated ? { duration: 0.3 } : false}
+            className="sm:w-2/4 md:w-2/6 md:h-fit sm:absolute sm:z-50 xl:w-1/6 lg:h-full lg:relative lg:block lg:pt-5 bg-primary"
+            id="sidebar"
+          >
+            <div className="sm:w-[170px] sm:h-[40px] sm:mt-5 lg:mt-0 lg:w-[220px] lg:h-[70px] flex justify-center items-center">
+              <img src="Qube.png" alt="Logo" />
+            </div>
+            <div className="w-full h-[350px] flex flex-col justify-evenly items-center mt-5 lg:border-r-1 lg:border-[#a4bfce]">
+              {dashboardNavs.map((navs, i) => {
+                const isActive = activeTab === navs.name;
+                return (
+                  <div
+                    key={i}
+                    className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer"
+                    style={isActive ? { border: "2px solid #a4bfce" } : {}}
+                    onClick={() => {
+                      setMenu(false);
+                      navigate(`/${navs.name}`, { replace: false });
+                    }}
+                  >
+                    {navs.icon}
+                    <p className="ml-3 font_primary font-semibold capitalize tracking-wide">
+                      {navs.name}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="w-full h-fit pt-5 mt-5 flex flex-col justify-center items-center lg:border-r-1 lg:border-[#a4bfce]">
+              <div className="w-5/6 h-fit flex flex-col justify-evenly items-center border-t-2 border-[#a4bfce]">
+                <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
+                  <IoSettings size={17} />
+                  <p className="ml-3 font_primary font-semibold">Add Admin</p>
                 </div>
-              );
-            })}
-          </div>
-          <div className="w-full h-fit pt-5 mt-5 flex flex-col justify-center items-center lg:border-r-1 lg:border-[#a4bfce]">
-            <div className="w-5/6 h-fit flex flex-col justify-evenly items-center border-t-2 border-[#a4bfce]">
-              <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
-                <IoSettings size={17} />
-                <p className="ml-3 font_primary font-semibold">Add Admin</p>
-              </div>
-              <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
-                <LuLogOut size={17} />
-                <p className="ml-3 font_primary font-semibold">Logout</p>
+                <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
+                  <LuLogOut size={17} />
+                  <p className="ml-3 font_primary font-semibold">Logout</p>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
         )}
-        <div className="sm:w-full sm:p-5 bg-primary xl:w-4/5 xl:p-10">
+        </AnimatePresence>
+        <div className="sm:w-full sm:p-5 bg-primary xl:w-5/6 xl:p-8">
           <div className="w-full h-11 flex justify-between items-center pb-5 border-b-1 border-[#a4bfce]">
             <div className="flex justify-center items-center gap-2">
-              <HiMenu className="sm:block lg:hidden" size={25} color="#a4bfce" onClick={() => {setMenu(!menu); console.log(menu)}} />
+              <HiMenu
+                className="sm:block lg:hidden"
+                size={25}
+                color="#a4bfce"
+                onClick={() => {
+                  setMenu(!menu);
+                }}
+              />
               <p className="text-sm font_primary text-[#a4bfce]">
                 Welcome back, Mahesh🖐️
               </p>
             </div>
             <div className="flex justify-center items-center gap-2">
               <IoNotifications size={20} color="#a4bfce" />
-              <div className="w-10 h-10 rounded-full bg-[url('/profile.jpg')] bg-no-repeat bg-cover border-1 border-[#a4bfce]"></div>
-              <p className="font_primary text-sm text-[#a4bfce]">
-                Mahesh Karanam
-              </p>
+              <div
+                className="w-10 h-10 rounded-full bg-[url('/profile.jpg')] bg-no-repeat bg-cover border-1 border-[#a4bfce]"
+                alt="profile"
+              ></div>
+              <p className="font_primary text-sm text-[#a4bfce]">Mahesh Karanam</p>
             </div>
           </div>
           <div className="w-full h-11/12  overflow-auto hide-scrollbar md:mt-5">
-            <p className="capitalize sm:text-2xl xl:text-[30px] font_primary text-aliceblue tracking-wide"
-              style={activeTab === "dashboard" ? { display: "block" } : { display: "none"}}
-              >
+            <p
+              className="capitalize sm:text-2xl xl:text-[30px] font_primary text-aliceblue tracking-wide"
+              style={activeTab === "dashboard" ? { display: "block" } : { display: "none" }}
+            >
               {activeTab}
             </p>
-            <Suspense fallback={<div>Loading...</div>}>
-              {renderActiveComponent()}
-            </Suspense>
+            <Routes>
+              <Route path="dashboard" element={<DashBoard />} />
+              <Route path="questions" element={<QuestionsPage />} />
+              <Route path="students" element={<StudentsPage />} />
+
+              <Route path="exam">
+                <Route index element={<ExamPage />} />
+                <Route path="create-exam" element={<StepWrapper />} />
+              </Route>
+
+              <Route path="*" element={<p className="text-red-500">Page Not Found</p>} />
+            </Routes>
           </div>
         </div>
       </div>
