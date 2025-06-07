@@ -70,7 +70,7 @@ const ExamPage = () => {
       <div className="w-full h-full">
         <div className="w-full h-16 bg-white shadow-lg flex items-center justify-between px-4">
           <button
-            className="bg-green-500 p-2 rounded-lg flex items-center gap-1 cursor-pointer text-aliceblue"
+            className="bg-green-500 p-2 rounded-sm flex items-center gap-1 cursor-pointer text-aliceblue"
             onClick={() => {navigate("/exam/create-exam")}}
           >
             <GoPlus size={20} /> <p className="sm:hidden md:block">New exam</p>
