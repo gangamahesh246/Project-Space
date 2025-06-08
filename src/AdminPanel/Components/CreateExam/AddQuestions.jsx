@@ -58,7 +58,9 @@ const AddQuestions = ({ setActiveTab }) => {
             keys["optionc"],
             keys["optiond"],
           ],
-          correct: keys["correctanswer"],
+          correct: Array.isArray(keys["correctanswer"])
+            ? keys["correctanswer"]
+            : [keys["correctanswer"]],
           marks: keys["marks"]
         };
       });

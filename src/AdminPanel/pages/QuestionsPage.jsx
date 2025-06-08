@@ -6,12 +6,18 @@ import { TiFolderAdd } from "react-icons/ti";
 import { FaFolderOpen } from "react-icons/fa";
 import { GoPlus } from "react-icons/go";
 import { TbFileUpload } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
+
 
 const QuestionsPage = () => {
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [isActive, setIsActive] = useState("all");
   const [search, setSearch] = useState("");
+  const [show, setShow] = useState(false);
+  const [upload, setUpload] = useState(false);
   const [searchCategory, setSearchCategory] = useState("");
+  const [addCategory, setAddCategory] = useState("");
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -30,7 +36,7 @@ const QuestionsPage = () => {
   const filteredQuestions = (
     isActive === "all"
       ? questions.flatMap((q) => q.questions)
-      : questions.find((q) => q.category === isActive)?.questions || []
+      : questions.find((q) => q.category === isActive)?.questions || [] || setUpload(true)
   ).filter(
     (q) =>
       q.question.toLowerCase().includes(search.toLowerCase()) ||
@@ -39,11 +45,11 @@ const QuestionsPage = () => {
 
   const AddCategory = () => {
     axios
-      .post("http://localhost:3000/addcategory", { category: searchCategory })
+      .post("http://localhost:3000/addcategory", { category: addCategory })
       .then((response) => {
         console.log(response.data);
-        setCategories([...categories, searchCategory]);
-        setSearchCategory("");
+        setCategories([...categories, addCategory]);
+        setAddCategory("");
       })
       .catch((error) => {
         console.log(error);
@@ -71,9 +77,20 @@ const QuestionsPage = () => {
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold">Question categories</p>
           <p className="text-xl font-bold text-gray-500">
-            <TiFolderAdd className="cursor-pointer" onClick={AddCategory}/>
+            <TiFolderAdd className="cursor-pointer" onClick={() => setShow(!show)}/>
           </p>
         </div>
+        {show && 
+        <div className="flex justify-between items-center gap-2">
+          <input
+            type="text"
+            placeholder="Add category"
+            className="text-sm font-semibold outline-none border-1 border-gray-500 rounded-lg shadow-2xl p-1 bg-white "
+            value={addCategory}
+            onChange={(e) => setAddCategory(e.target.value)}
+          />
+          <button className="text-sm font-semibold py-1 px-3 bg-blue-500 rounded text-white cursor-pointer outline-none " onClick={AddCategory}>Add</button>
+        </div>}
         <div className="w-full flex flex-col">
           <div
             className={`flex items-center text-[12px] font-semibold h-7 pl-5 gap-2 capitalize cursor-pointer
@@ -113,10 +130,14 @@ const QuestionsPage = () => {
       <div className="w-full h-full bg-white rounded-lg shadow-lg p-5 overflow-y-auto hide-scrollbar">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <button className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white">
+            <button 
+            onClick={() => {navigate("/questions/add-question")}}
+            className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white">
               <GoPlus /> New question
             </button>
-            <button className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500">
+            <button 
+            onClick={() => {navigate("/questions/upload-questions")}}
+            className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500">
               <TbFileUpload size={20} /> Add questions
             </button>
           </div>

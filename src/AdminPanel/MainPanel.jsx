@@ -16,6 +16,9 @@ import ExamPage from "./pages/ExamPage";
 import QuestionsPage from "./pages/QuestionsPage";
 import StudentsPage from "./pages/StudentsPage";
 import StepWrapper from "./Components/CreateExam/StepWrapper";
+import AddQuestion from "./Components/QuestionsPage/AddQuestion";
+import UploadQuestions from "./Components/QuestionsPage/UploadQuestions";
+import AddQuestions from "./Components/CreateExam/AddQuestions";
 
 let dashboardNavs = [
   { name: "dashboard", icon: <MdSpaceDashboard /> },
@@ -139,13 +142,16 @@ const isSidebarVisible = !isMobile || menu; // visible always on large screen or
             </p>
             <Routes>
               <Route path="dashboard" element={<DashBoard />} />
-              <Route path="questions" element={<QuestionsPage />} />
-              <Route path="students" element={<StudentsPage />} />
-
               <Route path="exam">
                 <Route index element={<ExamPage />} />
                 <Route path="create-exam" element={<StepWrapper />} />
               </Route>
+              <Route path="questions">
+                <Route index element={<QuestionsPage />} />
+                <Route path="add-question" element={<AddQuestion />} />
+                <Route path="upload-questions" element={<UploadQuestions />} />
+              </Route>
+              <Route path="students" element={<StudentsPage />} />
 
               <Route path="*" element={<p className="text-red-500">Page Not Found</p>} />
             </Routes>
