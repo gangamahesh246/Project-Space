@@ -7,64 +7,67 @@ import { FaFolderOpen } from "react-icons/fa";
 import { GoPlus } from "react-icons/go";
 import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
+import { MdOutlineDelete } from "react-icons/md";
 
+import AddQuestion from "../Components/QuestionsPage/AddQuestion";
 
 const QuestionsPage = () => {
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [isActive, setIsActive] = useState("all");
   const [search, setSearch] = useState("");
-  const [show, setShow] = useState(false);
-  const [upload, setUpload] = useState(false);
   const [searchCategory, setSearchCategory] = useState("");
-  const [addCategory, setAddCategory] = useState("");
   const [categories, setCategories] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     axios
       .get("http://localhost:3000/getquestions")
       .then((response) => {
         setQuestions(response.data);
-        const allCats = response.data.map((q) => q.category);
+        const allCats = [...new Set(response.data.map((q) => q.category))];
         setCategories(allCats);
       })
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+  }, [questions]);
 
   const filteredQuestions = (
     isActive === "all"
       ? questions.flatMap((q) => q.questions)
-      : questions.find((q) => q.category === isActive)?.questions || [] || setUpload(true)
+      : questions.find((q) => q.category === isActive)?.questions || []
   ).filter(
     (q) =>
       q.question.toLowerCase().includes(search.toLowerCase()) ||
       q.options.some((opt) => opt.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const AddCategory = () => {
+  const deleteCategory = (category) => {
     axios
-      .post("http://localhost:3000/addcategory", { category: addCategory })
+      .delete('http://localhost:3000/deletecategory', { data: { category } })
       .then((response) => {
         console.log(response.data);
-        setCategories([...categories, addCategory]);
-        setAddCategory("");
+        setQuestions((prevQuestions) =>
+          prevQuestions.filter((q) => q.category !== isActive)
+        );
+        setIsActive("all");
       })
       .catch((error) => {
         console.log(error);
       });
   }
+
   return (
     <div className="w-full h-full bg-aliceblue flex gap-3 overflow-y-auto hide-scrollbar p-3">
-      <div className="w-1/3 h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg p-5">
+      <div className={`${isOpen ? "w-15 transition-all duration-300" : "w-1/3 transition-all duration-300"} h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg p-5`}>
         <div className="flex justify-between items-center">
-          <p className="text-xl font-bold">Questions</p>
+          <p className={`${isOpen ? "hidden" : "text-xl font-bold"}`}>Questions</p>
           <p className="text-xl font-bold text-gray-500">
-            <RiMenuFoldFill />
+            <RiMenuFoldFill className="cursor-pointer" onClick={() => setIsOpen(!isOpen)} />
           </p>
         </div>
-        <div className=" w-full h-10 flex justify-around items-center border-1 border-gray-500 rounded-lg">
+        <div className={`${isOpen ? "hidden" : "w-full h-10 flex justify-around items-center border-1 border-gray-500 rounded-lg"}`}>
           <input
             type="text"
             placeholder="Search category"
@@ -74,24 +77,13 @@ const QuestionsPage = () => {
           />
           <CiSearch color="green" />
         </div>
-        <div className="flex justify-between items-center">
+        <div className={`${isOpen ? "hidden" : "flex justify-between items-center"}`}>
           <p className="text-lg font-semibold">Question categories</p>
           <p className="text-xl font-bold text-gray-500">
-            <TiFolderAdd className="cursor-pointer" onClick={() => setShow(!show)}/>
+            <TiFolderAdd />
           </p>
         </div>
-        {show && 
-        <div className="flex justify-between items-center gap-2">
-          <input
-            type="text"
-            placeholder="Add category"
-            className="text-sm font-semibold outline-none border-1 border-gray-500 rounded-lg shadow-2xl p-1 bg-white "
-            value={addCategory}
-            onChange={(e) => setAddCategory(e.target.value)}
-          />
-          <button className="text-sm font-semibold py-1 px-3 bg-blue-500 rounded text-white cursor-pointer outline-none " onClick={AddCategory}>Add</button>
-        </div>}
-        <div className="w-full flex flex-col">
+        <div className={`${isOpen ? "hidden" : "w-full flex flex-col"}`}>
           <div
             className={`flex items-center text-[12px] font-semibold h-7 pl-5 gap-2 capitalize cursor-pointer
               ${
@@ -106,14 +98,15 @@ const QuestionsPage = () => {
           </div>
           {categories
             .filter((cat) =>
-              cat.toLowerCase().includes(searchCategory.toLowerCase())
+              cat.toLowerCase().includes(searchCategory.toLowerCase().trim())
             )
             .map((cat, idx) => {
               return (
+                <div className="flex justify-between items-center">
                 <div
                   key={idx}
                   onClick={() => setIsActive(cat)}
-                  className={`flex items-center text-[12px] font-semibold h-7 pl-5 gap-2 capitalize cursor-pointer
+                  className={`w-full flex items-center text-[12px] font-semibold h-7 pl-5 gap-2 capitalize cursor-pointer
                 ${
                   isActive === cat
                     ? "bg-green-100 text-green-500"
@@ -123,6 +116,8 @@ const QuestionsPage = () => {
                   <FaFolderOpen size={18} className="text-green-500" />
                   <p>{cat}</p>
                 </div>
+                  <MdOutlineDelete className="cursor-pointer" size={18} color="red" onClick={() => deleteCategory(cat)} />
+                </div>
               );
             })}
         </div>
@@ -130,14 +125,32 @@ const QuestionsPage = () => {
       <div className="w-full h-full bg-white rounded-lg shadow-lg p-5 overflow-y-auto hide-scrollbar">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <button 
-            onClick={() => {navigate("/questions/add-question")}}
-            className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white">
+            <button
+              onClick={() => {
+                if (isActive !== "all") {
+                  navigate("/questions/add-question", {
+                    state: { selectedCategory: isActive },
+                  });
+                } else {
+                  navigate("/questions/add-question");
+                }
+              }}
+              className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
+            >
               <GoPlus /> New question
             </button>
-            <button 
-            onClick={() => {navigate("/questions/upload-questions")}}
-            className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500">
+            <button
+              onClick={() => {
+                if (isActive !== "all") {
+                  navigate("/questions/upload-questions", {
+                    state: { selectedCategory: isActive },
+                  });
+                } else {
+                  navigate("/questions/upload-questions");
+                }
+              }}
+              className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
+            >
               <TbFileUpload size={20} /> Add questions
             </button>
           </div>
@@ -178,8 +191,9 @@ const QuestionsPage = () => {
                     ))}
                   </p>
                 </div>
-                <p className="text-[12px] text-blue-500 ml-5 cursor-pointer whitespace-nowrap">
-                  Modify
+                <p
+                  className="text-[12px] text-blue-500 ml-5 cursor-pointer whitespace-nowrap"
+                >
                 </p>
               </div>
             );
@@ -191,3 +205,4 @@ const QuestionsPage = () => {
 };
 
 export default QuestionsPage;
+

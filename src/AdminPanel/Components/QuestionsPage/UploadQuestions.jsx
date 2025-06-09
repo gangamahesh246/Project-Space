@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 
 const UploadQuestions = () => {
+  const location = useLocation();
+  const selectcategory = location.state?.selectedCategory || "";
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(selectcategory);
+
 
   const handleFileUpload = async (e) => {
     const selectedFile = e.target.files[0];
@@ -57,7 +61,7 @@ const UploadQuestions = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:3000/postquestions",
+          "http://localhost:3000/uploadquestions",
           {
             category,
             questions: formattedQuestions,
@@ -66,7 +70,6 @@ const UploadQuestions = () => {
         console.log("Upload successful:", response.data);
         alert("Questions uploaded successfully!");
         setFile(null);
-        setCategory("");
       } catch (err) {
         console.error("Upload failed:", err);
         alert("Failed to upload questions.");
@@ -78,20 +81,20 @@ const UploadQuestions = () => {
   };
 
   return (
-    <div className="w-full h-full bg-aliceblue flex justify-center items-center">
+    <div className="w-full h-full bg-white flex justify-center items-center">
       <div className="w-1/2 h-[90%] bg-white shadow-xl rounded flex flex-col overflow-hidden">
         <div className="w-full h-15 bg-green-100 text-green-500 font-bold flex items-center pl-2">
           Upload questions via file
         </div>
 
-        <div className="flex flex-col justify-center items-center h-full gap-2">
-          <input
+        <input
             type="text"
             placeholder="Category"
-            className="w-1/2 p-2 text-sm font-semibold outline-none border-1 border-gray-500 rounded-lg"
+            className="w-50 p-2 text-sm font-semibold outline-none border-1 border-gray-500 rounded-lg m-5"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
+        <div className="flex flex-col justify-center items-center h-full gap-2 p-3">
           <TbFileUpload size={80} className="text-green-100" />
           <p className="text-gray-500 font_primary text-center text-sm">
             Drag & drop files here or select a file to upload questions in bulk

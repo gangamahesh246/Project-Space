@@ -25,13 +25,16 @@ const ExamPage = () => {
         const today = new Date().toISOString().split("T")[0];
 
         const updatedExams = res.data.map((exam) => {
-          const { from, to } = exam.settings.availability.timeLimitDays;
+          const { from, to } = exam.settings.availability.timeLimitDays || {};
 
-          const fromDate = new Date(from).toISOString().split("T")[0];
-          const toDate = new Date(to).toISOString().split("T")[0];
+          let isActive = false;
 
-          const isActive =
-            fromDate && toDate && today >= fromDate && today <= toDate;
+          if (from && to && !isNaN(new Date(from)) && !isNaN(new Date(to))) {
+            const fromDate = new Date(from).toISOString().split("T")[0];
+            const toDate = new Date(to).toISOString().split("T")[0];
+
+            isActive = today >= fromDate && today <= toDate;
+          }
 
           return {
             ...exam,
@@ -71,21 +74,23 @@ const ExamPage = () => {
         <div className="w-full h-16 bg-white shadow-lg flex items-center justify-between px-4">
           <button
             className="bg-green-500 p-2 rounded-sm flex items-center gap-1 cursor-pointer text-aliceblue"
-            onClick={() => {navigate("/exam/create-exam")}}
+            onClick={() => {
+              navigate("/exam/create-exam");
+            }}
           >
             <GoPlus size={20} /> <p className="sm:hidden md:block">New exam</p>
           </button>
           <div className="flex items-center gap-2">
             <input
               type="text"
-              className="border border-gray-300 rounded-lg p-2 text-sm"
+              className="border border-gray-300 rounded-lg p-2 text-sm outline-none"
               placeholder="Search"
               onChange={(e) => setSearch(e.target.value)}
             />
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="border border-gray-300 text-gray-500 rounded-lg p-2 cursor-pointer"
+              className="border border-gray-300 text-gray-500 rounded-lg p-2 cursor-pointer outline-none"
             >
               <option value="all status">All status</option>
               <option value="active">Active</option>
@@ -159,7 +164,7 @@ const ExamPage = () => {
                   </div>
                   <p
                     className="md:ml-30 hover:underline cursor-pointer"
-                    onClick={() => navigate('examquestion')}
+                    onClick={() => navigate("examquestion")}
                   >
                     Questions
                   </p>{" "}
