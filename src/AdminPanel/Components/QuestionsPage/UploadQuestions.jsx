@@ -102,6 +102,9 @@ const UploadQuestions = () => {
           <p className="text-gray-500 font_primary text-center text-sm">
             Supports Excel(xlsx) files.
           </p>
+          <p className="text-gray-500 font_primary text-center text-sm">
+            Note: The file should have the following columns: question, option a, option b, option c, option d, correct answer, and marks.
+          </p>
           <label
             htmlFor="fileInput"
             className="bg-green-500 text-white rounded-md font-semibold py-2 px-4 cursor-pointer text-center"

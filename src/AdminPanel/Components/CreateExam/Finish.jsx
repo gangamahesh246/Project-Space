@@ -42,9 +42,7 @@ const Finish = ({ coverFile }) => {
       console.log("Published Successfully", response.data);
       alert("Exam published successfully!");
       dispatch(resetExamState());
-      setTimeout(() => {
       navigate("/exam");
-    }, 5000);
     } catch (err) {
       console.error("Publish failed", err);
       alert("Failed to publish exam");
@@ -208,11 +206,11 @@ const Preview = ({ setIsOpen, data, coverFile }) => {
           <h3 className="text-lg font-semibold text-gray-800">Availability</h3>
           <p>
             <strong>From:</strong>{" "}
-            {data.settings?.availability?.timeLimitDays?.from}
+            {data.settings?.availability?.timeLimitDays?.from ?? "N/A"}
           </p>
           <p>
             <strong>To:</strong>{" "}
-            {data.settings?.availability?.timeLimitDays?.to}
+            {data.settings?.availability?.timeLimitDays?.to ?? "N/A"}
           </p>
           <p>
             <strong>Late Time Allowed (mins):</strong>{" "}

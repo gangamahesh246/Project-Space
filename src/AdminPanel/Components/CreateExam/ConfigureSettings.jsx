@@ -628,7 +628,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             updateExam(id, settings);
           }}
         >
-          Update
+          Publish
         </div>
       ) : (
         <div

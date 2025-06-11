@@ -6,7 +6,7 @@ import { FaPencilAlt } from "react-icons/fa";
 import { RiBookShelfFill } from "react-icons/ri";
 import { IoPersonSharp } from "react-icons/io5";
 import { LuBlocks } from "react-icons/lu";
-import { IoSettings } from "react-icons/io5";
+import { BsFillPersonPlusFill } from "react-icons/bs";
 import { LuLogOut } from "react-icons/lu";
 import { IoNotifications } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
@@ -18,7 +18,9 @@ import StudentsPage from "./pages/StudentsPage";
 import StepWrapper from "./Components/CreateExam/StepWrapper";
 import AddQuestion from "./Components/QuestionsPage/AddQuestion";
 import UploadQuestions from "./Components/QuestionsPage/UploadQuestions";
-import AddQuestions from "./Components/CreateExam/AddQuestions";
+import TakenList from "./Components/Takenlist/TakenList";
+import ExamQuestions from "./Components/Takenlist/ExamQuestions";
+import Statistics from "./Components/Takenlist/Statistics"
 
 let dashboardNavs = [
   { name: "dashboard", icon: <MdSpaceDashboard /> },
@@ -53,7 +55,7 @@ const MainPanel = () => {
   }, [location.pathname]);''
 const isMobile = windowWidth <= 768;
 const isSidebarAnimated = isMobile && menu;
-const isSidebarVisible = !isMobile || menu; // visible always on large screen or menu open on mobile
+const isSidebarVisible = !isMobile || menu;
 
   
 
@@ -97,7 +99,7 @@ const isSidebarVisible = !isMobile || menu; // visible always on large screen or
             <div className="w-full h-fit pt-5 mt-5 flex flex-col justify-center items-center lg:border-r-1 lg:border-[#a4bfce]">
               <div className="w-5/6 h-fit flex flex-col justify-evenly items-center border-t-2 border-[#a4bfce]">
                 <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
-                  <IoSettings size={17} />
+                  <BsFillPersonPlusFill size={17} />
                   <p className="ml-3 font_primary font-semibold">Add Admin</p>
                 </div>
                 <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
@@ -145,6 +147,9 @@ const isSidebarVisible = !isMobile || menu; // visible always on large screen or
               <Route path="exam">
                 <Route index element={<ExamPage />} />
                 <Route path="create-exam" element={<StepWrapper />} />
+                <Route path="takenlist/:examId" element={<TakenList />} />
+                <Route path="exam-questions/:examId" element={<ExamQuestions />} />
+                <Route path="statistics/:examId" element={<Statistics />} />
               </Route>
               <Route path="questions">
                 <Route index element={<QuestionsPage />} />

@@ -9,7 +9,6 @@ import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineDelete } from "react-icons/md";
 
-import AddQuestion from "../Components/QuestionsPage/AddQuestion";
 
 const QuestionsPage = () => {
   const navigate = useNavigate();
@@ -193,7 +192,7 @@ const QuestionsPage = () => {
                 </div>
                 <p
                   className="text-[12px] text-blue-500 ml-5 cursor-pointer whitespace-nowrap"
-                >
+                >{question.marks} {question.marks > 1 ? "Points" : "Point"}
                 </p>
               </div>
             );
