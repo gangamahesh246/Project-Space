@@ -46,7 +46,6 @@ const QuestionsPage = () => {
     axios
       .delete('http://localhost:3000/deletecategory', { data: { category } })
       .then((response) => {
-        console.log(response.data);
         setQuestions((prevQuestions) =>
           prevQuestions.filter((q) => q.category !== isActive)
         );
@@ -115,7 +114,7 @@ const QuestionsPage = () => {
                   <FaFolderOpen size={18} className="text-green-500" />
                   <p>{cat}</p>
                 </div>
-                  <MdOutlineDelete className="cursor-pointer" size={18} color="red" onClick={() => deleteCategory(cat)} />
+                  <MdOutlineDelete className="cursor-pointer hover:bg-red-100 p-[2px]" size={25} color="red" onClick={() => deleteCategory(cat)} />
                 </div>
               );
             })}
@@ -150,7 +149,7 @@ const QuestionsPage = () => {
               }}
               className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
             >
-              <TbFileUpload size={20} /> Add questions
+              <TbFileUpload size={20} /> Upload questions
             </button>
           </div>
           <div className="w-fit h-8 flex justify-around items-center border-1 border-gray-500 rounded-lg ">
@@ -191,7 +190,7 @@ const QuestionsPage = () => {
                   </p>
                 </div>
                 <p
-                  className="text-[12px] text-blue-500 ml-5 cursor-pointer whitespace-nowrap"
+                  className="text-[12px] text-blue-500 ml-5 whitespace-nowrap"
                 >{question.marks} {question.marks > 1 ? "Points" : "Point"}
                 </p>
               </div>

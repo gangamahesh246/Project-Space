@@ -13,7 +13,6 @@ const AddQuestion = () => {
   const [correctCount, setCorrectCount] = useState(1);
   const [correctAnswers, setCorrectAnswers] = useState([""]);
 
-
   const handleOptionChange = (index, value) => {
     const updatedOptions = [...options];
     updatedOptions[index] = value;
@@ -33,11 +32,11 @@ const AddQuestion = () => {
   };
 
   const handleAddQuestion = () => {
-    const correct = multipleResponse
-      ? correctAnswers.map((ans) => options[ans.charCodeAt(0) - 65])
-      : [options[correctAnswers[0].charCodeAt(0) - 65]];
+    const correct = multipleResponse ? [...correctAnswers] : [correctAnswers[0]];
 
-    const isValid = correct.every((ans) => options.includes(ans));
+    const isValid = correct.every(
+      (ans) => options.includes(ans) && ans.trim() !== ""
+    );
     if (!isValid) {
       alert("Please select valid correct answers.");
       return;
@@ -57,16 +56,8 @@ const AddQuestion = () => {
     };
 
     try {
-      if (id) {
-        axios.put(
-          `http://localhost:3000/updatequestion?text=${encodeURIComponent(id)}`,
-          newQuestionData
-        );
-        alert("Question updated successfully");
-      } else {
         axios.post("http://localhost:3000/uploadquestions", newQuestionData);
         alert("Question added successfully");
-      }
 
       setQuestion("");
       setOptions(["", "", "", ""]);
@@ -84,16 +75,16 @@ const AddQuestion = () => {
     <div className="w-full h-fit bg-white sm:p-3 xl:p-10 flex justify-center items-center">
       <div className="sm:w-78 sm:p-5 md:w-145 xl:w-4/5 h-fit xl:mx-auto bg-white shadow-lg rounded-lg xl:p-8">
         <form>
-              <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
-                Category
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Category"
-                className="w-full p-2 mb-6 ml-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              />
+          <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
+            Category
+          </label>
+          <input
+            type="text"
+            placeholder="Enter Category"
+            className="w-full p-2 mb-6 ml-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
 
           <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
             Question
