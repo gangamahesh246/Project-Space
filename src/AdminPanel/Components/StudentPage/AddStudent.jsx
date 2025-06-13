@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const AddStudent = () => {
   const location = useLocation();
@@ -11,11 +12,6 @@ const AddStudent = () => {
   const [email, setEmail] = useState("");
 
   const handleAddStudent = async () => {
-    if (!branch || !section || !email) {
-      alert("Please fill all fields");
-      return;
-    }
-
     try {
       const studentData = {
         branch,
@@ -25,12 +21,11 @@ const AddStudent = () => {
 
      const res =  await axios.post("http://localhost:3000/uploadstudent", studentData);
 
-      alert(res.data.message); 
+      toast.success(res.data.message);
 
       setEmail("");
     } catch (error) {
-      alert("Error adding student");
-      console.error(error);
+      toast.error(error?.response?.data?.message || error.message);
     }
   };
 

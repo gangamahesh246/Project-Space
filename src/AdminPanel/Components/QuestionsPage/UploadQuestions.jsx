@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const UploadQuestions = () => {
   const location = useLocation();
@@ -18,7 +19,7 @@ const UploadQuestions = () => {
     setFile(selectedFile);
 
     if (!selectedFile || !category.trim()) {
-      alert("Please select a file and enter a category first.");
+      toast.error("Please select a file and enter a category first")
       return;
     }
 
@@ -67,12 +68,10 @@ const UploadQuestions = () => {
             questions: formattedQuestions,
           }
         );
-        console.log("Upload successful:", response.data);
-        alert("Questions uploaded successfully!");
+        toast.success(response.data.message);
         setFile(null);
-      } catch (err) {
-        console.error("Upload failed:", err);
-        alert("Failed to upload questions.");
+      } catch (error) {
+        toast.err(error?.response?.data?.message || error.message)
       }
     };
 
@@ -87,10 +86,13 @@ const UploadQuestions = () => {
           Upload questions via file
         </div>
 
+        <label className="block text-md font-semibold border-l-4 border-secondary pl-2 m-3">
+            Category
+          </label>
         <input
             type="text"
             placeholder="Category"
-            className="w-50 p-2 text-sm font-semibold outline-none border-1 border-gray-500 rounded-lg m-5"
+            className="w-50 p-2 text-sm font-semibold outline-none border-1 border-gray-500 rounded-lg ml-8"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />

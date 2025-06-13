@@ -13,7 +13,7 @@ const ExamQuestions = () => {
         setExamQuestions(response.data.questions);
       })
       .catch((error) => {
-        console.log(error);
+        toast.error(error?.response?.data?.message || error.message);
       });
   }, [examId]);
   return (

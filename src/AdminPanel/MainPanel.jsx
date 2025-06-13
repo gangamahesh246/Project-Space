@@ -23,6 +23,7 @@ import ExamQuestions from "./Components/Takenlist/ExamQuestions";
 import Statistics from "./Components/Takenlist/Statistics"
 import AddStudent from "./Components/StudentPage/AddStudent";
 import UploadStudents from "./Components/StudentPage/UploadStudents";
+import StudentPersonalDetails from "./Components/StudentPage/StudentPersonalDetails";
 
 let dashboardNavs = [
   { name: "dashboard", icon: <MdSpaceDashboard /> },
@@ -162,6 +163,7 @@ const isSidebarVisible = !isMobile || menu;
                 <Route index element={<StudentsPage />} />
                 <Route path="add-student" element={<AddStudent />} />
                 <Route path="upload-students" element={<UploadStudents />} />
+                <Route path="personal-info/:studentMail" element={<StudentPersonalDetails />} />
               </Route>
 
               <Route path="*" element={<p className="text-red-500">Page Not Found</p>} />

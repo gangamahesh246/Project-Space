@@ -9,6 +9,7 @@ import ConfigureSettings from "../Components/CreateExam/ConfigureSettings";
 
 import { useNavigate } from "react-router-dom";
 import { LuExternalLink } from "react-icons/lu";
+import { toast } from "react-toastify";
 
 const ExamPage = () => {
   const navigate = useNavigate();
@@ -44,9 +45,8 @@ const ExamPage = () => {
 
         setExam(updatedExams);
       })
-      .catch((err) => console.log(err));
+      .catch((error) => toast.error(error?.response?.data?.message || error.message));
   };
-  console.log(exam);
 
   useEffect(() => {
     fetchExams();
@@ -56,10 +56,10 @@ const ExamPage = () => {
     axios
       .delete(`http://localhost:3000/deleteexam/${id}`)
       .then((res) => {
-        console.log("Deleted:", res.data);
+        toast.success(res.data.message);
         fetchExams();
       })
-      .catch((err) => console.log(err));
+      .catch((error) => toast.error(error?.response?.data?.message || error.message));
   };
 
   const filteredExams = exam.filter(

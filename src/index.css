@@ -33,3 +33,9 @@
 .font_secondary {
   font-family: "Merriweather", serif;
 }
+
+.toastify-custom {
+  font-size: 14px;      
+  padding: 8px;    
+  min-height: auto !important;  
+}

@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { FaPencilAlt } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import { setQuestions, setSettings } from "../../../slices/ExamSlice";
+import { toast } from "react-toastify";
 
 const PreSelected = ({ handleFileUpload }) => (
   <div className="p-4 xl:h-5/6 flex flex-col items-center justify-center gap-4">
@@ -69,6 +70,7 @@ const AddQuestions = ({ setActiveTab }) => {
       });
 
       dispatch(setQuestions(formattedQuestions));
+      toast.success("Successfully uploaded questions")
     };
 
     reader.readAsBinaryString(file);

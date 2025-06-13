@@ -8,7 +8,7 @@ import { GoPlus } from "react-icons/go";
 import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineDelete } from "react-icons/md";
-
+import { toast } from "react-toastify";
 
 const QuestionsPage = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const QuestionsPage = () => {
         setCategories(allCats);
       })
       .catch((error) => {
-        console.log(error);
+        toast.error(error?.response?.data?.message || error.message);
       });
   }, [questions]);
 
@@ -46,13 +46,14 @@ const QuestionsPage = () => {
     axios
       .delete('http://localhost:3000/deletecategory', { data: { category } })
       .then((response) => {
+        toast.success(response.data.message);
         setQuestions((prevQuestions) =>
           prevQuestions.filter((q) => q.category !== isActive)
         );
         setIsActive("all");
       })
       .catch((error) => {
-        console.log(error);
+        toast.error(error?.response?.data?.message || error.message);
       });
   }
 
@@ -76,7 +77,7 @@ const QuestionsPage = () => {
           <CiSearch color="green" />
         </div>
         <div className={`${isOpen ? "hidden" : "flex justify-between items-center"}`}>
-          <p className="text-lg font-semibold">Question categories</p>
+          <p className="text-lg font-semibold underline">Question categories</p>
           <p className="text-xl font-bold text-gray-500">
             <TiFolderAdd />
           </p>

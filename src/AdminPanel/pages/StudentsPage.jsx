@@ -5,9 +5,9 @@ import { GoPlus } from "react-icons/go";
 import { PiStudentBold } from "react-icons/pi";
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineDelete } from "react-icons/md";
-import { LuExternalLink } from "react-icons/lu";
 import { BsFilePerson } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const StudentsPage = () => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const StudentsPage = () => {
         setBranch(allbranches);
       })
       .catch((error) => {
-        console.log(error);
+        toast.error(error?.response?.data?.message || error.message);
       });
   }, [students]);
 
@@ -71,7 +71,7 @@ const StudentsPage = () => {
         data: section ? { branch, section } : { branch },
       })
       .then((response) => {
-        console.log(response.data.message);
+        toast.success(response.data.message);
 
         if (section) {
           setStudents((prevStudents) =>
@@ -87,7 +87,21 @@ const StudentsPage = () => {
         }
       })
       .catch((error) => {
-        console.log(error);
+        toast.error(error?.response?.data?.message || error.message);
+      });
+  };
+
+  const handleDelete = (mail) => {
+    axios
+      .delete(`http://localhost:3000/deletestudent/${mail}`)
+      .then((response) => {
+        toast.success(response.data.message);
+        setStudents((prevStudents) =>
+          prevStudents.filter((q) => q.student_mail !== mail)
+        );
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message || error.message);
       });
   };
 
@@ -132,7 +146,7 @@ const StudentsPage = () => {
             <p className="font-semibold text-lg underline">Branch & Section</p>
           </div>
           <div
-            className={`flex items-center text-[12px] font-semibold h-7 pl-5 mt-7 gap-2 capitalize cursor-pointer
+            className={`flex items-center text-[12px] font-semibold h-7 pl-5 mt-5 gap-2 capitalize cursor-pointer
                         ${
                           isActive === "all"
                             ? "bg-green-100 text-green-500"
@@ -186,12 +200,12 @@ const StudentsPage = () => {
                   }`}
                 >
                   {expandedBranch === br &&
+                    grouped[br] &&
                     Object.keys(grouped[br])
                       .sort((a, b) => a.localeCompare(b))
                       .map((sec, secIdx) => (
-                        <div className="flex items-center gap-5">
+                        <div className="flex items-center gap-5" key={secIdx}>
                           <div
-                            key={secIdx}
                             onClick={() => handleSectionClick(sec)}
                             className={`pl-10 text-[12px] h-6 cursor-pointer font-medium capitalize flex items-center ${
                               expandedSection === sec
@@ -239,15 +253,19 @@ const StudentsPage = () => {
               <GoPlus /> Add Student
             </button>
             <button
-              // onClick={() => {
-              //   if (isActive !== "all") {
-              //     navigate("/questions/upload-questions", {
-              //       state: { selectedCategory: isActive },
-              //     });
-              //   } else {
-              //     navigate("/questions/upload-questions");
-              //   }
-              // }}
+              onClick={() => {
+                const state = {};
+
+                if (isActive !== "all") {
+                  state.selectedBranch = isActive;
+                }
+
+                if (expandedSection) {
+                  state.selectedSection = expandedSection;
+                }
+
+                navigate("upload-students", { state });
+              }}
               className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
             >
               <BsFilePerson size={20} /> Upload Students
@@ -274,11 +292,16 @@ const StudentsPage = () => {
                 key={index}
                 className="flex justify-between items-start text-sm font-semibold border-t-2 border-gray-200 text-gray-500 p-3 hover:bg-gray-200 hover:text-black"
               >
-                <div className="flex flex-col gap-3 w-full">
+                <div 
+                onClick={() => navigate(`/students/personal-info/${student}`)}
+                className="flex flex-col gap-3 w-full cursor-pointer">
                   <p>{student}</p>
                 </div>
-                <p className="text-[12px] text-blue-500 ml-5 cursor-pointer whitespace-nowrap">
-                  <LuExternalLink size={15} />
+                <p className="text-[12px] text-red-500 ml-5 cursor-pointer whitespace-nowrap">
+                  <MdOutlineDelete
+                    size={15}
+                    onClick={() => handleDelete(student)}
+                  />
                 </p>
               </div>
             );

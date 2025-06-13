@@ -4,6 +4,7 @@ import * as XLSX from "xlsx";
 import { useDispatch, useSelector } from "react-redux";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { setSettings } from "../../../slices/ExamSlice";
+import { toast } from "react-toastify";
 
 const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const dispatch = useDispatch();
@@ -17,8 +18,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             setLocalSettings(res.data.settings);
           }
         })
-        .catch((err) => {
-          console.error("Failed to fetch settings:", err);
+        .catch((error) => {
+          toast.error(error?.response?.data?.message || error.message);
         });
     }
   }, [isOpen, id]);
@@ -74,9 +75,9 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         }
       );
 
-      console.log("Exam updated:", response.data);
+      toast.success(response.data.message);
     } catch (error) {
-      console.error("Update failed:", error);
+      toast.error(error?.response?.data?.message || error.message);
     }
   };
 
@@ -189,8 +190,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       const studentEmails = jsonData
         .map((entry) => entry["Student Email"])
         .filter(Boolean);
-      console.log("Uploaded student emails:", studentEmails);
-      alert("Uploaded student emails");
+        toast.success("File uploaded successfully");
 
       setLocalSettings((prev) => ({
         ...prev,
@@ -463,7 +463,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         <input
           type="file"
           accept=".xlsx, .xls"
-          className="w-23 p-1 border-2 border-primary rounded-lg"
+          className="w-23 p-1 border-2 border-primary rounded-lg "
           onChange={handleFileUpload}
         />
       </div>

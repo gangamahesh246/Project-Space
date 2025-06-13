@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const AddQuestion = () => {
   const location = useLocation();
@@ -31,14 +32,14 @@ const AddQuestion = () => {
     setCorrectAnswers(Array(num).fill(""));
   };
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = async() => {
     const correct = multipleResponse ? [...correctAnswers] : [correctAnswers[0]];
 
     const isValid = correct.every(
       (ans) => options.includes(ans) && ans.trim() !== ""
     );
     if (!isValid) {
-      alert("Please select valid correct answers.");
+      toast.info("Please select valid correct answers")
       return;
     }
 
@@ -56,8 +57,8 @@ const AddQuestion = () => {
     };
 
     try {
-        axios.post("http://localhost:3000/uploadquestions", newQuestionData);
-        alert("Question added successfully");
+        const res = await axios.post("http://localhost:3000/uploadquestions", newQuestionData);
+        toast.success(res.data.message);
 
       setQuestion("");
       setOptions(["", "", "", ""]);
@@ -66,8 +67,7 @@ const AddQuestion = () => {
       setMarks(1);
       setMultipleResponse(false);
     } catch (error) {
-      alert("Error adding/updating question");
-      console.error(error);
+      toast.error(error?.response?.data?.message || error.message);
     }
   };
 

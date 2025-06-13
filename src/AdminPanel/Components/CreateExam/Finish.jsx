@@ -5,13 +5,13 @@ import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { IoIosClose } from "react-icons/io";
 import { resetExamState } from "../../../slices/ExamSlice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 
 const Finish = ({ coverFile }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const data = useSelector((state) => state.exam);
-  console.log(data);
   const [isOpen, setIsOpen] = useState(false);
 
   const publish = async () => {
@@ -38,14 +38,11 @@ const Finish = ({ coverFile }) => {
           },
         }
       );
-
-      console.log("Published Successfully", response.data);
-      alert("Exam published successfully!");
+      toast.success(response.data.message)
       dispatch(resetExamState());
       navigate("/exam");
-    } catch (err) {
-      console.error("Publish failed", err);
-      alert("Failed to publish exam");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message);
     }
   };
 
