@@ -24,6 +24,7 @@ import Statistics from "./Components/Takenlist/Statistics"
 import AddStudent from "./Components/StudentPage/AddStudent";
 import UploadStudents from "./Components/StudentPage/UploadStudents";
 import StudentPersonalDetails from "./Components/StudentPage/StudentPersonalDetails";
+import Profile from "./pages/Profile";
 
 let dashboardNavs = [
   { name: "dashboard", icon: <MdSpaceDashboard /> },
@@ -114,7 +115,7 @@ const isSidebarVisible = !isMobile || menu;
           </motion.div>
         )}
         </AnimatePresence>
-        <div className="sm:w-full sm:p-5 bg-primary xl:w-5/6 xl:p-8">
+        <div className="sm:w-full sm:p-3 bg-primary xl:w-5/6 xl:p-8">
           <div className="w-full h-11 flex justify-between items-center pb-5 border-b-1 border-[#a4bfce]">
             <div className="flex justify-center items-center gap-2">
               <HiMenu
@@ -132,7 +133,8 @@ const isSidebarVisible = !isMobile || menu;
             <div className="flex justify-center items-center gap-2">
               <IoNotifications size={20} color="#a4bfce" />
               <div
-                className="w-10 h-10 rounded-full bg-[url('/profile.jpg')] bg-no-repeat bg-cover border-1 border-[#a4bfce]"
+              onClick={() => navigate("/profile")}
+                className="w-10 h-10 rounded-full bg-[url('/profile.jpg')] bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"
                 alt="profile"
               ></div>
               <p className="font_primary text-sm text-[#a4bfce]">Mahesh Karanam</p>
@@ -166,6 +168,7 @@ const isSidebarVisible = !isMobile || menu;
                 <Route path="personal-info/:studentMail" element={<StudentPersonalDetails />} />
               </Route>
 
+              <Route path="profile" element={<Profile />} />
               <Route path="*" element={<p className="text-red-500">Page Not Found</p>} />
             </Routes>
           </div>

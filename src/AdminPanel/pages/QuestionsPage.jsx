@@ -58,33 +58,33 @@ const QuestionsPage = () => {
   }
 
   return (
-    <div className="w-full h-full bg-aliceblue flex gap-3 overflow-y-auto hide-scrollbar p-3">
-      <div className={`${isOpen ? "w-15 transition-all duration-300" : "w-1/3 transition-all duration-300"} h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg p-5`}>
+    <div className="w-full h-full bg-aliceblue flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
+      <div className={`${isOpen ? "md:w-15 md:transition-all md:duration-300" : "md:w-1/3 md:transition-all md:duration-300"} h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg sm:p-2 md:p-5`}>
         <div className="flex justify-between items-center">
-          <p className={`${isOpen ? "hidden" : "text-xl font-bold"}`}>Questions</p>
+          <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold"}`}>Questions</p>
           <p className="text-xl font-bold text-gray-500">
-            <RiMenuFoldFill className="cursor-pointer" onClick={() => setIsOpen(!isOpen)} />
+            <RiMenuFoldFill className="sm:hidden md:block cursor-pointer" onClick={() => setIsOpen(!isOpen)} />
           </p>
         </div>
-        <div className={`${isOpen ? "hidden" : "w-full h-10 flex justify-around items-center border-1 border-gray-500 rounded-lg"}`}>
+        <div className={`${isOpen ? "hidden" : "sm:w-25 md:w-full h-10 flex justify-around items-center border-1 border-gray-500 rounded-lg"}`}>
           <input
             type="text"
             placeholder="Search category"
-            className="text-sm font-semibold outline-none"
+            className="sm:text-[12px] md:text-sm font-semibold outline-none pl-1"
             value={searchCategory}
             onChange={(e) => setSearchCategory(e.target.value)}
           />
-          <CiSearch color="green" />
+          <CiSearch color="green" className="md:mr-1" />
         </div>
         <div className={`${isOpen ? "hidden" : "flex justify-between items-center"}`}>
-          <p className="text-lg font-semibold underline">Question categories</p>
-          <p className="text-xl font-bold text-gray-500">
+          <p className="md:text-lg font-semibold underline flex justify-center items-center gap-1"><p className="sm:hidden md:block">Question</p> Categories</p>
+          <p className="sm:hidden lg:block text-xl font-bold text-gray-500">
             <TiFolderAdd />
           </p>
         </div>
         <div className={`${isOpen ? "hidden" : "w-full flex flex-col"}`}>
           <div
-            className={`flex items-center text-[12px] font-semibold h-7 pl-5 gap-2 capitalize cursor-pointer
+            className={`flex items-center text-[12px] font-semibold h-7 md:pl-5 gap-2 capitalize cursor-pointer
               ${
                 isActive === "all"
                   ? "bg-green-100 text-green-500"
@@ -105,7 +105,7 @@ const QuestionsPage = () => {
                 <div
                   key={idx}
                   onClick={() => setIsActive(cat)}
-                  className={`w-full flex items-center text-[12px] font-semibold h-7 pl-5 gap-2 capitalize cursor-pointer
+                  className={`w-full flex items-center text-[12px] font-semibold h-7 md:pl-5 gap-2 capitalize cursor-pointer
                 ${
                   isActive === cat
                     ? "bg-green-100 text-green-500"
@@ -134,9 +134,9 @@ const QuestionsPage = () => {
                   navigate("/questions/add-question");
                 }
               }}
-              className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
+              className="bg-green-500 sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
             >
-              <GoPlus /> New question
+              <GoPlus size={20}/> <p className="sm:hidden md:block">New question</p>
             </button>
             <button
               onClick={() => {
@@ -148,9 +148,9 @@ const QuestionsPage = () => {
                   navigate("/questions/upload-questions");
                 }
               }}
-              className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
+              className="border-1 border-green-500 sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
             >
-              <TbFileUpload size={20} /> Upload questions
+              <TbFileUpload size={20} /> <p className="sm:hidden xl:block">Upload questions</p>
             </button>
           </div>
           <div className="w-fit h-8 flex justify-around items-center border-1 border-gray-500 rounded-lg ">
@@ -172,7 +172,7 @@ const QuestionsPage = () => {
             return (
               <div
                 key={index}
-                className="flex justify-between items-start text-sm font-semibold border-t-2 border-gray-200 text-gray-500 p-3"
+                className="flex justify-between items-start text-sm font-semibold border-t-2 border-gray-200 text-gray-500 sm:p-1 md:p-3"
               >
                 <div className="flex flex-col gap-3 w-full">
                   <p>

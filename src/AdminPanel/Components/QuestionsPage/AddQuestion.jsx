@@ -32,14 +32,21 @@ const AddQuestion = () => {
     setCorrectAnswers(Array(num).fill(""));
   };
 
-  const handleAddQuestion = async() => {
-    const correct = multipleResponse ? [...correctAnswers] : [correctAnswers[0]];
+  const handleAddQuestion = async () => {
+    const correct =
+      multipleResponse && Array.isArray(correctAnswers)
+        ? [...correctAnswers]
+        : [correctAnswers?.[0] || ""];
 
+    console.log(correct);
     const isValid = correct.every(
-      (ans) => options.includes(ans) && ans.trim() !== ""
+      (ans) =>
+        typeof ans === "string" &&
+        ["A", "B", "C", "D"].includes(ans.trim().toUpperCase())
     );
+
     if (!isValid) {
-      toast.info("Please select valid correct answers")
+      toast.info("Please select valid correct answers");
       return;
     }
 
@@ -57,8 +64,11 @@ const AddQuestion = () => {
     };
 
     try {
-        const res = await axios.post("http://localhost:3000/uploadquestions", newQuestionData);
-        toast.success(res.data.message);
+      const res = await axios.post(
+        "http://localhost:3000/uploadquestions",
+        newQuestionData
+      );
+      toast.success(res.data.message);
 
       setQuestion("");
       setOptions(["", "", "", ""]);
@@ -161,7 +171,10 @@ const AddQuestion = () => {
                   >
                     <option value="">Select Correct Option</option>
                     {options.map((opt, index) => (
-                      <option key={index} value={opt}>
+                      <option
+                        key={index}
+                        value={String.fromCharCode(65 + index)}
+                      >
                         {String.fromCharCode(65 + index)}. {opt}
                       </option>
                     ))}
@@ -176,8 +189,8 @@ const AddQuestion = () => {
               >
                 <option value="">Select Correct Option</option>
                 {options.map((opt, index) => (
-                  <option key={index} value={opt}>
-                    {String.fromCharCode(65 + index)}
+                  <option key={index} value={String.fromCharCode(65 + index)}>
+                    {String.fromCharCode(65 + index)}. {opt}
                   </option>
                 ))}
               </select>

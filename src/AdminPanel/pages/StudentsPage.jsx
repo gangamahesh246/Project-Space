@@ -106,21 +106,20 @@ const StudentsPage = () => {
   };
 
   return (
-    <div className="w-full h-full bg-aliceblue flex gap-3 overflow-y-auto hide-scrollbar p-3">
+    <div className="w-full h-full bg-aliceblue flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
       <div
         className={`${
           isOpen
-            ? "w-15 transition-all duration-300"
-            : "w-1/3 transition-all duration-300"
-        } h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg p-5`}
+            ? "md:w-15 md:transition-all md:duration-300" : "sm:w-35 md:w-1/3 md:transition-all md:duration-300"
+        } h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg sm:p-2 md:p-5`}
       >
         <div className="flex justify-between items-center">
-          <p className={`${isOpen ? "hidden" : "text-xl font-bold"}`}>
+          <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold"}`}>
             Students
           </p>
           <p className="text-xl font-bold text-gray-500">
             <RiMenuFoldFill
-              className="cursor-pointer"
+              className="cursor-pointer sm:hidden md:block"
               onClick={() => setIsOpen(!isOpen)}
             />
           </p>
@@ -134,8 +133,8 @@ const StudentsPage = () => {
         >
           <input
             type="text"
-            placeholder="Search category"
-            className="text-sm font-semibold outline-none"
+            placeholder="Search"
+            className="pl-1 text-sm font-semibold outline-none"
             value={searchBranch}
             onChange={(e) => setSearchBranch(e.target.value)}
           />
@@ -146,7 +145,7 @@ const StudentsPage = () => {
             <p className="font-semibold text-lg underline">Branch & Section</p>
           </div>
           <div
-            className={`flex items-center text-[12px] font-semibold h-7 pl-5 mt-5 gap-2 capitalize cursor-pointer
+            className={`flex items-center text-[12px] font-semibold h-7 md:pl-5 mt-5 gap-2 capitalize cursor-pointer
                         ${
                           isActive === "all"
                             ? "bg-green-100 text-green-500"
@@ -169,7 +168,7 @@ const StudentsPage = () => {
                 <div
                   key={idx}
                   onClick={() => handleBranchClick(br)}
-                  className={`flex justify-between items-center text-[12px] font-semibold h-7 pl-5 pr-3 cursor-pointer capitalize ${
+                  className={`flex justify-between items-center text-[12px] font-semibold h-7 md:pl-5 pr-3 cursor-pointer capitalize ${
                     isActive === br
                       ? "bg-green-100 text-green-500"
                       : "text-black"
@@ -207,7 +206,7 @@ const StudentsPage = () => {
                         <div className="flex items-center gap-5" key={secIdx}>
                           <div
                             onClick={() => handleSectionClick(sec)}
-                            className={`pl-10 text-[12px] h-6 cursor-pointer font-medium capitalize flex items-center ${
+                            className={`sm:pl-5 md:pl-10 text-[12px] md:h-6 cursor-pointer font-medium capitalize flex items-center ${
                               expandedSection === sec
                                 ? "text-blue-500 underline"
                                 : "text-gray-600"
@@ -250,7 +249,7 @@ const StudentsPage = () => {
               }}
               className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
             >
-              <GoPlus /> Add Student
+              <GoPlus size={20}/> <p className="sm:hidden md:block">Add Student</p>
             </button>
             <button
               onClick={() => {
@@ -268,10 +267,10 @@ const StudentsPage = () => {
               }}
               className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
             >
-              <BsFilePerson size={20} /> Upload Students
+              <BsFilePerson size={20} /> <p className="sm:hidden xl:block">Upload Students</p>
             </button>
           </div>
-          <div className="w-fit h-8 flex justify-around items-center border-1 border-gray-500 rounded-lg ">
+          <div className="w-fit h-8 flex justify-around items-center sm:ml-1 md:ml-0 border-1 border-gray-500 rounded-lg ">
             <input
               type="text"
               placeholder="Search"

@@ -30,7 +30,7 @@ const AddStudent = () => {
   };
 
   return (
-    <div className="w-full h-fit bg-white sm:p-3 xl:p-10 flex justify-center items-center">
+    <div className="w-full h-full bg-white sm:p-3 xl:p-10 flex justify-center items-center">
       <div className="sm:w-78 sm:p-5 md:w-145 xl:w-4/5 h-fit xl:mx-auto bg-white shadow-lg rounded-lg xl:p-8">
         <form>
           <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">

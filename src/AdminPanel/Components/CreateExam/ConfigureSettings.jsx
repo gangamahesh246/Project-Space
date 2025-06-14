@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +9,60 @@ import { toast } from "react-toastify";
 const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const dispatch = useDispatch();
   const time = useSelector((state) => state.exam.settings);
+
+  const [file, setFile] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [branch, setBranch] = useState([]);
+  const [expandedBranch, setExpandedBranch] = useState(null);
+  const [expandedSection, setExpandedSection] = useState(null);
+  const [isActive, setIsActive] = useState("");
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/getstudents")
+      .then((response) => {
+        setStudents(response.data);
+        const allbranches = [...new Set(response.data.map((q) => q.branch))];
+        setBranch(allbranches);
+        setIsActive(allbranches[0]);
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message || error.message);
+      });
+  }, []);
+
+  const grouped = students.reduce((acc, student) => {
+    const { branch, section } = student;
+    if (!acc[branch]) acc[branch] = {};
+    if (!acc[branch][section]) acc[branch][section] = [];
+    acc[branch][section].push(student.student_mail);
+    return acc;
+  }, {});
+
+  const handleBranchClick = (branch) => {
+    setExpandedBranch((prev) => (prev === branch ? null : branch));
+    setIsActive(branch);
+    setExpandedSection(null);
+  };
+
+  const handleSectionClick = (section) => {
+    setExpandedSection((prev) => (prev === section ? null : section));
+  };
+
+  const filteredStudents = useMemo(() => {
+    if (!isActive) return [];
+    return students
+      .filter((student) => {
+        const branchMatch = student.branch === isActive;
+        const sectionMatch =
+          expandedSection 
+            ? student.section === expandedSection && student.branch === isActive
+            : true;
+        return branchMatch && sectionMatch;
+      })
+      .map((student) => student.student_mail);
+  }, [students, isActive, expandedSection]);
+
   useEffect(() => {
     if (isOpen && id) {
       axios
@@ -91,7 +145,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
     const ampm = hours >= 12 ? "PM" : "AM";
 
     hours = hours % 12;
-    hours = hours === 0 ? 12 : hours; // Convert 0 to 12 for 12-hour format
+    hours = hours === 0 ? 12 : hours;
     const hourStr = hours.toString().padStart(2, "0");
 
     const time12hr = `${hourStr}:${minutes}:${seconds} ${ampm}`;
@@ -109,6 +163,16 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       },
     }));
   };
+
+  useEffect(() => {
+    setLocalSettings((prev) => ({
+      ...prev,
+      assignExamTo: {
+        ...prev.assignExamTo,
+        specificUsers: filteredStudents,
+      },
+    }));
+  }, [filteredStudents]);
 
   const handleLateTimeChange = (e) => {
     setLocalSettings((prev) => ({
@@ -190,7 +254,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       const studentEmails = jsonData
         .map((entry) => entry["Student Email"])
         .filter(Boolean);
-        toast.success("File uploaded successfully");
+      toast.success("File uploaded successfully");
 
       setLocalSettings((prev) => ({
         ...prev,
@@ -273,6 +337,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       },
     }));
   };
+
+  const isVisible = settings.assignExamTo.specificUsers.length > 0;
 
   return (
     <div className="w-full h-fit bg-white shadow-xl p-5 text-primary">
@@ -454,18 +520,94 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         </p>
       </div>
 
-      <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
-        Assign Exam
-      </p>
-      <p className="text-gray-500 text-sm ml-7">(Through college mails.)</p>
-      <div className="w-fit ml-10 mt-3 flex flex-col items-center gap-2">
-        <RiFileExcel2Fill size={30} color="#00C951" />
-        <input
-          type="file"
-          accept=".xlsx, .xls"
-          className="w-23 p-1 border-2 border-primary rounded-lg "
-          onChange={handleFileUpload}
-        />
+      <div className="space-y-2">
+        <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
+          Assign Exam
+        </p>
+        <p className="text-gray-500 text-sm ml-7">(Through college mails)</p>
+        <div className="w-fit xl:ml-10 xl:mt-3 sm:flex sm:flex-col lg:flex-row items-center sm:gap-5 xl:gap-10">
+          <div className="flex h-fit flex-col items-center shadow-lg gap-2 p-3 rounded">
+            <RiFileExcel2Fill size={30} color="#00C951" />
+            <p className="text-gray-500 font_primary text-center text-sm">
+              Drag & drop files here or select a file to upload questions in
+              bulk
+            </p>
+            <p className="text-gray-500 font_primary text-center text-sm">
+              Supports Excel(xlsx) files.
+            </p>
+            <p className="text-gray-500 font_primary text-center text-sm">
+              Note: The file should have the following column: Student Email.
+            </p>
+            <label
+              htmlFor="fileInput"
+              className="bg-green-500 text-white rounded-md font-semibold py-2 px-4 cursor-pointer text-center"
+            >
+              <span>{file ? file.name : "Upload file"}</span>
+            </label>
+            <input
+              id="fileInput"
+              type="file"
+              accept=".xlsx, .xls"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+          </div>
+          <div
+            className={`w-80 h-40 border-2 rounded overflow-y-auto ${
+              isVisible ? "block" : "hidden"
+            }`}
+          >
+            {settings.assignExamTo.specificUsers.map((std, index) => (
+              <p key={index} className="font-semibold text-gray-500  p-2">
+                {index + 1}. {std}
+              </p>
+            ))}
+          </div>
+        </div>
+        <p className="text-gray-500 text-sm ml-7">(Through Branch & Section)</p>
+        <div className="xl:w-50 xl:ml-10 xl:mt-3 shadow-lg rounded overflow-hidden">
+          {branch.map((br, idx) => (
+            <div className="w-full">
+              <div
+                key={idx}
+                onClick={() => handleBranchClick(br)}
+                className={`flex justify-between items-center text-[12px] font-semibold h-7 md:pl-5 pr-3 cursor-pointer capitalize ${
+                  isActive === br ? "bg-green-100 text-green-500" : "text-black"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <p>{br}</p>
+                </div>
+              </div>
+              <div
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                  expandedBranch === br
+                    ? "max-h-96 opacity-100"
+                    : "max-h-0 opacity-0"
+                }`}
+              >
+                {expandedBranch === br &&
+                  grouped[br] &&
+                  Object.keys(grouped[br])
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((sec, secIdx) => (
+                      <div className="flex items-center gap-5" key={secIdx}>
+                        <div
+                          onClick={() => handleSectionClick(sec)}
+                          className={`sm:pl-5 md:pl-10 text-[12px] md:h-6 cursor-pointer font-medium capitalize flex items-center ${
+                            expandedSection === sec
+                              ? "text-blue-500 underline"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          ↳ Section {sec}
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
@@ -525,33 +667,30 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         View ranking list
       </p>
       <p className="ml-10 mt-3 flex gap-2">
-         {" "}
         <input
           type="number"
           value={settings.results.displayScore.totalPoints}
           className="w-10 border-2"
           onChange={handleTotalPoints}
         />
-          Total Points
+        Total Points
       </p>
       <p className="ml-10 mt-3 flex gap-2">
-         {" "}
         <input
           type="number"
           value={settings.results.displayScore.passPercentage}
           className="w-10 border-2"
           onChange={handlePassPercentageChange}
         />
-          Pass percentage(%)
+        Pass percentage(%)
       </p>
       <p className="ml-10 mt-3 flex gap-2 items-center">
-         {" "}
         <input
           type="checkbox"
           checked={settings.results.displayScore.negativeMarking !== 0}
           onChange={(e) => handleNegativeMarkingToggle(e.target.checked)}
         />
-          Negative Marking  {" "}
+        Negative Marking
         <select
           disabled={settings.results.displayScore.negativeMarking === 0}
           value={settings.results.displayScore.negativeMarking}
@@ -559,7 +698,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           className="border-2"
         >
           <option value="0.25">0.25</option> <option value="0.5">0.5</option>
-          <option value="1">1</option> {" "}
+          <option value="1">1</option>
         </select>
       </p>
 

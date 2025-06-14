@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { useSelector, useDispatch } from "react-redux";
@@ -6,19 +6,110 @@ import { FaPencilAlt } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import { setQuestions, setSettings } from "../../../slices/ExamSlice";
 import { toast } from "react-toastify";
+import axios from "axios";
 
-const PreSelected = ({ handleFileUpload }) => (
-  <div className="p-4 xl:h-5/6 flex flex-col items-center justify-center gap-4">
+const PreSelected = ({ handleFileUpload, file }) => (
+  <div className="p-4 xl:h-5/6 flex flex-col items-center justify-center gap-2">
     <RiFileExcel2Fill size={100} color="#00C951" />
+    <p className="text-gray-500 font_primary text-center text-sm">
+      Drag & drop files here or select a file to upload questions in bulk
+    </p>
+    <p className="text-gray-500 font_primary text-center text-sm">
+      Supports Excel(xlsx) files.
+    </p>
+    <p className="text-gray-500 font_primary text-center text-sm">
+      Note: The file should have the following column: Student Email.
+    </p>
+    <label
+      htmlFor="fileInput"
+      className="bg-green-500 text-white rounded-md font-semibold py-2 px-8 cursor-pointer text-center"
+    >
+      <span>{file ? file.name : "Upload file"}</span>
+    </label>
     <input
+      id="fileInput"
       type="file"
       accept=".xlsx, .xls"
+      className="hidden"
       onChange={handleFileUpload}
-      className="border-2 border-dashed border-gray-300 rounded-md md:p-2 xl:p-4 cursor-pointer w-fit "
     />
   </div>
 );
-const Categories = () => <div className="p-4">Categories Content</div>;
+const Categories = () => {
+  const dispatch = useDispatch();
+  const [qquestions, setQQuestions] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isActive, setIsActive] = useState("");
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/getquestions")
+      .then((response) => {
+        setQQuestions(response.data);
+        const allCats = [...new Set(response.data.map((q) => q.category))];
+        setCategories(allCats);
+        setIsActive(allCats[0]);
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message || error.message);
+      });
+  }, []);
+
+  const filteredQuestions =
+    qquestions.find((q) => q.category === isActive)?.questions || [];
+
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Question Categories</h1>
+
+      <div className="flex flex-wrap gap-3 mb-6">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            className={`px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 cursor-pointer
+              ${
+                isActive === cat
+                  ? "bg-green-500 text-white border-green-500"
+                  : "bg-white text-gray-700 border-green-300 hover:bg-green-100"
+              }`}
+            onClick={() => {setIsActive(cat); dispatch(setQuestions(filteredQuestions))}}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-4">
+        {filteredQuestions.length > 0 ? (
+          filteredQuestions.map((q, idx) => (
+            <div
+              key={idx}
+              className="border border-gray-200 p-4 rounded-lg shadow-sm bg-white"
+            >
+              <h2 className="font-semibold mb-2">
+                Q{idx + 1}: {q.question}
+              </h2>
+              <ul className="list-disc pl-6 text-gray-700">
+                {q.options.map((opt, i) => (
+                  <li key={i}>
+                    {String.fromCharCode(65 + i)}. {opt}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-green-600 mt-2 text-sm">
+                Correct Answer(s): {q.correct.join(", ")}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">
+            No questions available for this category.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const AddQuestions = ({ setActiveTab }) => {
   const dispatch = useDispatch();
@@ -27,6 +118,7 @@ const AddQuestions = ({ setActiveTab }) => {
 
   const [isActive, setIsActive] = useState("PreSelected");
   const [isopen, setIsOpen] = useState(false);
+  const [file, setFile] = useState(null);
   const [time, setTime] = useState({
     examTime: 30,
     questionTime: 0,
@@ -34,6 +126,7 @@ const AddQuestions = ({ setActiveTab }) => {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
+    setFile(file);
     if (!file) return;
 
     const reader = new FileReader();
@@ -65,12 +158,12 @@ const AddQuestions = ({ setActiveTab }) => {
               : Array.isArray(keys["correctanswer"])
               ? keys["correctanswer"]
               : [keys["correctanswer"]],
-          marks: keys["marks"]
+          marks: keys["marks"],
         };
       });
 
       dispatch(setQuestions(formattedQuestions));
-      toast.success("Successfully uploaded questions")
+      toast.success("Successfully uploaded questions");
     };
 
     reader.readAsBinaryString(file);
@@ -111,9 +204,9 @@ const AddQuestions = ({ setActiveTab }) => {
             Categories
           </p>
         </div>
-        <div className="w-full xl:h-98.5">
+        <div className="w-full xl:h-98.5 overflow-y-auto">
           {isActive === "PreSelected" ? (
-            <PreSelected handleFileUpload={handleFileUpload} />
+            <PreSelected handleFileUpload={handleFileUpload} file={file} />
           ) : (
             <Categories />
           )}

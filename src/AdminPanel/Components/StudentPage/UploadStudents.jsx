@@ -71,8 +71,8 @@ const UploadStudents = () => {
   };
 
   return (
-    <div className="w-full h-full bg-white flex justify-center items-center">
-      <div className="w-1/2 h-[90%] bg-white shadow-xl rounded flex flex-col overflow-hidden">
+    <div className="w-full h-full bg-white flex justify-center items-center sm:p-2">
+      <div className="sm:w-full xl:w-1/2 h-[90%] bg-white shadow-xl rounded flex flex-col overflow-hidden">
         <div className="w-full h-15 bg-green-100 text-green-500 font-bold flex items-center pl-2">
           Upload students via file
         </div>
