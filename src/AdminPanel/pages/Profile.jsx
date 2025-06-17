@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,8 +36,6 @@ const Profile = () => {
     ],
   };
   const [form, setForm] = useState(initialForm);
-  const [originalForm, setOriginalForm] = useState(initialForm);
-  const [isProfileExists, setIsProfileExists] = useState(false);
 
   useEffect(() => {
     axios
@@ -44,15 +43,18 @@ const Profile = () => {
         params: { employeeId: "EMP123456" },
       })
       .then((response) => {
-        setOriginalForm(JSON.parse(JSON.stringify(response.data)));
-        setForm(response.data);
-        setIsProfileExists(true);
+        const data = response.data;
+
+        const formatDate = (dateStr) => dateStr?.split("T")[0] || "";
+
+        setForm({
+          ...data,
+          dob: formatDate(data.dob),
+          dateOfJoining: formatDate(data.dateOfJoining),
+        });
       })
-      .catch((error) => {
-        console.log("Profile not found:", error.message);
-        setForm({ ...initialForm, employeeId: "EMP123456" });
-        setOriginalForm({ ...initialForm, employeeId: "EMP123456" });
-        setIsProfileExists(false);
+      .catch((err) => {
+        console.error("Error fetching profile:", err);
       });
   }, []);
 
@@ -100,28 +102,37 @@ const Profile = () => {
   };
 
   const handleSubmit = async () => {
-    const url = isProfileExists
-      ? "http://localhost:3000/createprofile"
-      : "http://localhost:3000/updateprofile";
-
-    const method = isProfileExists ? "post" : "put";
-
     try {
-      const res = await axios[method](url, form);
-      alert(
-        isProfileExists
-          ? "Profile updated successfully!"
-          : "Profile created successfully!"
-      );
-      setOriginalForm(JSON.parse(JSON.stringify(form)));
-      setIsProfileExists(true);
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
+      const url = "http://localhost:3000/profile";
+
+      const formData = new FormData();
+
+      for (let key in form) {
+        if (key === "qualifications") {
+          formData.append(
+            "qualifications",
+            JSON.stringify(form.qualifications)
+          );
+        } else if (key === "photo" && form.photo instanceof File) {
+          formData.append("Profile", form.photo);
+        } else {
+          formData.append(key, form[key]);
+        }
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      const response = await axios.post(url, formData, config);
+
+      toast.success(response.data.message || "Profile saved successfully");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
   };
-
-  const isModified = JSON.stringify(form) !== JSON.stringify(originalForm);
 
   return (
     <div className="w-full h-fit bg-aliceblue sm:p-3 xl:p-10 flex justify-center items-center">
@@ -130,7 +141,9 @@ const Profile = () => {
           <div
             className="w-50 h-50 rounded-lg border-2 border-green-500 mb-6 ml-2 flex justify-center items-center cursor-pointer"
             style={{
-              backgroundImage: `url(${PreviewImage || form.photo})`,
+              backgroundImage: `url(${
+                PreviewImage || `http://localhost:3000/public/${form.photo}`
+              })`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -157,7 +170,7 @@ const Profile = () => {
             placeholder="Full Name"
             value={form.fullName}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -165,14 +178,14 @@ const Profile = () => {
             placeholder="Employee ID"
             value={form.employeeId}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <select
             name="gender"
             value={form.gender}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           >
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
@@ -185,7 +198,7 @@ const Profile = () => {
             name="dob"
             value={form.dob}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -193,7 +206,7 @@ const Profile = () => {
             placeholder="Contact Number"
             value={form.contactNumber}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -201,7 +214,7 @@ const Profile = () => {
             placeholder="Official Email"
             value={form.email}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -209,7 +222,7 @@ const Profile = () => {
             placeholder="Alternate Email"
             value={form.alternateEmail}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -217,7 +230,7 @@ const Profile = () => {
             placeholder="Address"
             value={form.address}
             onChange={handleChange}
-            className="w-full p-2 mb-6 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
@@ -229,7 +242,7 @@ const Profile = () => {
             placeholder="Department"
             value={form.department}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -237,7 +250,7 @@ const Profile = () => {
             placeholder="Designation"
             value={form.designation}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -245,7 +258,7 @@ const Profile = () => {
             name="dateOfJoining"
             value={form.dateOfJoining}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <input
@@ -253,7 +266,7 @@ const Profile = () => {
             placeholder="Roles (comma-separated)"
             value={form.facultyRoles}
             onChange={handleChange}
-            className="w-full p-2 mb-6 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
@@ -267,7 +280,7 @@ const Profile = () => {
                 placeholder="Degree"
                 value={qual.degree}
                 onChange={(e) => handleQualificationChange(i, e)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
               />
 
               <input
@@ -275,7 +288,7 @@ const Profile = () => {
                 placeholder="Institution"
                 value={qual.institution}
                 onChange={(e) => handleQualificationChange(i, e)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
               />
 
               <input
@@ -284,7 +297,7 @@ const Profile = () => {
                 placeholder="Year of Passing"
                 value={qual.yearOfPassing}
                 onChange={(e) => handleQualificationChange(i, e)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
               />
 
               <input
@@ -292,7 +305,7 @@ const Profile = () => {
                 placeholder="Specialization"
                 value={qual.specialization}
                 onChange={(e) => handleQualificationChange(i, e)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
               />
 
               <input
@@ -300,14 +313,14 @@ const Profile = () => {
                 placeholder="Grade / Percentage"
                 value={qual.gradeOrPercentage}
                 onChange={(e) => handleQualificationChange(i, e)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
               />
             </div>
           ))}
 
           <button
             type="button"
-            className="text-blue-500 mb-6"
+            className="text-blue-500 mb-6 cursor-pointer"
             onClick={addQualification}
           >
             + Add another qualification
@@ -322,7 +335,7 @@ const Profile = () => {
             placeholder="Username"
             value={form.username}
             onChange={handleChange}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+            className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
           <div className="relative">
@@ -332,7 +345,7 @@ const Profile = () => {
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
-              className="w-full p-2 mb-4 border border-gray-300 rounded-lg pr-10"
+              className="w-full p-2 mb-4 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-1 focus:ring-secondary"
             />
             <span
               onClick={togglePasswordVisibility}
@@ -342,27 +355,18 @@ const Profile = () => {
             </span>
           </div>
 
-          <p>Admin</p>
+          <p className="bg-white p-2 px-4 shadow-md text-gray-500 w-fit h-fit">
+            {form.role}
+          </p>
         </form>
 
         <div className="flex justify-end">
-          <div className="flex justify-end mt-6">
-            {!isProfileExists ? (
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-2 rounded bg-blue-600 text-white"
-              >
-                Create 
-              </button>
-            ) : isModified ? (
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-2 rounded bg-green-500 text-white"
-              >
-                Update
-              </button>
-            ) : null}
-          </div>
+          <button
+            onClick={handleSubmit}
+            className="bg-green-500 p-2 rounded text-white cursor-pointer outline-none"
+          >
+            Save
+          </button>
         </div>
       </div>
     </div>

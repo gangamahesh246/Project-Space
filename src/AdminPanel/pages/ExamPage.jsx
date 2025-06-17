@@ -6,6 +6,7 @@ import { MdOutlineDelete } from "react-icons/md";
 import { IoIosClose } from "react-icons/io";
 
 import ConfigureSettings from "../Components/CreateExam/ConfigureSettings";
+import axiosInstance from "../../utils/axiosInstance";
 
 import { useNavigate } from "react-router-dom";
 import { LuExternalLink } from "react-icons/lu";
@@ -20,8 +21,8 @@ const ExamPage = () => {
   const [search, setSearch] = useState("");
 
   const fetchExams = () => {
-    axios
-      .get("http://localhost:3000/getexam")
+    axiosInstance
+      .get("/getexam")
       .then((res) => {
         const today = new Date().toISOString().split("T")[0];
 
@@ -50,11 +51,11 @@ const ExamPage = () => {
 
   useEffect(() => {
     fetchExams();
-  }, [isOpen, id]);
+  }, [isOpen, id, exam]);
 
   const deleteExam = (id) => {
     axios
-      .delete(`http://localhost:3000/deleteexam/${id}`)
+      .delete(`/deleteexam/${id}`)
       .then((res) => {
         toast.success(res.data.message);
         fetchExams();

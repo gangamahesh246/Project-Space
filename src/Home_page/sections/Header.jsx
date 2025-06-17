@@ -1,7 +1,10 @@
 import React from "react";
 import { motion } from 'framer-motion'
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="sm:h-[80vh] xl:h-[100vh] bg-primary">
       <div className="lg:block sm:hidden w-full h-fit">
@@ -100,7 +103,9 @@ const Header = () => {
           reliable platform to create, conduct, and monitor online assessments
           with confidence.
         </p>
-        <button className="w-[150px] h-[50px] text-[20px] font-medium rounded-4xl bg-yellow-300 capitalize mt-10 relative left-1/2 -translate-x-1/2 opacity-80">
+        <button 
+        onClick={() => navigate("/login")}
+        className="w-[150px] h-[50px] text-[20px] font-medium rounded-4xl bg-yellow-300 capitalize mt-10 relative left-1/2 -translate-x-1/2 opacity-80 hover:opacity-100 cursor-pointer">
           get started
         </button>
       </div>

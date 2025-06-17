@@ -24,7 +24,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         setStudents(response.data);
         const allbranches = [...new Set(response.data.map((q) => q.branch))];
         setBranch(allbranches);
-        setIsActive(allbranches[0]);
       })
       .catch((error) => {
         toast.error(error?.response?.data?.message || error.message);
