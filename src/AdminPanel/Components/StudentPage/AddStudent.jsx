@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AddStudent = () => {
   const location = useLocation();
@@ -19,7 +20,7 @@ const AddStudent = () => {
         student_mail: email
       };
 
-     const res =  await axios.post("http://localhost:3000/uploadstudent", studentData);
+     const res =  await axiosInstance.post("/uploadstudent", studentData);
 
       toast.success(res.data.message);
 

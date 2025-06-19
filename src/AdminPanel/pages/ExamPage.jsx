@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { GoPlus } from "react-icons/go";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
@@ -54,7 +53,7 @@ const ExamPage = () => {
   }, [isOpen, id, exam]);
 
   const deleteExam = (id) => {
-    axios
+    axiosInstance
       .delete(`/deleteexam/${id}`)
       .then((res) => {
         toast.success(res.data.message);
@@ -76,7 +75,7 @@ const ExamPage = () => {
           <button
             className="bg-green-500 p-2 rounded-sm flex items-center gap-1 cursor-pointer text-aliceblue"
             onClick={() => {
-              navigate("/exam/create-exam");
+              navigate("/admin/exam/create-exam");
             }}
           >
             <GoPlus size={20} /> <p className="sm:hidden md:block">New exam</p>
@@ -117,7 +116,7 @@ const ExamPage = () => {
                     <LuExternalLink
                       className="cursor-pointer"
                       color="green"
-                      onClick={() => navigate(`/exam/takenlist/${item._id}`)}
+                      onClick={() => navigate(`/admin/exam/takenlist/${item._id}`)}
                     />
                   </p>{" "}
                   <p
@@ -165,12 +164,12 @@ const ExamPage = () => {
                   </div>
                   <p
                     className="md:ml-30 hover:underline cursor-pointer"
-                    onClick={() => navigate(`/exam/exam-questions/${item._id}`)}
+                    onClick={() => navigate(`/admin/exam/exam-questions/${item._id}`)}
                   >
                     Questions
                   </p>{" "}
                   |<p className="hover:underline cursor-pointer"
-                    onClick={() => navigate(`/exam/statistics/${item._id}`)}>Statistics</p>
+                    onClick={() => navigate(`/admin/exam/statistics/${item._id}`)}>Statistics</p>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-5 pl-2 sm:pr-1 md:pr-0 border-l-1 border-gray-500">

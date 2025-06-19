@@ -9,6 +9,7 @@ import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineDelete } from "react-icons/md";
 import { toast } from "react-toastify";
+import axiosInstance from "../../utils/axiosInstance";
 
 const QuestionsPage = () => {
   const navigate = useNavigate();
@@ -20,8 +21,8 @@ const QuestionsPage = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/getquestions")
+    axiosInstance
+      .get("/getquestions")
       .then((response) => {
         setQuestions(response.data);
         const allCats = [...new Set(response.data.map((q) => q.category))];
@@ -43,8 +44,8 @@ const QuestionsPage = () => {
   );
 
   const deleteCategory = (category) => {
-    axios
-      .delete('http://localhost:3000/deletecategory', { data: { category } })
+    axiosInstance
+      .delete('/deletecategory', { data: { category } })
       .then((response) => {
         toast.success(response.data.message);
         setQuestions((prevQuestions) =>
@@ -127,11 +128,11 @@ const QuestionsPage = () => {
             <button
               onClick={() => {
                 if (isActive !== "all") {
-                  navigate("/questions/add-question", {
+                  navigate("/admin/questions/add-question", {
                     state: { selectedCategory: isActive },
                   });
                 } else {
-                  navigate("/questions/add-question");
+                  navigate("/admin/questions/add-question");
                 }
               }}
               className="bg-green-500 sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
@@ -141,11 +142,11 @@ const QuestionsPage = () => {
             <button
               onClick={() => {
                 if (isActive !== "all") {
-                  navigate("/questions/upload-questions", {
+                  navigate("/admin/questions/upload-questions", {
                     state: { selectedCategory: isActive },
                   });
                 } else {
-                  navigate("/questions/upload-questions");
+                  navigate("/admin/questions/upload-questions");
                 }
               }}
               className="border-1 border-green-500 sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"

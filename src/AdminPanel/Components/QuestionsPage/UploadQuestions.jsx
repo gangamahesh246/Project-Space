@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const UploadQuestions = () => {
   const location = useLocation();
@@ -61,8 +62,8 @@ const UploadQuestions = () => {
       });
 
       try {
-        const response = await axios.post(
-          "http://localhost:3000/uploadquestions",
+        const response = await axiosInstance.post(
+          "/uploadquestions",
           {
             category,
             questions: formattedQuestions,
@@ -76,7 +77,7 @@ const UploadQuestions = () => {
     };
 
     reader.readAsBinaryString(selectedFile);
-    navigate("/questions");
+    navigate("/admin/questions");
   };
 
   return (

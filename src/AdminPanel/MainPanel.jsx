@@ -10,7 +10,7 @@ import { BsFillPersonPlusFill } from "react-icons/bs";
 import { LuLogOut } from "react-icons/lu";
 import { IoNotifications } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
-
+import { useDispatch, useSelector } from "react-redux";
 
 import DashBoard from "./pages/DashBoard";
 import ExamPage from "./pages/ExamPage";
@@ -26,32 +26,30 @@ import AddStudent from "./Components/StudentPage/AddStudent";
 import UploadStudents from "./Components/StudentPage/UploadStudents";
 import StudentPersonalDetails from "./Components/StudentPage/StudentPersonalDetails";
 import Profile from "./pages/Profile";
-import { useSelector } from "react-redux";
-import axios from "axios";
 import axiosInstance from "../utils/axiosInstance";
+import { logout } from "../slices/authSlice";
 
 let dashboardNavs = [
-  { name: "dashboard", icon: <MdSpaceDashboard /> },
-  { name: "exam", icon: <FaPencilAlt /> },
-  { name: "questions", icon: <RiBookShelfFill /> },
-  { name: "students", icon: <IoPersonSharp /> },
-  { name: "more", icon: <LuBlocks /> },
+  { name: "dashboard", path: "/admin/dashboard", icon: <MdSpaceDashboard /> },
+  { name: "exam", path: "/admin/exam", icon: <FaPencilAlt /> },
+  { name: "questions", path: "/admin/questions", icon: <RiBookShelfFill /> },
+  { name: "students", path: "/admin/students", icon: <IoPersonSharp /> },
+  { name: "more", path: "/admin/more", icon: <LuBlocks /> },
 ];
 
 const MainPanel = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
 
   const data = useSelector((state) => state.login);
-  console.log(data.user)
 
-  const [activeTab, setactiveTab] = useState("dashboard");
   const [menu, setMenu] = useState(false);
   const [profile, setProfile] = useState({
     fullName: "",
-    photo: "profile.jpg",
+    photo: "",
   });
-  console.log(profile)
+
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -60,22 +58,12 @@ const MainPanel = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    const firstSegment = location.pathname.split("/")[1] || "dashboard";
-
-    if (dashboardNavs.some((nav) => nav.name === firstSegment)) {
-      setactiveTab(firstSegment);
-    } else {
-      setactiveTab("");
-    }
-  }, [location.pathname]);
-
   const isMobile = windowWidth <= 768;
   const isSidebarAnimated = isMobile && menu;
   const isSidebarVisible = !isMobile || menu;
 
   useEffect(() => {
-    if (!data.token) return
+    if (!data.token) return;
     axiosInstance
       .get("/matchprofile", {
         params: {
@@ -91,6 +79,11 @@ const MainPanel = () => {
       });
   }, [data.token]);
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
+
   return (
     <div className="w-full h-screen bg-aliceblue">
       <div className="w-full h-full shadow-2xl overflow-hidden flex">
@@ -105,11 +98,11 @@ const MainPanel = () => {
               id="sidebar"
             >
               <div className="sm:w-[170px] sm:h-[40px] sm:mt-5 lg:mt-0 lg:w-[220px] lg:h-[70px] flex justify-center items-center">
-                <img src="Qube.png" alt="Logo" />
+                <img src="Qubee.png" alt="Logo" />
               </div>
               <div className="w-full h-[350px] flex flex-col justify-evenly items-center mt-5 lg:border-r-1 lg:border-[#a4bfce]">
                 {dashboardNavs.map((navs, i) => {
-                  const isActive = activeTab === navs.name;
+                  const isActive = location.pathname.startsWith(navs.path);
                   return (
                     <div
                       key={i}
@@ -117,7 +110,7 @@ const MainPanel = () => {
                       style={isActive ? { border: "2px solid #a4bfce" } : {}}
                       onClick={() => {
                         setMenu(false);
-                        navigate(`/${navs.name}`, { replace: false });
+                        navigate(navs.path);
                       }}
                     >
                       {navs.icon}
@@ -136,7 +129,9 @@ const MainPanel = () => {
                   </div>
                   <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
                     <LuLogOut size={17} />
-                    <p className="ml-3 font_primary font-semibold">Logout</p>
+                    <p 
+                    onClick={handleLogout}
+                    className="ml-3 font_primary font-semibold">Logout</p>
                   </div>
                 </div>
               </div>
@@ -161,10 +156,13 @@ const MainPanel = () => {
             <div className="flex justify-center items-center gap-2">
               <IoNotifications size={20} color="#a4bfce" />
               <div
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate("/admin/profile")}
                 className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"
                 style={{
-                  backgroundImage: `url(http://localhost:3000/public/${profile.photo || profile.photo
+                  backgroundImage: `url(${
+                    profile.photo
+                      ? `http://localhost:3000/public/${profile.photo}`
+                      : "/profile.jpg"
                   })`,
                 }}
                 alt="profile"
@@ -175,16 +173,11 @@ const MainPanel = () => {
             </div>
           </div>
           <div className="w-full h-11/12  overflow-auto hide-scrollbar md:mt-5">
-            <p
-              className="capitalize sm:text-2xl xl:text-[30px] font_primary text-aliceblue tracking-wide"
-              style={
-                activeTab === "dashboard"
-                  ? { display: "block" }
-                  : { display: "none" }
-              }
-            >
-              {activeTab}
-            </p>
+            {location.pathname === "/admin/dashboard" && (
+              <p className="capitalize sm:text-2xl xl:text-[30px] font_primary text-aliceblue tracking-wide">
+                Dashboard
+              </p>
+            )}
             <Routes>
               <Route index element={<DashBoard />} />
               <Route path="dashboard" element={<DashBoard />} />

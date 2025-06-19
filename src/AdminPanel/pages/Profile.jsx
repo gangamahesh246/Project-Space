@@ -1,10 +1,12 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import axiosInstance from "../../utils/axiosInstance";
 
 const Profile = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const data = useSelector((state) => state.login);
+
   const [PreviewImage, setPreviewImage] = useState("");
   const [file, setFile] = useState(null);
 
@@ -23,7 +25,6 @@ const Profile = () => {
     dateOfJoining: "",
     facultyRoles: "",
     username: "",
-    password: "",
     role: "Admin",
     qualifications: [
       {
@@ -38,9 +39,9 @@ const Profile = () => {
   const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/getprofile", {
-        params: { employeeId: "EMP123456" },
+    axiosInstance
+      .get("/getprofile", {
+        params: { employeeId: data.user.employeeId },
       })
       .then((response) => {
         const data = response.data;
@@ -54,13 +55,10 @@ const Profile = () => {
         });
       })
       .catch((err) => {
-        console.error("Error fetching profile:", err);
+        toast.error("Error fetching profile:", err);
       });
   }, []);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -337,23 +335,6 @@ const Profile = () => {
             onChange={handleChange}
             className="w-full p-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
-
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full p-2 mb-4 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-1 focus:ring-secondary"
-            />
-            <span
-              onClick={togglePasswordVisibility}
-              className="absolute right-3 top-2.5 cursor-pointer text-gray-600"
-            >
-              {showPassword ? <FiEyeOff /> : <FiEye />}
-            </span>
-          </div>
 
           <p className="bg-white p-2 px-4 shadow-md text-gray-500 w-fit h-fit">
             {form.role}

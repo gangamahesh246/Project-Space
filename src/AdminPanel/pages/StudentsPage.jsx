@@ -8,6 +8,7 @@ import { MdOutlineDelete } from "react-icons/md";
 import { BsFilePerson } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axiosInstance from "../../utils/axiosInstance";
 
 const StudentsPage = () => {
   const navigate = useNavigate();
@@ -21,8 +22,8 @@ const StudentsPage = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/getstudents")
+    axiosInstance
+      .get("/getstudents")
       .then((response) => {
         setStudents(response.data);
         const allbranches = [...new Set(response.data.map((q) => q.branch))];
@@ -66,8 +67,8 @@ const StudentsPage = () => {
     .map((student) => student.student_mail);
 
   const deleteBranchOrSection = (branch, section = null) => {
-    axios
-      .delete("http://localhost:3000/deletebranch", {
+    axiosInstance
+      .delete("/deletebranch", {
         data: section ? { branch, section } : { branch },
       })
       .then((response) => {
@@ -92,8 +93,8 @@ const StudentsPage = () => {
   };
 
   const handleDelete = (mail) => {
-    axios
-      .delete(`http://localhost:3000/deletestudent/${mail}`)
+    axiosInstance
+      .delete(`/deletestudent/${mail}`)
       .then((response) => {
         toast.success(response.data.message);
         setStudents((prevStudents) =>
@@ -245,7 +246,7 @@ const StudentsPage = () => {
                   state.selectedSection = expandedSection;
                 }
 
-                navigate("/students/add-student", { state });
+                navigate("/admin/students/add-student", { state });
               }}
               className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
             >
@@ -263,7 +264,7 @@ const StudentsPage = () => {
                   state.selectedSection = expandedSection;
                 }
 
-                navigate("upload-students", { state });
+                navigate("/admin/students/upload-students", { state });
               }}
               className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
             >

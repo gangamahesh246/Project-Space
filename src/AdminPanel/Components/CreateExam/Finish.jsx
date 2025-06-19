@@ -6,6 +6,7 @@ import { IoIosClose } from "react-icons/io";
 import { resetExamState } from "../../../slices/ExamSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../utils/axiosInstance";
 
 
 const Finish = ({ coverFile }) => {
@@ -29,8 +30,8 @@ const Finish = ({ coverFile }) => {
       formData.append("questions", JSON.stringify(data.questions));
       formData.append("settings", JSON.stringify(data.settings));
 
-      const response = await axios.post(
-        "http://localhost:3000/postexam",
+      const response = await axiosInstance.post(
+        "/postexam",
         formData,
         {
           headers: {
@@ -40,7 +41,7 @@ const Finish = ({ coverFile }) => {
       );
       toast.success(response.data.message)
       dispatch(resetExamState());
-      navigate("/exam");
+      navigate("/admin/exam");
     } catch (error) {
       toast.error(error?.response?.data?.message || error.message);
     }

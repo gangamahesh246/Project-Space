@@ -1,14 +1,12 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ children }) => {
-  const token = useSelector((state) => state.login.token);
-  const isAdmin = useSelector((state) => state.login.isAdmin);
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { token, isAdmin } = useSelector((state) => state.login);
 
-  if (!token || !isAdmin) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!token) return <Navigate to="/login" replace />;
+  if (adminOnly && !isAdmin)
+    return <Navigate to="/student" replace />;
 
   return children;
 };

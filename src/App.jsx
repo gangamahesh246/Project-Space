@@ -7,13 +7,32 @@ import {
 import Home from "./Home_page/Home";
 import Login from "./Home_page/Login";
 import MainPanel from "./AdminPanel/MainPanel";
+import StudentPanel from "./StudentPanel/StudentPanel";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./ProctectedRoute";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "./slices/authSlice";
+import { useEffect } from "react";
 
 const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const auth = JSON.parse(localStorage.getItem("auth"));
+
+    if (auth && auth.token && auth.user) {
+      dispatch(
+        loginSuccess({
+          token: auth.token,
+          user: auth.user,
+          isAdmin: auth.user.isAdmin,
+        })
+      );
+    }
+  }, []);
   return (
-    <Router>
+    <>
       <ToastContainer
         toastClassName="toastify-custom"
         position="top-right"
@@ -31,16 +50,25 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly={true}>
               <MainPanel />
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/student/*"
+          element={
+            <ProtectedRoute>
+              <StudentPanel />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Router>
+    </>
   );
 };
 

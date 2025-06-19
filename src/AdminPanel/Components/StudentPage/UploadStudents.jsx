@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const UploadStudents = () => {
   const navigate = useNavigate();
@@ -43,8 +44,8 @@ const UploadStudents = () => {
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:3000/uploadstudents",
+        const response = await axiosInstance.post(
+          "/uploadstudents",
           {
             branch,
             section,
@@ -67,7 +68,7 @@ const UploadStudents = () => {
     };
 
     reader.readAsBinaryString(selectedFile);
-    navigate("/students");
+    navigate("/admin/students");
   };
 
   return (

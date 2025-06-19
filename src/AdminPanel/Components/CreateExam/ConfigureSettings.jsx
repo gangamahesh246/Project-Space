@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { setSettings } from "../../../slices/ExamSlice";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const dispatch = useDispatch();
@@ -18,8 +19,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const [isActive, setIsActive] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/getstudents")
+    axiosInstance
+      .get("/getstudents")
       .then((response) => {
         setStudents(response.data);
         const allbranches = [...new Set(response.data.map((q) => q.branch))];
@@ -64,8 +65,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
 
   useEffect(() => {
     if (isOpen && id) {
-      axios
-        .get(`http://localhost:3000/getexam/${id}`)
+      axiosInstance
+        .get(`/getexam/${id}`)
         .then((res) => {
           if (res.data?.settings) {
             setLocalSettings(res.data.settings);
@@ -121,8 +122,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
 
   const updateExam = async (id, examData) => {
     try {
-      const response = await axios.put(
-        `http://localhost:3000/updateexam/${id}`,
+      const response = await axiosInstance.put(
+        `/updateexam/${id}`,
         {
           examData,
         }

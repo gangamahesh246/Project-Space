@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import axiosInstance from "../../../utils/axiosInstance";
+
 
 const AddQuestion = () => {
   const location = useLocation();
@@ -38,7 +40,6 @@ const AddQuestion = () => {
         ? [...correctAnswers]
         : [correctAnswers?.[0] || ""];
 
-    console.log(correct);
     const isValid = correct.every(
       (ans) =>
         typeof ans === "string" &&
@@ -64,8 +65,8 @@ const AddQuestion = () => {
     };
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/uploadquestions",
+      const res = await axiosInstance.post(
+        "/uploadquestions",
         newQuestionData
       );
       toast.success(res.data.message);
