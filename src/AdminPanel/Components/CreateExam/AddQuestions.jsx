@@ -7,6 +7,7 @@ import { IoIosClose } from "react-icons/io";
 import { setQuestions, setSettings } from "../../../slices/ExamSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const PreSelected = ({ handleFileUpload, file }) => (
   <div className="p-4 xl:h-5/6 flex flex-col items-center justify-center gap-2">
@@ -42,8 +43,8 @@ const Categories = () => {
   const [isActive, setIsActive] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/getquestions")
+    axiosInstance
+      .get("/getquestions")
       .then((response) => {
         setQQuestions(response.data);
         const allCats = [...new Set(response.data.map((q) => q.category))];

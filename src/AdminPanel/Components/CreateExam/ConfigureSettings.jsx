@@ -6,6 +6,7 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 import { setSettings } from "../../../slices/ExamSlice";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
+import socket from "../../../utils/socket";
 
 const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const dispatch = useDispatch();
@@ -129,7 +130,13 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         }
       );
 
+      const postedExam = response.data.updatedExam;
       toast.success(response.data.message);
+
+      socket.emit("assignExamToStudents", {
+        studentEmails: postedExam.settings.assignExamTo.specificUsers,
+        examData: postedExam,
+      });
     } catch (error) {
       toast.error(error?.response?.data?.message || error.message);
     }

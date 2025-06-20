@@ -1,7 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { loginSuccess } from "../slices/authSlice";
+import { loginSuccess } from "../slices/adminAuthSlice";
+import { loginStudent } from "../slices/studentAuthSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -42,20 +43,29 @@ const Login = () => {
         return;
       }
 
-      localStorage.setItem("auth", JSON.stringify({ token, user }));
+      const authData = {
+        token,
+        user,
+      };
 
-      dispatch(
-        loginSuccess({
-          token,
-          isAdmin: user.isAdmin,
-          user,
-        })
-      );
+      if (user.isAdmin) {
+        dispatch(loginSuccess({ ...authData, isAdmin: true }));
+        localStorage.setItem(
+          "adminAuth",
+          JSON.stringify({ ...authData, isAdmin: true })
+        );
+        navigate("/admin/dashboard");
+      } else {
+        dispatch(loginStudent(authData));
+        localStorage.setItem("studentAuth", JSON.stringify(authData));
+        navigate("/student/exam");
+      }
+
       toast.success(message || "Login successful");
       if (user.isAdmin) {
         navigate("/admin/dashboard");
       } else {
-        navigate("/student"); 
+        navigate("/student/exam");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");

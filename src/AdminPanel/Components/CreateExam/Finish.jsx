@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { IoIosClose } from "react-icons/io";
@@ -7,7 +6,7 @@ import { resetExamState } from "../../../slices/ExamSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
-
+import socket from "../../../utils/socket";
 
 const Finish = ({ coverFile }) => {
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ const Finish = ({ coverFile }) => {
 
   const publish = async () => {
     try {
-      const formData = new FormData(); 
+      const formData = new FormData();
 
       formData.append("title", data.basicInfo.title);
       formData.append("category", data.basicInfo.category);
@@ -25,21 +24,25 @@ const Finish = ({ coverFile }) => {
 
       if (coverFile) {
         formData.append("coverPreview", coverFile);
-      } 
+      }
 
       formData.append("questions", JSON.stringify(data.questions));
       formData.append("settings", JSON.stringify(data.settings));
 
-      const response = await axiosInstance.post(
-        "/postexam",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      toast.success(response.data.message)
+      const response = await axiosInstance.post("/postexam", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const postedExam = response.data.exam;
+      toast.success(response.data.message);
+
+      socket.emit("assignExamToStudents", {
+        studentEmails: data.settings.assignExamTo.specificUsers,
+        examData: postedExam,
+      });
+
       dispatch(resetExamState());
       navigate("/admin/exam");
     } catch (error) {

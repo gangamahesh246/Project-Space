@@ -8,7 +8,6 @@ import { IoPersonSharp } from "react-icons/io5";
 import { LuBlocks } from "react-icons/lu";
 import { BsFillPersonPlusFill } from "react-icons/bs";
 import { LuLogOut } from "react-icons/lu";
-import { IoNotifications } from "react-icons/io5";
 import { HiMenu } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -27,7 +26,7 @@ import UploadStudents from "./Components/StudentPage/UploadStudents";
 import StudentPersonalDetails from "./Components/StudentPage/StudentPersonalDetails";
 import Profile from "./pages/Profile";
 import axiosInstance from "../utils/axiosInstance";
-import { logout } from "../slices/authSlice";
+import { logout } from "../slices/adminAuthSlice";
 
 let dashboardNavs = [
   { name: "dashboard", path: "/admin/dashboard", icon: <MdSpaceDashboard /> },
@@ -154,7 +153,9 @@ const MainPanel = () => {
               </p>
             </div>
             <div className="flex justify-center items-center gap-2">
-              <IoNotifications size={20} color="#a4bfce" />
+              <div className="relative cursor-pointer">
+                🔔
+              </div>
               <div
                 onClick={() => navigate("/admin/profile")}
                 className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"

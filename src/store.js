@@ -1,11 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import examReducer from "./slices/ExamSlice";
-import loginReducer from "./slices/authSlice"
+import adminReducer from "./slices/adminAuthSlice";
+import studentReducer from "./slices/studentAuthSlice";
+import assignedExamReducer from "./slices/assignedExamSlice";
 
 const store = configureStore({
   reducer: {
     exam: examReducer,
-    login: loginReducer
+    login: adminReducer,
+    student: studentReducer,
+    assignedExam: assignedExamReducer
   },
 });
 

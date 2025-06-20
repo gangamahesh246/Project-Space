@@ -12,7 +12,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./ProctectedRoute";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "./slices/authSlice";
+import { loginSuccess } from "./slices/adminAuthSlice";
 import { useEffect } from "react";
 
 const App = () => {

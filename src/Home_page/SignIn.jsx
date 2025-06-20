@@ -3,7 +3,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "../slices/authSlice";
+import { loginSuccess } from "../slices/adminAuthSlice";
 import { useNavigate } from "react-router-dom";
 
 const SignIn = ({ setRegister }) => {
@@ -40,7 +40,7 @@ const SignIn = ({ setRegister }) => {
         return;
       }
 
-      localStorage.setItem("auth", JSON.stringify({ token, user }));
+      localStorage.setItem("adminAuth", JSON.stringify({ token, user }));
 
       dispatch(
         loginSuccess({
