@@ -97,7 +97,7 @@ const MainPanel = () => {
               id="sidebar"
             >
               <div className="sm:w-[170px] sm:h-[40px] sm:mt-5 lg:mt-0 lg:w-[220px] lg:h-[70px] flex justify-center items-center">
-                <img src="Qubee.png" alt="Logo" />
+                <img src="/Qubee.png" alt="Logo" />
               </div>
               <div className="w-full h-[350px] flex flex-col justify-evenly items-center mt-5 lg:border-r-1 lg:border-[#a4bfce]">
                 {dashboardNavs.map((navs, i) => {
@@ -160,11 +160,7 @@ const MainPanel = () => {
                 onClick={() => navigate("/admin/profile")}
                 className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"
                 style={{
-                  backgroundImage: `url(${
-                    profile.photo
-                      ? `http://localhost:3000/public/${profile.photo}`
-                      : "/profile.jpg"
-                  })`,
+                  backgroundImage: `url(${encodeURI(profile.photo)})`,
                 }}
                 alt="profile"
               ></div>
@@ -182,6 +178,7 @@ const MainPanel = () => {
             <Routes>
               <Route index element={<DashBoard />} />
               <Route path="dashboard" element={<DashBoard />} />
+
               <Route path="exam">
                 <Route index element={<ExamPage />} />
                 <Route path="create-exam" element={<StepWrapper />} />
@@ -192,11 +189,13 @@ const MainPanel = () => {
                 />
                 <Route path="statistics/:examId" element={<Statistics />} />
               </Route>
+
               <Route path="questions">
                 <Route index element={<QuestionsPage />} />
                 <Route path="add-question" element={<AddQuestion />} />
                 <Route path="upload-questions" element={<UploadQuestions />} />
               </Route>
+              
               <Route path="students">
                 <Route index element={<StudentsPage />} />
                 <Route path="add-student" element={<AddStudent />} />

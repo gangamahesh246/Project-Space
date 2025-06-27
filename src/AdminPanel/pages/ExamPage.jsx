@@ -10,6 +10,7 @@ import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { LuExternalLink } from "react-icons/lu";
 import { toast } from "react-toastify";
+import socket from "../../utils/socket";
 
 const ExamPage = () => {
   const navigate = useNavigate();
@@ -23,14 +24,14 @@ const ExamPage = () => {
     axiosInstance
       .get("/getexam")
       .then((res) => {
-        const today = new Date().toISOString().split("T")[0];
-
-        const updatedExams = res.data.map((exam) => {
-          const { from, to } = exam.settings.availability.timeLimitDays || {};
+        const updatedExams = res.data?.map((exam) => {
+          const timeLimitDays = exam?.settings?.availability?.timeLimitDays;
+          const { from, to } = timeLimitDays || {};
 
           let isActive = false;
 
           if (from && to && !isNaN(new Date(from)) && !isNaN(new Date(to))) {
+            const today = new Date().toISOString().split("T")[0];
             const fromDate = new Date(from).toISOString().split("T")[0];
             const toDate = new Date(to).toISOString().split("T")[0];
 
@@ -45,7 +46,9 @@ const ExamPage = () => {
 
         setExam(updatedExams);
       })
-      .catch((error) => toast.error(error?.response?.data?.message || error.message));
+      .catch((error) =>
+        toast.error(error?.response?.data?.message || error.message)
+      );
   };
 
   useEffect(() => {
@@ -59,8 +62,15 @@ const ExamPage = () => {
         toast.success(res.data.message);
         fetchExams();
       })
-      .catch((error) => toast.error(error?.response?.data?.message || error.message));
+      .catch((error) =>
+        toast.error(error?.response?.data?.message || error.message)
+      );
   };
+
+socket.emit("deleteExamFromStudents", {
+  examId: id,
+});
+
 
   const filteredExams = exam.filter(
     (e) =>
@@ -105,7 +115,7 @@ const ExamPage = () => {
               className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex justify-evenly items-center sm:gap-1 xl:gap-2 border-t-1 border-gray-300"
             >
               <img
-                src={`http://localhost:3000/public${item.basicInfo.coverPreview}`}
+                src={item.basicInfo.coverPreview}
                 alt="Cover"
                 className="sm:w-20 sm:h-20 md:w-30 md:h-20 object-cover rounded"
               />
@@ -116,7 +126,9 @@ const ExamPage = () => {
                     <LuExternalLink
                       className="cursor-pointer"
                       color="green"
-                      onClick={() => navigate(`/admin/exam/takenlist/${item._id}`)}
+                      onClick={() =>
+                        navigate(`/admin/exam/takenlist/${item._id}`)
+                      }
                     />
                   </p>{" "}
                   <p
@@ -132,7 +144,7 @@ const ExamPage = () => {
                 <div className="font_primary text-sm font-semibold text-gray-500 flex items-center lg:gap-1 overflow-x-auto">
                   <p>{item.basicInfo.category} |</p>
                   <p>
-                    Exam Taken Times: {item.settings.examTakenTimes.multiple} |
+                    Exam Taken Times: {item.settings?.examTakenTimes?.multiple ?? "N/A"} |
                   </p>
                   <p>
                     Total Points:{" "}
@@ -156,20 +168,29 @@ const ExamPage = () => {
                 <div className="flex items-center gap-3 text-sm font_primary text-green-500 mt-5">
                   <div className="gap-1 sm:hidden md:flex">
                     <p className="text-gray-500">
-                      Open: {item.settings.availability.timeLimitDays.from}
+                      Open: {item.settings?.availability?.timeLimitDays?.from ?? "N/A"}
                     </p>
                     <p className="text-gray-500">
-                      - {item.settings.availability.timeLimitDays.to}
+                      - {item.settings?.availability?.timeLimitDays?.to ?? "N/A"}
                     </p>
                   </div>
                   <p
                     className="md:ml-30 hover:underline cursor-pointer"
-                    onClick={() => navigate(`/admin/exam/exam-questions/${item._id}`)}
+                    onClick={() =>
+                      navigate(`/admin/exam/exam-questions/${item._id}`)
+                    }
                   >
                     Questions
                   </p>{" "}
-                  |<p className="hover:underline cursor-pointer"
-                    onClick={() => navigate(`/admin/exam/statistics/${item._id}`)}>Statistics</p>
+                  |
+                  <p
+                    className="hover:underline cursor-pointer"
+                    onClick={() =>
+                      navigate(`/admin/exam/statistics/${item._id}`)
+                    }
+                  >
+                    Statistics
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-5 pl-2 sm:pr-1 md:pr-0 border-l-1 border-gray-500">

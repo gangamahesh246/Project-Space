@@ -8,6 +8,7 @@ import Home from "./Home_page/Home";
 import Login from "./Home_page/Login";
 import MainPanel from "./AdminPanel/MainPanel";
 import StudentPanel from "./StudentPanel/StudentPanel";
+import Test from "./StudentPanel/components/Test";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./ProctectedRoute";
@@ -49,6 +50,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/test" element={<Test />} />
         <Route
           path="/admin/*"
           element={

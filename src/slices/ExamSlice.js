@@ -8,7 +8,6 @@ const initialState = {
     description: "",
   },
   questions: [],
-
   settings: {},
 };
 

@@ -139,25 +139,11 @@ const Profile = () => {
           <div
             className="w-50 h-50 rounded-lg border-2 border-green-500 mb-6 ml-2 flex justify-center items-center cursor-pointer"
             style={{
-              backgroundImage: `url(${
-                PreviewImage || `http://localhost:3000/public/${form.photo}`
-              })`,
+              backgroundImage: `url(${encodeURI(PreviewImage || form.photo)})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
           >
-            <label
-              htmlFor="fileInput"
-              className="border border-green-500 text-green-500 rounded-md font-semibold py-2 px-4 cursor-pointer text-center"
-            >
-              <span>{file ? file.name : "Upload file"}</span>
-            </label>
-            <input
-              id="fileInput"
-              type="file"
-              className="hidden"
-              onChange={handleCoverChange}
-            />
           </div>
           <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
             Personal Information

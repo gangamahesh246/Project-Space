@@ -14,8 +14,38 @@
   --color-ghostwhite: #f8f8ff;
   --color-snow: #fafdff;
   --color-offwhite: #faf9f6;
-  --color-ivory: #fffff0
+  --color-ivory: #fffff0;
 }
+.input-style {
+  width: 100%;
+  padding: 0.5rem; 
+  margin-bottom: 1rem; 
+  border: 1px solid #d1d5db; 
+  border-radius: 0.5rem;
+  outline: none;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.input-style:focus {
+  box-shadow: 0 0 0 1px #B1FDAF; 
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+
+
+
+.shadow-deep {
+  box-shadow: 0 4px 20px rgba(75, 85, 99, 0.6);
+}
+
 
 .hide-scrollbar {
   scrollbar-width: none;        

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { IoIosClose } from "react-icons/io";
@@ -11,8 +11,28 @@ import socket from "../../../utils/socket";
 const Finish = ({ coverFile }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
+  const admin = useSelector((state) => state.login);
+
   const data = useSelector((state) => state.exam);
   const [isOpen, setIsOpen] = useState(false);
+  const [adminName, setAdminName] = useState("");
+  console.log("Admin Name:", adminName);
+
+  useEffect(() => {
+    axiosInstance
+      .get("/matchprofile", {
+        params: {
+          employeeId: admin.user.employeeId,
+        },
+      })
+      .then((response) => {
+        setAdminName(response.data[0].fullName);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [admin.user.employeeId]);
 
   const publish = async () => {
     try {
@@ -41,6 +61,7 @@ const Finish = ({ coverFile }) => {
       socket.emit("assignExamToStudents", {
         studentEmails: data.settings.assignExamTo.specificUsers,
         examData: postedExam,
+        assignedBy: adminName
       });
 
       dispatch(resetExamState());

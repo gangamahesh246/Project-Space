@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Outlet,
+} from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdSpaceDashboard } from "react-icons/md";
 import { FaPencilAlt } from "react-icons/fa";
-import { IoPersonSharp } from "react-icons/io5";
-import { LuBlocks } from "react-icons/lu";
-import { VscOutput } from "react-icons/vsc";
+import { RiComputerFill } from "react-icons/ri";
+import { MdLeaderboard } from "react-icons/md";
+import { MdAssignment } from "react-icons/md";
+import { IoMdHelpCircle } from "react-icons/io";
 import { LuLogOut } from "react-icons/lu";
 import { HiMenu } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +21,6 @@ import socket from "../utils/socket";
 
 import axiosInstance from "../utils/axiosInstance";
 import { logoutStudent } from "../slices/studentAuthSlice";
-import { addAssignedExam, clearNewBadge } from "../slices/assignedExamSlice";
 import ReverseCountdown from "./ReverseCountDown";
 
 import StudentExamPage from "./pages/StudentExamPage";
@@ -22,17 +28,27 @@ import StudentResultsPage from "./pages/StudentResultsPage";
 import StudentStatisticsPage from "./pages/StudentStatisticsPage";
 import StudentProfilePage from "./pages/StudentProfilePage";
 import StudentMorePage from "./pages/StudentMorePage";
+import ExamInstructions from "./components/Instructions";
+import Test from "./components/Test";
 
 let dashboardNavs = [
-  { name: "exam", path: "/student/exam", icon: <FaPencilAlt /> },
-  { name: "results", path: "/student/results", icon: <VscOutput /> },
   {
-    name: "statistics",
-    path: "/student/statistics",
+    name: "dashboard",
+    path: "/student/dashboard",
     icon: <MdSpaceDashboard />,
   },
-  { name: "profile", path: "/student/profile", icon: <IoPersonSharp /> },
-  { name: "more", path: "/student/more", icon: <LuBlocks /> },
+  { name: "exam", path: "/student/exam", icon: <FaPencilAlt /> },
+  {
+    name: "intreview questions",
+    path: "/student/intreview",
+    icon: <RiComputerFill />,
+  },
+  {
+    name: "practice tests",
+    path: "/student/practice",
+    icon: <MdAssignment />,
+  },
+  { name: "leaderboard", path: "/student/leaderboard", icon: <MdLeaderboard /> },
 ];
 
 const StudentPanel = () => {
@@ -41,7 +57,7 @@ const StudentPanel = () => {
   const location = useLocation();
 
   const data = useSelector((state) => state.student);
-  const { hasNew, exams } = useSelector((state) => state.assignedExam);
+  // const { hasNew, exams, assignedBy } = useSelector((state) => state.assignedExam);
 
   const [menu, setMenu] = useState(false);
   const [notify, setNotify] = useState(false);
@@ -57,9 +73,7 @@ const StudentPanel = () => {
       socket.emit("registerStudent", data.user.student_id);
     }
 
-    socket.on("examAssigned", (examData) => {
-      dispatch(addAssignedExam(examData));
-
+    socket.on("examAssigned", (examData, assignedBy) => {
       toast.info(`New Exam: ${examData.basicInfo.title}`);
 
       const audio = new Audio("/sounds/notification.mp3");
@@ -98,7 +112,7 @@ const StudentPanel = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-aliceblue">
+    <div className="w-full h-screen bg-red-500">
       <div className="w-full h-full shadow-2xl overflow-hidden flex">
         <AnimatePresence>
           {isSidebarVisible && (
@@ -119,8 +133,8 @@ const StudentPanel = () => {
                   return (
                     <div
                       key={i}
-                      className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer"
-                      style={isActive ? { border: "2px solid #a4bfce" } : {}}
+                      className="w-[200px] h-[50px] text-[#a4bfce] pl-3 flex justify-start items-center shadow-2xl cursor-pointer"
+                      style={isActive ? { background: "white", color: "#081A28" } : {}}
                       onClick={() => {
                         setMenu(false);
                         navigate(navs.path);
@@ -136,6 +150,10 @@ const StudentPanel = () => {
               </div>
               <div className="w-full h-fit pt-5 mt-5 flex flex-col justify-center items-center lg:border-r-1 lg:border-[#a4bfce]">
                 <div className="w-5/6 h-fit flex flex-col justify-evenly items-center border-t-2 border-[#a4bfce]">
+                  <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
+                    <IoMdHelpCircle size={17} />
+                    <p className="ml-3 font_primary font-semibold">Help & Support</p>
+                  </div>
                   <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
                     <LuLogOut size={17} />
                     <p
@@ -168,11 +186,11 @@ const StudentPanel = () => {
             <div className="flex justify-center items-center gap-2">
               <div className="relative cursor-pointer" onClick={handleClick}>
                 🔔
-                {hasNew && (
+                {/* {hasNew && (
                   <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
                     {exams.length}
                   </span>
-                )}
+                )} */}
               </div>
               {notify && (
                 <div className="absolute right-40 top-15 w-fit bg-white rounded-lg shadow-lg">
@@ -198,7 +216,14 @@ const StudentPanel = () => {
                               </p>
                             </div>
                             <div className="flex gap-3">
-                              <ReverseCountdown to={exam.settings.availability.timeLimitDays.to} />
+                              <ReverseCountdown
+                                to={exam.settings.availability.timeLimitDays.to}
+                              />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold font_primary text-primary">
+                                {assignedBy}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -208,13 +233,10 @@ const StudentPanel = () => {
                 </div>
               )}
               <div
+              onClick={() => navigate("/student/profile")}
                 className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"
                 style={{
-                  backgroundImage: `url(${
-                    profile.photo
-                      ? `http://localhost:3000/public/${profile.photo}`
-                      : "/profile.jpg"
-                  })`,
+                  backgroundImage: `url(https://info.aec.edu.in/ACET/StudentPhotos/${data.user.student_id.split("@")[0]}.jpg)`,
                 }}
                 alt="profile"
               ></div>
@@ -231,14 +253,16 @@ const StudentPanel = () => {
             )}
 
             <Routes>
-              <Route index element={<StudentExamPage />} />
-              <Route path="exam" element={<StudentExamPage />} />
+              <Route path="exam">
+                <Route index element={<StudentExamPage />} />
+                <Route path="instructions" element={<ExamInstructions />} />
+              </Route>
 
               <Route path="results">
                 <Route index element={<StudentResultsPage />} />
               </Route>
 
-              <Route path="statistics">
+              <Route path="dashboard">
                 <Route index element={<StudentStatisticsPage />} />
               </Route>
 
