@@ -92,7 +92,7 @@ const StudentExamPage = () => {
           toast.error(error?.response?.data?.message || error.message);
         });
     }
-  }, [studentId]);
+  }, [exams, studentId]);
 
   const filteredExams = exams.filter((e) => {
     const matchesStatus = status === "all status" || e.status === status;

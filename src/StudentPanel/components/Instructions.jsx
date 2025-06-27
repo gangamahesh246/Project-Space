@@ -31,11 +31,11 @@ const ExamInstructions = () => {
   return (
     <div className="max-w-full flex justify-center items-center p-10 bg-aliceblue shadow-md font-primary text-gray-800">
       <div className="w-[75%] p-5 bg-white shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold text-center mb-6 border-b-2 border-gray-300 pb-2">
+        <h2 className="text-2xl font-bold capitalize text-center mb-6 border-b-2 border-gray-300 pb-2">
           {instructions?.basicInfo?.title}
         </h2>
 
-        <div className=" text-[15px]">
+        <div className=" text-[15px] capitalize">
           <p>
             <strong>Exam :</strong>{" "}
             {instructions?.basicInfo?.title}

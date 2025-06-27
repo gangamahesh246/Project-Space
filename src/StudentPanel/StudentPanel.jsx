@@ -29,7 +29,6 @@ import StudentStatisticsPage from "./pages/StudentStatisticsPage";
 import StudentProfilePage from "./pages/StudentProfilePage";
 import StudentMorePage from "./pages/StudentMorePage";
 import ExamInstructions from "./components/Instructions";
-import Test from "./components/Test";
 
 let dashboardNavs = [
   {
@@ -62,8 +61,7 @@ const StudentPanel = () => {
   const [menu, setMenu] = useState(false);
   const [notify, setNotify] = useState(false);
   const [profile, setProfile] = useState({
-    fullName: "Vijay krishna",
-    photo: "",
+    fullname: ""
   });
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -110,9 +108,25 @@ const StudentPanel = () => {
       console.log("Latest Exam: ", latestExam);
     }
   };
+  useEffect(() => {
+    if (!data.token) return;
+    axiosInstance
+      .get("/student/matchprofile", {
+        params: {
+          userId: data.user.student_id,
+          username: "",
+        },
+      })
+      .then((response) => {
+        setProfile(response.data[0]);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [data.token]);
 
   return (
-    <div className="w-full h-screen bg-red-500">
+    <div className="w-full h-screen">
       <div className="w-full h-full shadow-2xl overflow-hidden flex">
         <AnimatePresence>
           {isSidebarVisible && (
@@ -180,7 +194,7 @@ const StudentPanel = () => {
                 }}
               />
               <p className="text-sm font_primary text-[#a4bfce]">
-                Welcome back, {profile.fullName}🖐️
+                Welcome back, {profile.fullname}🖐️
               </p>
             </div>
             <div className="flex justify-center items-center gap-2">
@@ -241,7 +255,7 @@ const StudentPanel = () => {
                 alt="profile"
               ></div>
               <p className="font_primary text-sm text-[#a4bfce]">
-                {profile.fullName}
+                {profile.fullname}
               </p>
             </div>
           </div>

@@ -10,7 +10,7 @@ const StudentProfilePage = () => {
 
   const initialForm = {
     userId: "",
-    fullName: "",
+    fullname: "",
     username: "",
     email: "",
     phone: "",
@@ -42,7 +42,6 @@ const StudentProfilePage = () => {
           ...data,
           dateOfBirth: data.dateOfBirth?.split("T")[0] || "",
         });
-        setPreviewImage(data.photo);
       })
       .catch((err) => {
         toast.error("Error fetching student profile");
@@ -64,14 +63,6 @@ const StudentProfilePage = () => {
     setForm({ ...form, skills: [...form.skills, ""] });
   };
 
-  const handleCoverChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const previewURL = URL.createObjectURL(file);
-      setForm({ ...form, photo: file });
-      setPreviewImage(previewURL);
-    }
-  };
 
   const handleSubmit = async () => {
     try {
@@ -118,9 +109,9 @@ const StudentProfilePage = () => {
           </h2>
 
           <input
-            name="fullName"
+            name="fullname"
             placeholder="Full Name"
-            value={form.fullName}
+            value={form.fullname}
             onChange={handleChange}
             className="input-style"
           />
