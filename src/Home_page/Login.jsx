@@ -58,14 +58,14 @@ const Login = () => {
       } else {
         dispatch(loginStudent(authData));
         localStorage.setItem("studentAuth", JSON.stringify(authData));
-        navigate("/student/exam");
+        navigate("/student/dashboard");
       }
 
       toast.success(message || "Login successful");
       if (user.isAdmin) {
         navigate("/admin/dashboard");
       } else {
-        navigate("/student/exam");
+        navigate("/student/dashboard");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");

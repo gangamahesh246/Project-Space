@@ -55,10 +55,9 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
     return students
       .filter((student) => {
         const branchMatch = student.branch === isActive;
-        const sectionMatch =
-          expandedSection 
-            ? student.section === expandedSection && student.branch === isActive
-            : true;
+        const sectionMatch = expandedSection
+          ? student.section === expandedSection && student.branch === isActive
+          : true;
         return branchMatch && sectionMatch;
       })
       .map((student) => student.student_mail);
@@ -85,7 +84,10 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         from: "",
         to: "",
       },
-      permanent: false,
+      timeLimitHours: {
+        from: "", 
+        to: "", 
+      },
       lateTime: "",
     },
     examTakenTimes: {
@@ -123,12 +125,9 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
 
   const updateExam = async (id, examData) => {
     try {
-      const response = await axiosInstance.put(
-        `/updateexam/${id}`,
-        {
-          examData,
-        }
-      );
+      const response = await axiosInstance.put(`/updateexam/${id}`, {
+        examData,
+      });
 
       const postedExam = response.data.updatedExam;
       toast.success(response.data.message);
@@ -198,18 +197,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         displayScore: {
           ...prev.results.displayScore,
           passPercentage: +e.target.value,
-        },
-      },
-    }));
-  };
-
-  const handleTotalPoints = (e) => {
-    setLocalSettings((prev) => ({
-      ...prev,
-      results: {
-        displayScore: {
-          ...prev.results.displayScore,
-          totalPoints: +e.target.value,
         },
       },
     }));
@@ -297,18 +284,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
     }));
   };
 
-  const handleRankingListChange = (e) => {
-    setLocalSettings((prev) => ({
-      ...prev,
-      results: {
-        displayScore: {
-          ...prev.results.displayScore,
-          showRankingList: e.target.checked,
-        },
-      },
-    }));
-  };
-
   const handleAntiCheatingChange = (field, value) => {
     setLocalSettings((prev) => ({
       ...prev,
@@ -347,6 +322,15 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
 
   const isVisible = settings.assignExamTo.specificUsers.length > 0;
 
+  const convertTo12Hour = (timeStr) => {
+    const [hourStr, minuteStr] = timeStr.split(":");
+    let hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  };
+
   return (
     <div className="w-full h-fit bg-white shadow-xl p-5 text-primary">
       <p className="w-full h-fit text-xl font-semibold">General settings</p>
@@ -357,18 +341,9 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       <div className="ml-6 sm:flex sm:flex-col xl:flex-row xl:gap-5">
         <p>Currently:</p>
         <div className="flex flex-col gap-5">
-          <div className="xl:h-5 sm:flex sm:flex-col sm:gap-2 md:flex-row xl:gap-2 md:items-center">
-            <input
-              type="radio"
-              checked={!settings.availability.permanent}
-              onChange={() =>
-                setLocalSettings((prev) => ({
-                  ...prev,
-                  availability: { ...prev.availability, permanent: false },
-                }))
-              }
-            />
-            set time limit
+          <div className="xl:h-5 capitalize sm:flex sm:flex-col sm:gap-2 md:flex-row xl:gap-2 md:items-center">
+            <label className="font-medium">Active Date:</label>          
+            <label className="text-sm">From</label>
             <input
               type="date"
               className="border-2 border-primary p-1"
@@ -387,18 +362,61 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
               onChange={(e) => handleAvailabilityChange(e, "to")}
             />
           </div>
-          <div className="flex gap-2">
-            <input
-              type="radio"
-              checked={settings.availability.permanent}
-              onChange={() =>
-                setLocalSettings((prev) => ({
-                  ...prev,
-                  availability: { ...prev.availability, permanent: true },
-                }))
-              }
-            />
-            Permanent
+
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <label className="font-medium">Active Time:</label>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm">From</label>
+              <input
+                type="time"
+                className="border-2 border-primary p-1"
+                value={settings.availability.timeLimitHours?.from || ""}
+                onChange={(e) =>
+                  setLocalSettings((prev) => ({
+                    ...prev,
+                    availability: {
+                      ...prev.availability,
+                      timeLimitHours: {
+                        ...prev.availability.timeLimitHours,
+                        from: e.target.value,
+                      },
+                    },
+                  }))
+                }
+              />
+              {settings.availability.timeLimitHours?.from && (
+                <span className="text-xs text-gray-500">
+                  ({convertTo12Hour(settings.availability.timeLimitHours.from)})
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-sm">To</label>
+              <input
+                type="time"
+                className="border-2 border-primary p-1"
+                value={settings.availability.timeLimitHours?.to || ""}
+                onChange={(e) =>
+                  setLocalSettings((prev) => ({
+                    ...prev,
+                    availability: {
+                      ...prev.availability,
+                      timeLimitHours: {
+                        ...prev.availability.timeLimitHours,
+                        to: e.target.value,
+                      },
+                    },
+                  }))
+                }
+              />
+              {settings.availability.timeLimitHours?.to && (
+                <span className="text-xs text-gray-500">
+                  ({convertTo12Hour(settings.availability.timeLimitHours.to)})
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -665,23 +683,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         </p>
       </div>
 
-      <p className="ml-10 mt-3 flex gap-2">
-        <input
-          type="checkbox"
-          checked={settings.results.displayScore.showRankingList}
-          onChange={handleRankingListChange}
-        />
-        View ranking list
-      </p>
-      <p className="ml-10 mt-3 flex gap-2">
-        <input
-          type="number"
-          value={settings.results.displayScore.totalPoints}
-          className="w-10 border-2"
-          onChange={handleTotalPoints}
-        />
-        Total Points
-      </p>
       <p className="ml-10 mt-3 flex gap-2">
         <input
           type="number"

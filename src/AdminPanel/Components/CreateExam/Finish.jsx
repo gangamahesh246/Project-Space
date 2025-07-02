@@ -17,7 +17,6 @@ const Finish = ({ coverFile }) => {
   const data = useSelector((state) => state.exam);
   const [isOpen, setIsOpen] = useState(false);
   const [adminName, setAdminName] = useState("");
-  console.log("Admin Name:", adminName);
 
   useEffect(() => {
     axiosInstance

@@ -29,6 +29,7 @@ import StudentStatisticsPage from "./pages/StudentStatisticsPage";
 import StudentProfilePage from "./pages/StudentProfilePage";
 import StudentMorePage from "./pages/StudentMorePage";
 import ExamInstructions from "./components/Instructions";
+import Results from "./components/Results";
 
 let dashboardNavs = [
   {
@@ -270,10 +271,7 @@ const StudentPanel = () => {
               <Route path="exam">
                 <Route index element={<StudentExamPage />} />
                 <Route path="instructions" element={<ExamInstructions />} />
-              </Route>
-
-              <Route path="results">
-                <Route index element={<StudentResultsPage />} />
+                <Route path="results" element={<Results />} />
               </Route>
 
               <Route path="dashboard">

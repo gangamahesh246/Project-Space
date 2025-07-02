@@ -30,6 +30,7 @@ const StudentProfilePage = () => {
   };
 
   const [form, setForm] = useState(initialForm);
+  console.log(student)
 
   useEffect(() => {
     axiosInstance
@@ -165,7 +166,7 @@ const StudentProfilePage = () => {
 
           {/* Skills Section */}
           <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
-              Skills
+            Skills
           </h2>
 
           {form.skills.map((skill, index) => (
@@ -183,12 +184,11 @@ const StudentProfilePage = () => {
             onClick={addSkill}
             className="text-blue-500 mb-6 cursor-pointer"
           >
-              + Add another skill
+             + Add another skill
           </button>
 
-          {/* Institute Section */}
           <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
-              Institute Information
+             Institute Information
           </h2>
 
           <input
