@@ -24,7 +24,6 @@ import { logoutStudent } from "../slices/studentAuthSlice";
 import ReverseCountdown from "./ReverseCountDown";
 
 import StudentExamPage from "./pages/StudentExamPage";
-import StudentResultsPage from "./pages/StudentResultsPage";
 import StudentStatisticsPage from "./pages/StudentStatisticsPage";
 import StudentProfilePage from "./pages/StudentProfilePage";
 import StudentMorePage from "./pages/StudentMorePage";
@@ -48,7 +47,11 @@ let dashboardNavs = [
     path: "/student/practice",
     icon: <MdAssignment />,
   },
-  { name: "leaderboard", path: "/student/leaderboard", icon: <MdLeaderboard /> },
+  {
+    name: "leaderboard",
+    path: "/student/leaderboard",
+    icon: <MdLeaderboard />,
+  },
 ];
 
 const StudentPanel = () => {
@@ -57,30 +60,70 @@ const StudentPanel = () => {
   const location = useLocation();
 
   const data = useSelector((state) => state.student);
-  // const { hasNew, exams, assignedBy } = useSelector((state) => state.assignedExam);
 
   const [menu, setMenu] = useState(false);
   const [notify, setNotify] = useState(false);
   const [profile, setProfile] = useState({
-    fullname: ""
+    fullname: "",
   });
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (data?.user?.student_id) {
       socket.emit("registerStudent", data.user.student_id);
     }
 
-    socket.on("examAssigned", (examData, assignedBy) => {
+    const handleExamAssigned = (examData, assignedBy) => {
       toast.info(`New Exam: ${examData.basicInfo.title}`);
-
       const audio = new Audio("/sounds/notification.mp3");
       audio.play();
-    });
+      setNotificationCount((prev) => prev + 1);
+      setNotifications((prev) => [
+        ...prev,
+        {
+          type: "assigned",
+          title: examData.basicInfo.title,
+          category: examData.basicInfo.category,
+          coverPreview: examData.basicInfo.coverPreview,
+          assignedBy: examData.assignedBy || "Admin",
+          timeFrom: examData.settings.availability.timeLimitDays.from,
+          timeTo: examData.settings.availability.timeLimitDays.to,
+          hourFrom: examData.settings.availability.timeLimitHours.from,
+          hourTo: examData.settings.availability.timeLimitHours.to,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+    };
+
+    const handleExamDeleted = ({ examId }) => {
+      toast.warning("An exam was deleted from your list.");
+      const audio = new Audio("/sounds/notification.mp3");
+      audio.play();
+      setNotificationCount((prev) => prev + 1);
+      setNotifications((prev) => [
+        ...prev,
+        {
+          type: "deleted",
+          examId,
+          title: "Deleted Exam",
+          category: "Unknown",
+          coverPreview: null,
+          assignedBy: "",
+          timeTo: null,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+    };
+
+    socket.on("examAssigned", handleExamAssigned);
+    socket.on("examDeleted", handleExamDeleted);
 
     return () => {
-      socket.off("examAssigned");
+      socket.off("examAssigned", handleExamAssigned);
+      socket.off("examDeleted", handleExamDeleted);
     };
   }, [data?.user?.student_id]);
 
@@ -101,14 +144,14 @@ const StudentPanel = () => {
 
   const handleClick = () => {
     setNotify(!notify);
-    // if (hasNew) dispatch(clearNewBadge());
+    setNotificationCount(0);
 
     if (exams.length > 0) {
       const latestExam = exams[exams.length - 1];
-      // navigate(`/student/exam/${latestExam._id}`);
       console.log("Latest Exam: ", latestExam);
     }
   };
+
   useEffect(() => {
     if (!data.token) return;
     axiosInstance
@@ -125,6 +168,7 @@ const StudentPanel = () => {
         console.log(error);
       });
   }, [data.token]);
+  console.log(notifications)
 
   return (
     <div className="w-full h-screen">
@@ -149,7 +193,11 @@ const StudentPanel = () => {
                     <div
                       key={i}
                       className="w-[200px] h-[50px] text-[#a4bfce] pl-3 flex justify-start items-center shadow-2xl cursor-pointer"
-                      style={isActive ? { background: "white", color: "#081A28" } : {}}
+                      style={
+                        isActive
+                          ? { background: "white", color: "#081A28" }
+                          : {}
+                      }
                       onClick={() => {
                         setMenu(false);
                         navigate(navs.path);
@@ -167,7 +215,9 @@ const StudentPanel = () => {
                 <div className="w-5/6 h-fit flex flex-col justify-evenly items-center border-t-2 border-[#a4bfce]">
                   <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
                     <IoMdHelpCircle size={17} />
-                    <p className="ml-3 font_primary font-semibold">Help & Support</p>
+                    <p className="ml-3 font_primary font-semibold">
+                      Help & Support
+                    </p>
                   </div>
                   <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
                     <LuLogOut size={17} />
@@ -201,57 +251,69 @@ const StudentPanel = () => {
             <div className="flex justify-center items-center gap-2">
               <div className="relative cursor-pointer" onClick={handleClick}>
                 🔔
-                {/* {hasNew && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
-                    {exams.length}
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">
+                    {notificationCount}
                   </span>
-                )} */}
+                )}
               </div>
+
               {notify && (
-                <div className="absolute right-40 top-15 w-fit bg-white rounded-lg shadow-lg">
-                  {exams.map((exam) => {
-                    return (
-                      <>
-                        <div
-                          className="flex items-cente gap-3 r p-2 border-b-1 border-gray-500"
-                          key={exam.id}
-                        >
+                <div className="absolute right-40 top-15 w-fit bg-white rounded-lg shadow-lg max-h-[400px] overflow-y-auto z-50 cursor-pointer"
+                onClick={() => navigate('/student/exam')}
+                >
+                  {notifications.length === 0 ? (
+                    <p className="p-4 text-gray-500">No new notifications.</p>
+                  ) : (
+                    notifications.map((notif, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-3 p-3 border-b border-gray-300"
+                      >
+                        {notif.coverPreview ? (
                           <img
-                            src={`http://localhost:3000/public${exam.basicInfo.coverPreview}`}
+                            src={`http://localhost:3000/public${notif.coverPreview}`}
                             alt="Cover"
-                            className="sm:w-20 sm:h-20 md:w-30 md:h-20 object-cover rounded"
+                            className="w-16 h-16 object-cover rounded"
                           />
-                          <div className="flex flex-col gap-1">
-                            <div className="flex gap-3">
-                              <p className="text-sm font-semibold capitalize font_primary text-primary">
-                                Title: {exam.basicInfo.title}
-                              </p>
-                              <p className="text-sm font-semibold font_primary text-primary">
-                                Category: {exam.basicInfo.category}
-                              </p>
-                            </div>
-                            <div className="flex gap-3">
-                              <ReverseCountdown
-                                to={exam.settings.availability.timeLimitDays.to}
-                              />
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold font_primary text-primary">
-                                {assignedBy}
-                              </p>
-                            </div>
+                        ) : (
+                          <div className="w-16 h-16 flex items-center justify-center bg-gray-200 text-gray-600 rounded">
+                            🗑️
                           </div>
+                        )}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex gap-3 items-center">
+                            <p className="text-sm font-semibold capitalize text-primary">
+                               Title: {notif.title}
+                            </p>
+                            <p className="text-sm font-semibold text-primary">
+                              Category: {notif.category}
+                            </p>
+                          </div>
+                          {notif.type === "assigned" && notif.timeTo && (
+                            <div className="flex gap-3">
+                              <ReverseCountdown dateFrom={notif.timeFrom} dateTo={notif.timeTo} timeFrom={notif.hourFrom} timeTo={notif.hourTo} />
+                            </div>
+                          )}
+                          <p className="text-sm text-gray-500 italic">
+                            {notif.type === "assigned"
+                              ? `Assigned by ${notif.assignedBy}`
+                              : "This exam was deleted"}
+                          </p>
                         </div>
-                      </>
-                    );
-                  })}
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
+
               <div
-              onClick={() => navigate("/student/profile")}
+                onClick={() => navigate("/student/profile")}
                 className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"
                 style={{
-                  backgroundImage: `url(https://info.aec.edu.in/ACET/StudentPhotos/${data.user.student_id.split("@")[0]}.jpg)`,
+                  backgroundImage: `url(https://info.aec.edu.in/ACET/StudentPhotos/${
+                    data.user.student_id.split("@")[0]
+                  }.jpg)`,
                 }}
                 alt="profile"
               ></div>

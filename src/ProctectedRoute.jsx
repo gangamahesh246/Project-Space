@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
   if (!token) return <Navigate to="/login" replace />;
   if (adminOnly && !isAdmin)
-    return <Navigate to="/student/exam" replace />;
+    return <Navigate to="/student/dashboard" replace />;
 
   return children;
 };

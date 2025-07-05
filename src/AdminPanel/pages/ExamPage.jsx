@@ -25,22 +25,44 @@ const ExamPage = () => {
       .get("/getexam")
       .then((res) => {
         const updatedExams = res.data?.map((exam) => {
-          const timeLimitDays = exam?.settings?.availability?.timeLimitDays;
-          const { from, to } = timeLimitDays || {};
+          const availability = exam?.settings?.availability || {};
+          const { timeLimitDays = {}, timeLimitHours = {} } = availability;
 
-          let isActive = false;
+          const now = new Date();
+          const { from, to } = timeLimitDays;
+          const { from: timeFrom, to: timeTo } = timeLimitHours;
 
-          if (from && to && !isNaN(new Date(from)) && !isNaN(new Date(to))) {
-            const today = new Date().toISOString().split("T")[0];
-            const fromDate = new Date(from).toISOString().split("T")[0];
-            const toDate = new Date(to).toISOString().split("T")[0];
+          let status = "inactive";
 
-            isActive = today >= fromDate && today <= toDate;
+          if (from && to) {
+            const fromDate = new Date(from);
+            const toDate = new Date(to);
+
+            if (now >= fromDate && now <= toDate) {
+              if (timeFrom && timeTo) {
+                const [fromHours, fromMinutes] = timeFrom
+                  .split(":")
+                  .map(Number);
+                const [toHours, toMinutes] = timeTo.split(":").map(Number);
+
+                const start = new Date(now);
+                start.setHours(fromHours, fromMinutes, 0, 0);
+
+                const end = new Date(now);
+                end.setHours(toHours, toMinutes, 59, 999);
+
+                if (now >= start && now <= end) {
+                  status = "active";
+                }
+              } else {
+                status = "active"; 
+              }
+            }
           }
 
           return {
             ...exam,
-            status: isActive ? "active" : "inactive",
+            status,
           };
         });
 
@@ -67,10 +89,9 @@ const ExamPage = () => {
       );
   };
 
-socket.emit("deleteExamFromStudents", {
-  examId: id,
-});
-
+  socket.emit("deleteExamFromStudents", {
+    examId: id,
+  });
 
   const filteredExams = exam.filter(
     (e) =>
@@ -112,7 +133,7 @@ socket.emit("deleteExamFromStudents", {
           return (
             <div
               key={i}
-              className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex justify-evenly items-center sm:gap-1 xl:gap-2 border-t-1 border-gray-300"
+              className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex justify-around items-center sm:gap-1 xl:gap-2 border-t-1 border-gray-300"
             >
               <img
                 src={item.basicInfo.coverPreview}
@@ -144,17 +165,14 @@ socket.emit("deleteExamFromStudents", {
                 <div className="font_primary text-sm font-semibold text-gray-500 flex items-center lg:gap-1 overflow-x-auto">
                   <p>{item.basicInfo.category} |</p>
                   <p>
-                    Exam Taken Times: {item.settings?.examTakenTimes?.multiple ?? "N/A"} |
-                  </p>
-                  <p>
-                    Total Points:{" "}
-                    {item.settings.results.displayScore.totalPoints} |
+                    Exam Taken Times:{" "}
+                    {item.settings?.examTakenTimes?.multiple ?? "N/A"} |
                   </p>
                   <p className="sm:hidden md:block">
                     Questions Count: {item.questionsCount} |
                   </p>
                   <p className="sm:hidden md:block">
-                    Late Time: {item.settings.availability.lateTime} sec |
+                    Late Time: {item.settings.availability.lateTime ? item.settings.availability.lateTime : "N/A" } {item.settings.availability.lateTime && "sec"} |
                   </p>
                   <p className="sm:hidden xl:block">
                     Students Count:{" "}
@@ -168,10 +186,13 @@ socket.emit("deleteExamFromStudents", {
                 <div className="flex items-center gap-3 text-sm font_primary text-green-500 mt-5">
                   <div className="gap-1 sm:hidden md:flex">
                     <p className="text-gray-500">
-                      Open: {item.settings?.availability?.timeLimitDays?.from ?? "N/A"}
+                      Open:{" "}
+                      {item.settings?.availability?.timeLimitDays?.from ??
+                        "N/A"}
                     </p>
                     <p className="text-gray-500">
-                      - {item.settings?.availability?.timeLimitDays?.to ?? "N/A"}
+                      -{" "}
+                      {item.settings?.availability?.timeLimitDays?.to ?? "N/A"}
                     </p>
                   </div>
                   <p

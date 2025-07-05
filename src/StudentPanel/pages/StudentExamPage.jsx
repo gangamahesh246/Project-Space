@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { Outlet, useNavigate } from "react-router-dom";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useRef } from "react";
+import socket from "../../utils/socket";
 
 const StudentExamPage = () => {
   const navigate = useNavigate();
@@ -35,7 +36,24 @@ const StudentExamPage = () => {
       });
   }, [StudentMail]);
 
-  const getExamStatus = (from, to, currentStatus, timeFrom, timeTo) => {
+  useEffect(() => {
+    socket.on("examDeleted", ({ examId }) => {
+      setExams((prev) => prev.filter((exam) => exam.examId?._id !== examId));
+    });
+
+    return () => {
+      socket.off("examDeleted");
+    };
+  }, []);
+
+  const getExamStatus = (
+    from,
+    to,
+    currentStatus,
+    timeFrom,
+    timeTo,
+    lateTime
+  ) => {
     const now = new Date();
 
     if (currentStatus === "completed") return "completed";
@@ -44,42 +62,46 @@ const StudentExamPage = () => {
       const fromDate = new Date(from);
       const toDate = new Date(to);
 
-      if (!isNaN(fromDate) && !isNaN(toDate)) {
-        if (now >= fromDate && now <= toDate) {
-          if (timeFrom && timeTo) {
-            const [fromHours, fromMinutes] = timeFrom.split(":").map(Number);
-            const [toHours, toMinutes] = timeTo.split(":").map(Number);
+      if (
+        !isNaN(fromDate) &&
+        !isNaN(toDate) &&
+        now >= fromDate &&
+        now <= toDate
+      ) {
+        if (timeFrom && timeTo) {
+          const [fromHours, fromMinutes] = timeFrom.split(":").map(Number);
+          const [toHours, toMinutes] = timeTo.split(":").map(Number);
 
-            const start = new Date(now);
-            start.setHours(fromHours, fromMinutes, 0, 0);
+          const start = new Date(now);
+          start.setHours(fromHours, fromMinutes, 0, 0);
 
-            const end = new Date(now);
-            end.setHours(toHours, toMinutes, 59, 999);
+          const end = new Date(now);
+          end.setHours(toHours, toMinutes, 59, 999);
+
+          if (lateTime && !isNaN(parseInt(lateTime))) {
+            const lateLimit = new Date(
+              start.getTime() + parseInt(lateTime) * 60000
+            );
 
             if (now >= start && now <= end) {
-              return "active";
-            } else {
-              return "inactive";
+              return now <= lateLimit ? "active" : "late";
             }
-          } 
 
-          return "active";
+            if (now > end) return "expired";
+            return "inactive";
+          }
+
+          if (now >= start && now <= end) return "active";
+          if (now > end) return "expired";
+          return "inactive";
         }
+        return "active";
       }
     }
-
     return "inactive";
   };
 
-  const convertTo12Hour = (timeStr) => {
-    const [hourStr, minuteStr] = timeStr.split(":");
-    let hour = parseInt(hourStr, 10);
-    const minute = parseInt(minuteStr, 10);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    hour = hour % 12 || 12;
-    return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
-  };
-
+  console.log(exams);
   useEffect(() => {
     const fetchAndUpdateExams = async () => {
       try {
@@ -92,6 +114,7 @@ const StudentExamPage = () => {
             const availability = exam?.examId?.settings?.availability || {};
             const timeLimitDays = availability.timeLimitDays || {};
             const timeActive = availability.timeLimitHours || {};
+            const lateTime = availability.lateTime;
 
             const { from, to } = timeLimitDays;
             const { from: timeFrom, to: timeTo } = timeActive;
@@ -101,7 +124,8 @@ const StudentExamPage = () => {
               to,
               exam.status,
               timeFrom,
-              timeTo
+              timeTo,
+              lateTime
             );
 
             if (exam.status !== status && exam?.examId?._id) {
@@ -148,15 +172,25 @@ const StudentExamPage = () => {
     return matchesStatus && matchesTitle && matchesDate;
   });
 
-  const activeExams = filteredExams.filter((item) => item.status === "active");
+  const activeOrLateExams = filteredExams.filter(
+    (item) => item.status === "active" || item.status === "late"
+  );
+
   const inactiveExams = filteredExams.filter(
-    (item) => item.status === "inactive"
+    (item) => item.status === "inactive" || item.status === "expired"
   );
   const completedExams = filteredExams.filter(
     (item) => item.status === "completed"
   );
 
-  console.log(exams);
+  const convertTo12Hour = (timeStr) => {
+    const [hourStr, minuteStr] = timeStr.split(":");
+    let hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  };
 
   return (
     <div className="w-full h-full bg-aliceblue overflow-y-auto hide-scrollbar">
@@ -177,6 +211,8 @@ const StudentExamPage = () => {
               <option value="all status">All status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
+              <option value="late">Late</option>
+              <option value="expired">Expired</option>
               <option value="completed">Completed</option>
             </select>
             <div className="flex items-center gap-2">
@@ -206,184 +242,157 @@ const StudentExamPage = () => {
             </div>
           </div>
         </div>
-        {activeExams.length === 0 &&
+        {activeOrLateExams.length === 0 &&
           inactiveExams.length === 0 &&
           completedExams.length === 0 && (
             <p className="text-center text-gray-500 text-md font-semibold py-10">
               No exams assigned
             </p>
           )}
-        {activeExams.length > 0 && (
+        {activeOrLateExams.length > 0 && (
           <>
             <p className="text-gray-500 text-sm mt-4 font-semibold px-4">
               Active Exams
             </p>
             <div className="w-full h-fit grid grid-cols-2 items-center gap-5 px-4">
-              {filteredExams
-                .filter((item) => item.status === "active")
-                .map((item, i) => (
-                  <div
-                    key={`upcoming-${i}`}
-                    className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
-                  >
-                    <img
-                      src={item.examId?.basicInfo?.coverPreview}
-                      alt="Cover"
-                      className="sm:w-20 sm:h-20 md:w-30 md:h-30 object-cover rounded"
-                    />
-                    <div className="w-[80%] h-fit">
-                      <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
-                        <p>{item.examId?.basicInfo?.title}</p>
-                        <p
-                          className={`px-2 py-1 rounded text-xs font-semibold capitalize justify-end ${
-                            item.status === "active"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-500"
-                          }`}
-                        >
-                          {item.status}
-                        </p>
-                      </div>
-                      <div className="font_primary flex items-center gap-3 text-sm">
-                        <p className="text-sm font-semibold text-gray-500">
-                          Category: {item.examId?.basicInfo?.category}
-                        </p>
-                      </div>
-                      <div className="flex items-center xl:gap-15">
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            Date of Exam:{" "}
-                            {new Date(
-                              item.examId?.settings.availability.timeLimitDays.from
-                            ).toLocaleDateString()}{" "}
-                            -{" "}
-                            {new Date(
-                              item.examId?.settings.availability.timeLimitDays.to
-                            ).toLocaleDateString()}
-                          </p>
-                          {item.examId?.settings?.availability?.timeLimitHours
-                            ?.from &&
-                            item.examId?.settings?.availability?.timeLimitHours
-                              ?.to && (
-                              <p className="text-sm text-gray-500">
-                                Active Time:{" "}
-                                {
-                                  convertTo12Hour(item.examId.settings.availability
-                                    .timeLimitHours.from)
-                                }{" "}
-                                -{" "}
-                                {
-                                  convertTo12Hour(item.examId.settings.availability
-                                    .timeLimitHours.to)
-                                }{" "}
-                              </p>
-                            )}
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-start ">
+              {activeOrLateExams.map((item, i) => (
+                <div
+                  key={`upcoming-${i}`}
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
+                >
+                  <img
+                    src={item.examId?.basicInfo?.coverPreview}
+                    alt="Cover"
+                    className="sm:w-20 sm:h-20 md:w-30 md:h-30 object-cover rounded"
+                  />
+                  <div className="w-[80%] h-fit">
+                    <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
+                      <p>{item.examId?.basicInfo?.title}</p>
+                      <p
+                        className={`px-2 py-1 rounded text-xs font-semibold capitalize justify-end ${
+                          item.status === "late"
+                            ? "bg-yellow-100 text-yellow-600"
+                            : "bg-green-100 text-green-600"
+                        }`}
+                      >
+                        {item.status}
+                      </p>
+                    </div>
+                    <div className="font_primary flex items-center gap-3 text-sm">
+                      <p className="text-sm font-semibold text-gray-500">
+                        Category: {item.examId?.basicInfo?.category}
+                      </p>
+                    </div>
+                    <div className="flex flex-col">
+                      <div>
                         <p className="text-sm text-gray-500">
-                          Assigned by: {item.assignedBy}
+                          Date of Exam:{" "}
+                          {new Date(
+                            item.examId?.settings.availability.timeLimitDays.from
+                          ).toLocaleDateString()}{" "}
+                          -{" "}
+                          {new Date(
+                            item.examId?.settings.availability.timeLimitDays.to
+                          ).toLocaleDateString()}
                         </p>
-                        <button
-                          className={`capitalize text-sm bg-green-500 text-white font-semibold p-2 rounded-lg cursor-pointer ${
-                            item.status === "completed" ? "hidden" : "block"
-                          }`}
-                          onClick={() => {
-                            navigate("/student/exam/instructions", {
-                              state: { examId: item.examId._id },
-                            });
-                          }}
-                        >
-                          start exam
-                        </button>
                       </div>
+                      <p className="text-sm text-gray-500">
+                        Active Time:{" "}
+                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
+                          ?.from) || "--"}{" "}
+                        - {" "}
+                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
+                          ?.to) || "--"}
+                      </p>
+                    </div>
+                    <div className="flex justify-between items-start ">
+                      <p className="text-sm text-gray-500">
+                        Assigned by: {item.assignedBy}
+                      </p>
+                      <button
+                        className={`capitalize text-sm bg-green-500 text-white font-semibold p-2 rounded-lg cursor-pointer ${
+                          item.status === "completed" || item.status === "late"
+                            ? "opacity-100 cursor-not-allowed"
+                            : "block"
+                        }`}
+                        disabled={
+                          item.status === "completed" || item.status === "late"
+                        }
+                        onClick={() => {
+                          navigate("/student/exam/instructions", {
+                            state: { examId: item.examId._id },
+                          });
+                        }}
+                      >
+                        start exam
+                      </button>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           </>
         )}
         {inactiveExams.length > 0 && (
           <>
-            <p className="text-gray-500 text-sm mt-4 font-semibold px-4">
-              Upcoming / Expired Exams
+            <p className="capitalize text-gray-500 text-sm mt-4 font-semibold px-4">
+              Upcoming / expired exams
             </p>
             <div className="w-full h-fit grid grid-cols-2 items-center gap-5 px-4">
-              {filteredExams
-                .filter((item) => item.status === "inactive")
-                .map((item, i) => (
-                  <div
-                    key={`upcoming-${i}`}
-                    className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
-                  >
-                    <img
-                      src={item.examId?.basicInfo?.coverPreview}
-                      alt="Cover"
-                      className="sm:w-20 sm:h-20 md:w-30 md:h-30 object-cover rounded"
-                    />
-                    <div className="w-[80%] h-fit">
-                      <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
-                        <p>{item.examId?.basicInfo?.title}</p>
-                        <p
-                          className={`px-2 py-1 rounded text-xs font-semibold capitalize justify-end ${
-                            item.status === "active"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-500"
-                          }`}
-                        >
-                          {item.status}
+              {inactiveExams.map((item, i) => (
+                <div
+                  key={`upcoming-${i}`}
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
+                >
+                  <img
+                    src={item.examId?.basicInfo?.coverPreview}
+                    alt="Cover"
+                    className="sm:w-20 sm:h-20 md:w-30 md:h-30 object-cover rounded"
+                  />
+                  <div className="w-[80%] h-fit">
+                    <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
+                      <p>{item.examId?.basicInfo?.title}</p>
+                      <p
+                        className={`px-2 py-1 rounded text-xs font-semibold capitalize justify-end ${
+                          item.status === "expired"
+                            ? "bg-yellow-100 text-yellow-600"
+                            : item.status === "inactive"
+                            ? "bg-red-100 text-red-600"
+                            : ""
+                        }`}
+                      >
+                        {item.status}
+                      </p>
+                    </div>
+                    <div className="font_primary flex items-center gap-3 text-sm">
+                      <p className="text-sm font-semibold text-gray-500">
+                        Category: {item.examId?.basicInfo?.category}
+                      </p>
+                    </div>
+                    <div className="flex flex-col">
+                      <div>
+                        <p className="text-sm text-gray-500 capitalize">
+                          date of exam:{" "}
+                          {new Date(item.assignedAt).toLocaleDateString()}
                         </p>
-                      </div>
-                      <div className="font_primary flex items-center gap-3 text-sm">
-                        <p className="text-sm font-semibold text-gray-500">
-                          Category: {item.examId?.basicInfo?.category}
-                        </p>
-                      </div>
-                      <div className="flex items-center xl:gap-15">
-                        <div>
-                          <p className="text-sm text-gray-500 capitalize">
-                            date of exam:{" "}
-                            {new Date(item.assignedAt).toLocaleDateString()}
-                          </p>
-                          {item.examId?.settings?.availability?.timeLimitHours
-                            ?.from &&
-                            item.examId?.settings?.availability?.timeLimitHours
-                              ?.to && (
-                              <p className="text-sm text-gray-500">
-                                Active Time:{" "}
-                                {
-                                  convertTo12Hour(item.examId.settings.availability
-                                    .timeLimitHours.from)
-                                }{" "}
-                                -{" "}
-                                {
-                                  convertTo12Hour(item.examId.settings.availability
-                                    .timeLimitHours.to)
-                                }{" "}
-                              </p>
-                            )}
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-start ">
                         <p className="text-sm text-gray-500">
-                          Assigned by: {item.assignedBy}
-                        </p>
-                        <button
-                          className={`capitalize text-sm bg-green-500 text-white font-semibold p-2 rounded-lg cursor-pointer ${
-                            item.status === "inactive" ? "hidden" : "block"
-                          }`}
-                          onClick={() => {
-                            navigate("/student/exam/instructions", {
-                              state: { examId: item.examId._id },
-                            });
-                          }}
-                        >
-                          start exam
-                        </button>
+                        Active Time:{" "}
+                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
+                          ?.from) || "--"}{" "}
+                        - {" "}
+                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
+                          ?.to) || "--"}
+                      </p>
                       </div>
                     </div>
+                    <div className="flex justify-between items-start ">
+                      <p className="text-sm text-gray-500">
+                        Assigned by: {item.assignedBy}
+                      </p>
+                    </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           </>
         )}
@@ -393,55 +402,36 @@ const StudentExamPage = () => {
               Completed Exams
             </p>
             <div className="w-full h-fit grid grid-cols-2 items-center gap-5 px-4">
-              {filteredExams
-                .filter((item) => item.status === "completed")
-                .map((item, i) => (
-                  <div
-                    key={`completed-${i}`}
-                    className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
-                  >
-                    <img
-                      src={item.examId?.basicInfo?.coverPreview}
-                      alt="Cover"
-                      className="sm:w-20 sm:h-20 md:w-40 md:h-30 object-cover rounded"
-                    />
-                    <div className="w-[80%] h-fit">
-                      <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
-                        <p>{item.examId?.basicInfo?.title}</p>
-                        <p className="px-2 py-1 rounded text-xs font-semibold capitalize justify-end bg-blue-200 text-blue-600">
-                          {item.status}
+              {completedExams.map((item, i) => (
+                <div
+                  key={`completed-${i}`}
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
+                >
+                  <img
+                    src={item.examId?.basicInfo?.coverPreview}
+                    alt="Cover"
+                    className="sm:w-20 sm:h-20 md:w-40 md:h-30 object-cover rounded"
+                  />
+                  <div className="w-[80%] h-fit">
+                    <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
+                      <p>{item.examId?.basicInfo?.title}</p>
+                      <p className="px-2 py-1 rounded text-xs font-semibold capitalize justify-end bg-blue-200 text-blue-600">
+                        {item.status}
+                      </p>
+                    </div>
+                    <div className="font_primary flex items-center gap-3 text-sm">
+                      <p className="text-sm font-semibold text-gray-500">
+                        Category: {item.examId?.basicInfo?.category}
+                      </p>
+                    </div>
+                    <div className="flex items-center xl:gap-10 mt-2">
+                      <div>
+                        <p className="text-sm text-gray-500 capitalize">
+                          date of exam:{" "}
+                          {new Date(item.assignedAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="font_primary flex items-center gap-3 text-sm">
-                        <p className="text-sm font-semibold text-gray-500">
-                          Category: {item.examId?.basicInfo?.category}
-                        </p>
-                      </div>
-                      <div className="flex items-center xl:gap-10 mt-2">
-                        <div>
-                          <p className="text-sm text-gray-500 capitalize">
-                            date of exam:{" "}
-                            {new Date(item.assignedAt).toLocaleDateString()}
-                          </p>
-                          {item.status !== "completed" &&
-                            item.examId?.settings?.availability?.timeLimitHours
-                              ?.from &&
-                            item.examId?.settings?.availability?.timeLimitHours
-                              ?.to && (
-                              <p className="text-sm text-gray-500">
-                                Active Time:{" "}
-                                {
-                                  convertTo12Hour(item.examId.settings.availability
-                                    .timeLimitHours.from)
-                                }{" "}
-                                -{" "}
-                                {
-                                  convertTo12Hour(item.examId.settings.availability
-                                    .timeLimitHours.to)
-                                }{" "}
-                              </p>
-                            )}
-                        </div>
+                      {item.examId?.settings?.results?.displayScore.enabled && (
                         <div className="flex items-center gap-2">
                           <p className="text-sm text-gray-500">
                             Score: {item.score !== null ? item.score : "--"}
@@ -450,15 +440,16 @@ const StudentExamPage = () => {
                             Result: {item.result}
                           </p>
                         </div>
-                      </div>
-                      <div className="flex justify-between items-start ">
-                        <p className="text-sm text-gray-500">
-                          Assigned by: {item.assignedBy}
-                        </p>
-                      </div>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-start ">
+                      <p className="text-sm text-gray-500">
+                        Assigned by: {item.assignedBy}
+                      </p>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           </>
         )}

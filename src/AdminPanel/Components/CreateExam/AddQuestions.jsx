@@ -73,7 +73,12 @@ const Categories = () => {
                   ? "bg-green-500 text-white border-green-500"
                   : "bg-white text-gray-700 border-green-300 hover:bg-green-100"
               }`}
-            onClick={() => {setIsActive(cat); dispatch(setQuestions(filteredQuestions))}}
+            onClick={() => {
+              setIsActive(cat);
+              const selected =
+                qquestions.find((q) => q.category === cat)?.questions || [];
+              dispatch(setQuestions(selected));
+            }}
           >
             {cat}
           </button>
@@ -121,7 +126,7 @@ const AddQuestions = ({ setActiveTab }) => {
   const [isopen, setIsOpen] = useState(false);
   const [file, setFile] = useState(null);
   const [time, setTime] = useState({
-    examTime: 30,
+    examTime: 0,
     questionTime: 0,
   });
 

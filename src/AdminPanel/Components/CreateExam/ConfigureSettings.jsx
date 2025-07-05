@@ -17,6 +17,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const [branch, setBranch] = useState([]);
   const [expandedBranch, setExpandedBranch] = useState(null);
   const [expandedSection, setExpandedSection] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null);
   const [isActive, setIsActive] = useState("");
 
   useEffect(() => {
@@ -41,13 +43,20 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   }, {});
 
   const handleBranchClick = (branch) => {
-    setExpandedBranch((prev) => (prev === branch ? null : branch));
+    const isSame = expandedBranch === branch;
+    setExpandedBranch(isSame ? null : branch);
     setIsActive(branch);
     setExpandedSection(null);
+
+    setSelectedBranch(branch);
+    setSelectedSection(null);
   };
 
   const handleSectionClick = (section) => {
-    setExpandedSection((prev) => (prev === section ? null : section));
+    const isSame = expandedSection === section;
+    setExpandedSection(isSame ? null : section);
+
+    setSelectedSection(section);
   };
 
   const filteredStudents = useMemo(() => {
@@ -85,8 +94,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         to: "",
       },
       timeLimitHours: {
-        from: "", 
-        to: "", 
+        from: "",
+        to: "",
       },
       lateTime: "",
     },
@@ -129,6 +138,10 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         examData,
       });
 
+      if (!selectedBranch || !selectedSection) {
+        toast.error("Please select both branch and section.");
+        return;
+      }
       const postedExam = response.data.updatedExam;
       toast.success(response.data.message);
 
@@ -262,16 +275,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
     reader.readAsBinaryString(file);
   };
 
-  const handleAutoSubmitChange = (field) => {
-    setLocalSettings((prev) => ({
-      ...prev,
-      autoSubmit: {
-        disableAutoSubmit: field === "disable",
-        autoSubmitAtEnd: field === "end",
-      },
-    }));
-  };
-
   const handleDisplayScoreChange = (enabled) => {
     setLocalSettings((prev) => ({
       ...prev,
@@ -342,11 +345,11 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         <p>Currently:</p>
         <div className="flex flex-col gap-5">
           <div className="xl:h-5 capitalize sm:flex sm:flex-col sm:gap-2 md:flex-row xl:gap-2 md:items-center">
-            <label className="font-medium">Active Date:</label>          
+            <label className="font-medium">Active Date:</label>
             <label className="text-sm">From</label>
             <input
               type="date"
-              className="border-2 border-primary p-1"
+              className="border-2 border-primary p-1 focus:outline-none rounded"
               value={
                 settings.availability.timeLimitDays.from?.split(" ")[0] || ""
               }
@@ -355,7 +358,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             To
             <input
               type="date"
-              className="border-2 border-primary p-1"
+              className="border-2 border-primary p-1 focus:outline-none rounded"
               value={
                 settings.availability.timeLimitDays.to?.split(" ")[0] || ""
               }
@@ -363,14 +366,14 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center gap-2 ">
             <label className="font-medium">Active Time:</label>
 
             <div className="flex items-center gap-2">
               <label className="text-sm">From</label>
               <input
                 type="time"
-                className="border-2 border-primary p-1"
+                className="border-2 border-primary p-1 focus:outline-none rounded"
                 value={settings.availability.timeLimitHours?.from || ""}
                 onChange={(e) =>
                   setLocalSettings((prev) => ({
@@ -396,7 +399,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
               <label className="text-sm">To</label>
               <input
                 type="time"
-                className="border-2 border-primary p-1"
+                className="border-2 border-primary p-1 focus:outline-none rounded"
                 value={settings.availability.timeLimitHours?.to || ""}
                 onChange={(e) =>
                   setLocalSettings((prev) => ({
@@ -425,7 +428,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         Late time:
         <input
           type="number"
-          className="w-20 border-2 border-primary"
+          className="w-20 border-2 border-primary focus:outline-none rounded"
           value={settings.availability.lateTime}
           onChange={handleLateTimeChange}
         />
@@ -439,16 +442,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
         Exam Taken Times
       </p>
-      <div className="ml-13 mt-5 flex flex-col gap-2">
-        <p className="flex gap-2 items-center">
-          <input
-            type="radio"
-            name="examTimes"
-            checked={settings.examTakenTimes.type === "unlimited"}
-            onChange={() => handleExamTakenChange("unlimited")}
-          />
-          Unlimited
-        </p>
+      <div className="ml-13 mt-3 flex flex-col gap-2">
         <p className="flex gap-2 items-center">
           <input
             type="radio"
@@ -473,7 +467,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Multiple:
           <input
             type="number"
-            className="w-15 border-2 border-primary"
+            className="w-15 border-2 border-primary focus:outline-none rounded"
             value={settings.examTakenTimes.multiple}
             onChange={(e) => handleExamTakenChange("multiple", +e.target.value)}
           />
@@ -490,6 +484,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             type="radio"
             name="timeControl"
             checked={settings.answerTimeControl.type === "fixed"}
+            disabled={settings.answerTimeControl.questionTime > 0}
             onChange={() => handleAnswerTimeControlChange("type", "fixed")}
           />
           Fixed time
@@ -498,8 +493,9 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Time to complete exam:
           <input
             type="number"
-            className="w-15 border-2 border-primary"
+            className="w-15 border-2 border-primary focus:outline-none rounded"
             value={settings.answerTimeControl.examTime}
+            disabled={settings.answerTimeControl.questionTime > 0 || settings.answerTimeControl.type === "dynamic"}
             onChange={(e) =>
               handleAnswerTimeControlChange("examTime", +e.target.value)
             }
@@ -520,6 +516,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             type="radio"
             name="timeControl"
             checked={settings.answerTimeControl.type === "dynamic"}
+            disabled={settings.answerTimeControl.questionTime > 0}
             onChange={() => handleAnswerTimeControlChange("type", "dynamic")}
           />
           Dynamic time
@@ -537,7 +534,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Time limit per question:{" "}
           <input
             type="number"
-            className="w-15 border-2 border-primary"
+            className="w-15 border-2 border-primary focus:outline-none rounded"
             value={settings.answerTimeControl.questionTime}
             onChange={handleQuestionTimeChange}
           />
@@ -551,7 +548,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         </p>
         <p className="text-gray-500 text-sm ml-7">(Through college mails)</p>
         <div className="w-fit xl:ml-10 xl:mt-3 sm:flex sm:flex-col lg:flex-row items-center sm:gap-5 xl:gap-10">
-          <div className="flex h-fit flex-col items-center shadow-lg gap-2 p-3 rounded">
+          <div className="flex h-fit flex-col items-center shadow-sm gap-2 p-3 rounded">
             <RiFileExcel2Fill size={30} color="#00C951" />
             <p className="text-gray-500 font_primary text-center text-sm">
               Drag & drop files here or select a file to upload questions in
@@ -573,6 +570,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
               id="fileInput"
               type="file"
               accept=".xlsx, .xls"
+              required
               className="hidden"
               onChange={handleFileUpload}
             />
@@ -590,7 +588,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           </div>
         </div>
         <p className="text-gray-500 text-sm ml-7">(Through Branch & Section)</p>
-        <div className="xl:w-50 xl:ml-10 xl:mt-3 shadow-lg rounded overflow-hidden">
+        <div className="xl:w-50 xl:ml-10 xl:mt-3 shadow-sm rounded overflow-hidden">
           {branch.map((br, idx) => (
             <div className="w-full">
               <div
@@ -633,29 +631,9 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             </div>
           ))}
         </div>
-      </div>
-
-      <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
-        Auto submit
-      </p>
-      <div className="ml-10 mt-3 flex flex-col gap-1">
-        <p className="flex gap-2">
-          <input
-            type="radio"
-            name="autoSubmit"
-            checked={settings.autoSubmit.disableAutoSubmit}
-            onChange={() => handleAutoSubmitChange("disable")}
-          />
-          Disable auto submit
-        </p>
-        <p className="flex gap-2">
-          <input
-            type="radio"
-            name="autoSubmit"
-            checked={settings.autoSubmit.autoSubmitAtEnd}
-            onChange={() => handleAutoSubmitChange("end")}
-          />
-          Auto submit at the end of exam
+        <p className="text-sm text-gray-700 ml-5">
+          Selected: {selectedBranch ? `Branch ${selectedBranch}` : "None"},
+          {selectedSection ? `Section ${selectedSection}` : "None"}
         </p>
       </div>
 
@@ -687,7 +665,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         <input
           type="number"
           value={settings.results.displayScore.passPercentage}
-          className="w-10 border-2"
+          className="w-10 border-2 focus:outline-none rounded"
           onChange={handlePassPercentageChange}
         />
         Pass percentage(%)
@@ -703,7 +681,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           disabled={settings.results.displayScore.negativeMarking === 0}
           value={settings.results.displayScore.negativeMarking}
           onChange={(e) => handleNegativeMarkingValueChange(e.target.value)}
-          className="border-2"
+          className="border-2 focus:outline-none rounded"
         >
           <option value="0.25">0.25</option> <option value="0.5">0.5</option>
           <option value="1">1</option>
@@ -728,7 +706,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Force to hand in test papers after switching the screen
           <input
             type="number"
-            className="w-10 border-2 border-primary"
+            className="w-10 border-2 border-primary focus:outline-none rounded"
             value={settings.antiCheating.switchingScreen}
             onChange={(e) =>
               handleAntiCheatingChange("switchingScreen", +e.target.value)
@@ -781,6 +759,10 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         <div
           className="w-full h-10 mt-5 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
           onClick={() => {
+            if (!selectedBranch || !selectedSection) {
+              toast.error("Please select both branch and section.");
+              return;
+            }
             setActiveTab("finish");
             dispatch(setSettings(settings));
             setLocalSettings({

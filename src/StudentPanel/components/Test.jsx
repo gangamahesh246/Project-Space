@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
+import goFullscreen from "../../utils/FullScreen";
+import {
+  enableMicStream,
+  preventCopyPaste,
+  blockKeyboardShortcuts,
+  blockRightClick,
+  detectDevTools,
+  monitorTabSwitch,
+} from "../../utils/secureExamUtils";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { MdAccessTime } from "react-icons/md";
@@ -12,10 +21,13 @@ const Test = () => {
 
   const examId = location.state?.examId;
   const examTime = location.state?.examTime;
+  const examType = location.state?.examType;
+  const questionTime = location.state?.questionTime;
   const results = location.state?.results;
   const basicInfo = location.state?.basicInfo;
   const attemptStart = location.state?.attemptStart;
   const availability = location.state?.availability;
+  const hourTo = location.state?.hourTo;
 
   const data = useSelector((state) => state.student);
 
@@ -31,8 +43,39 @@ const Test = () => {
     const startTime = storedStart ? new Date(storedStart) : new Date();
     const now = new Date();
     const elapsedSeconds = Math.floor((now - startTime) / 1000);
-    return Math.max(examTime.examTime * 60 - elapsedSeconds, 0);
+
+    if (questionTime > 0) {
+      return questionTime;
+    }
+
+    if (examType === "dynamic" && hourTo) {
+      const [hour, minute] = hourTo.split(":").map(Number);
+      const endTime = new Date();
+      endTime.setHours(hour, minute, 0, 0);
+      const dynamicTimeLeft = Math.floor((endTime - now) / 1000);
+      return Math.max(dynamicTimeLeft, 0);
+    }
+
+    if (examType === "fixed" && examTime.examTime) {
+      return Math.max(examTime.examTime * 60 - elapsedSeconds, 0);
+    }
+
+    return 0;
   });
+  const [micStream, setMicStream] = useState(null);
+  const [violations, setViolations] = useState({
+    tabSwitchingViolation: 0,
+    devtoolsViolation: 0,
+  });
+
+  console.log(violations);
+
+  useEffect(() => {
+    goFullscreen();
+    enableMicStream(setMicStream, setViolations);
+    detectDevTools(setViolations);
+    monitorTabSwitch(setViolations);
+  }, []);
 
   useEffect(() => {
     axiosInstance
@@ -61,23 +104,32 @@ const Test = () => {
   }, [data.token]);
 
   useEffect(() => {
-    if (!examTime.examTime) return;
+    if (timeLeft <= 0) {
+      if (questionTime > 0) {
+        if (currentIndex < examQuestions.length - 1) {
+          setCurrentIndex((prev) => prev + 1);
+        } else {
+          handleSubmit();
+        }
+        return;
+      } else {
+        handleSubmit();
+        return;
+      }
+    }
 
-    const timer = setInterval(() => {
+    const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
-          toast.warning("Time's up! Submitting exam...");
-          localStorage.removeItem(`examStart-${examId}`);
-          handleSubmit();
+          clearInterval(interval);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [examTime.examTime]);
+    return () => clearInterval(interval);
+  }, [timeLeft, currentIndex]);
 
   useEffect(() => {
     if (!examId) return;
@@ -105,6 +157,12 @@ const Test = () => {
         console.error("Error fetching student ID:", error);
       });
   }, [data.user.student_id]);
+
+  useEffect(() => {
+    if (questionTime > 0) {
+      setTimeLeft(questionTime);
+    }
+  }, [currentIndex]);
 
   const formatTime = (seconds) => {
     const m = String(Math.floor(seconds / 60)).padStart(2, "0");
@@ -152,6 +210,7 @@ const Test = () => {
   };
 
   const handleSubmit = async () => {
+    micStream?.getTracks().forEach((track) => track.stop());
     const attemptEnd = new Date();
     const totalQuestions = examQuestions.length;
     const questionResults = [];
@@ -197,13 +256,13 @@ const Test = () => {
       }
 
       questionResults.push({
-      questionText: question.question,
-      options: question.options,
-      correctAnswers: sortedCorrect,
-      selectedAnswers: sortedAnswer,
-      isCorrect,
-      marks: question.marks,
-    });
+        questionText: question.question,
+        options: question.options,
+        correctAnswers: sortedCorrect,
+        selectedAnswers: sortedAnswer,
+        isCorrect,
+        marks: question.marks,
+      });
     }
 
     const totalMarks = examQuestions.reduce((acc, q) => acc + q.marks, 0);
@@ -306,7 +365,11 @@ const Test = () => {
             return (
               <div
                 key={index}
-                onClick={() => handleQuestionChange(index)}
+                onClick={() => {
+                  if (questionTime <= 0) {
+                    handleQuestionChange(index);
+                  }
+                }}
                 className={`w-12 h-12 rounded-full cursor-pointer flex items-center justify-center border ${
                   currentIndex === index
                     ? "bg-transparent border-gray-500"
@@ -334,9 +397,17 @@ const Test = () => {
             <h2 className="text-xl font-semibold mb-2">
               Question {currentIndex + 1}:
             </h2>
-            <p className="mb-4">{currentQuestion.question}</p>
+            <div className="relative z-10 select-none">
+              <p>{currentQuestion.question}</p>
+            </div>
 
-            <ul className="space-y-2">
+            <div className="fixed top-[138px] left-[410px] z-50 bg-transparent p-[9px] pointer-events-auto">
+              <p className="text-sm select-none text-transparent">
+                {"\u00A0".repeat(200)}
+              </p>
+            </div>
+
+            <ul className="space-y-2 mt-3">
               {currentQuestion.options.map((opt, i) => (
                 <li key={i}>
                   <label className="flex items-center gap-2 text-base text-gray-700 cursor-pointer focus:outline-none">
