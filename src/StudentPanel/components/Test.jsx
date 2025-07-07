@@ -4,11 +4,10 @@ import axiosInstance from "../../utils/axiosInstance";
 import goFullscreen from "../../utils/FullScreen";
 import {
   enableMicStream,
-  preventCopyPaste,
-  blockKeyboardShortcuts,
-  blockRightClick,
   detectDevTools,
   monitorTabSwitch,
+  blockRightClick,
+  preventCopyPaste,
 } from "../../utils/secureExamUtils";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -32,8 +31,10 @@ const Test = () => {
   const data = useSelector((state) => state.student);
 
   const [examQuestions, setExamQuestions] = useState([]);
+  const [antiCheating, setAntiCheating] = useState({});
   const [studentId, setStudentId] = useState("");
   const [userAnswers, setUserAnswers] = useState([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [title, setTitle] = useState("");
   const [createdAt, setCreatedAt] = useState("");
@@ -63,18 +64,111 @@ const Test = () => {
     return 0;
   });
   const [micStream, setMicStream] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(true);
   const [violations, setViolations] = useState({
     tabSwitchingViolation: 0,
     devtoolsViolation: 0,
+    rightClickViolation: 0,
+    webcamViolation: 0,
+    soundViolation: 0,
+    fullscreenViolation: 0,
   });
 
-  console.log(violations);
+  const MAX_VIOLATIONS = 2;
 
   useEffect(() => {
-    goFullscreen();
-    enableMicStream(setMicStream, setViolations);
+    if (!antiCheating || Object.keys(antiCheating).length === 0) return;
+
+    preventCopyPaste();
+    blockRightClick(setViolations);
     detectDevTools(setViolations);
-    monitorTabSwitch(setViolations);
+
+    let removeFullscreenListener;
+
+    if (antiCheating.forceFullscreen) {
+      goFullscreen();
+
+      const handleFullscreenChange = () => {
+        if (!document.fullscreenElement) {
+          setIsFullscreen(false);
+          setViolations((prev) => ({
+            ...prev,
+            fullscreenViolation: (prev.fullscreenViolation || 0) + 1,
+          }));
+          toast.warn("You exited fullscreen! Click to resume.");
+        } else {
+          setIsFullscreen(true);
+        }
+      };
+
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+      removeFullscreenListener = () => {
+        document.removeEventListener(
+          "fullscreenchange",
+          handleFullscreenChange
+        );
+      };
+    }
+
+    if (antiCheating.switchingScreen > 0) {
+      monitorTabSwitch(setViolations);
+    }
+
+    if (antiCheating.noiseDetection) {
+      enableMicStream(setMicStream, setViolations);
+    }
+
+    return () => {
+      if (removeFullscreenListener) removeFullscreenListener();
+    };
+  }, [antiCheating]);
+
+  useEffect(() => {
+    const savedAnswers = localStorage.getItem(`answers-${examId}`);
+    if (savedAnswers) {
+      setUserAnswers(JSON.parse(savedAnswers));
+    }
+  }, [examId]);
+
+  useEffect(() => {
+    localStorage.setItem(`answers-${examId}`, JSON.stringify(userAnswers));
+  }, [userAnswers, examId]);
+
+  useEffect(() => {
+    const violationCount = Object.entries(violations)
+      .filter(([key]) => key !== "fullscreenViolation")
+      .reduce((acc, [_, count]) => acc + (count >= MAX_VIOLATIONS ? 1 : 0), 0);
+
+    if (violationCount > 0 && !hasSubmitted) {
+      setHasSubmitted(true);
+      toast.error("Cheating violations detected! Submitting exam...");
+      handleSubmit();
+    }
+  }, [violations, hasSubmitted]);
+
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+
+    const handlePopState = (e) => {
+      toast.warn("You cannot go back during the exam!");
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "Your exam progress may be lost!";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
   useEffect(() => {
@@ -84,6 +178,8 @@ const Test = () => {
         setExamQuestions(res.data.questions);
         setTitle(res.data.basicInfo.title);
         setCreatedAt(res.data.createdAt);
+        const acSettings = res.data.settings.antiCheating || {};
+        setAntiCheating(acSettings);
       })
       .catch((error) => {
         toast.error(error?.response?.data?.message || error.message);
@@ -219,6 +315,7 @@ const Test = () => {
     let score = 0;
 
     localStorage.removeItem(`examStart-${examId}`);
+    localStorage.removeItem(`answers-${examId}`);
 
     for (let i = 0; i < totalQuestions; i++) {
       const question = examQuestions[i];
@@ -283,6 +380,7 @@ const Test = () => {
       duration: Math.floor(examTime.examTime / 60),
       attemptStart: attemptStart || new Date(),
       attemptEnd,
+      violations: violations,
     };
 
     console.log("Attempt Data:", attemptData);
@@ -356,7 +454,37 @@ const Test = () => {
         </div>
       </div>
 
-      <div className="flex mt-5 justify-around">
+      {!isFullscreen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Fullscreen Mode Required
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              You have exited fullscreen mode. To continue the exam, please
+              re-enter fullscreen.
+            </p>
+            <button
+              onClick={goFullscreen}
+              className="px-6 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-700 cursor-pointer transition duration-200"
+            >
+              Re-enter Fullscreen
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div
+        style={{
+          width: "100%",
+          height: "100vh",
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          MozUserSelect: "none",
+          msUserSelect: "none",
+        }}
+        className="flex mt-5 justify-around"
+      >
         <div className="w-fit h-[550px] bg-white grid grid-cols-3 gap-7 p-5 shadow-md rounded-xl overflow-y-auto">
           {examQuestions.map((_, index) => {
             const answered =
@@ -401,16 +529,10 @@ const Test = () => {
               <p>{currentQuestion.question}</p>
             </div>
 
-            <div className="fixed top-[138px] left-[410px] z-50 bg-transparent p-[9px] pointer-events-auto">
-              <p className="text-sm select-none text-transparent">
-                {"\u00A0".repeat(200)}
-              </p>
-            </div>
-
             <ul className="space-y-2 mt-3">
               {currentQuestion.options.map((opt, i) => (
                 <li key={i}>
-                  <label className="flex items-center gap-2 text-base text-gray-700 cursor-pointer focus:outline-none">
+                  <label className="flex items-center gap-2 text-base text-gray-700 cursor-pointer">
                     {isMultipleCorrect ? (
                       <input
                         type="checkbox"
@@ -418,7 +540,7 @@ const Test = () => {
                           userAnswers[currentIndex]?.includes(i) || false
                         }
                         onChange={() => handleCheckboxChange(i)}
-                        className="form-checkbox h-4 w-4 text-blue-600"
+                        className="form-checkbox h-4 w-4 text-blue-600 focus:outline-none"
                       />
                     ) : (
                       <input

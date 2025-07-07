@@ -126,7 +126,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
     },
     antiCheating: {
       switchingScreen: 0,
-      copyPastePrevention: false,
+      noiseDetection: false,
       forceFullscreen: false,
       webcam: false,
     },
@@ -717,12 +717,12 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         <p className="flex gap-2">
           <input
             type="checkbox"
-            checked={settings.antiCheating.copyPastePrevention}
+            checked={settings.antiCheating.noiseDetection}
             onChange={(e) =>
-              handleAntiCheatingChange("copyPastePrevention", e.target.checked)
+              handleAntiCheatingChange("noiseDetection", e.target.checked)
             }
           />
-          Disable copy paste
+          Enable Noise Detection
         </p>
         <p className="flex gap-2">
           <input

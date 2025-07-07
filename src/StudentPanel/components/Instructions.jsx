@@ -135,7 +135,7 @@ const ExamInstructions = () => {
         <div className="text-center mt-8">
           <button
             onClick={startExam}
-            className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-400 transition duration-300 cursor-pointer"
+            className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition duration-300 cursor-pointer"
           >
             Start Exam
           </button>

@@ -101,7 +101,6 @@ const StudentExamPage = () => {
     return "inactive";
   };
 
-  console.log(exams);
   useEffect(() => {
     const fetchAndUpdateExams = async () => {
       try {
@@ -118,6 +117,7 @@ const StudentExamPage = () => {
 
             const { from, to } = timeLimitDays;
             const { from: timeFrom, to: timeTo } = timeActive;
+            console.log(res.data?.exams);
 
             const status = getExamStatus(
               from,

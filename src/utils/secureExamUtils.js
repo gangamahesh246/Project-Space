@@ -1,6 +1,8 @@
 import { toast } from "react-toastify";
 
 let listenersAttached = false;
+let rightClickToastShown = false;
+let tabListenerAttached = false;
 
 export const enableMicStream = async (setMicStream, setViolations) => {
   try {
@@ -12,19 +14,15 @@ export const enableMicStream = async (setMicStream, setViolations) => {
     const micSource = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 2048;
-    analyser.minDecibels = -90;
-    analyser.maxDecibels = -10;
-    analyser.smoothingTimeConstant = 0.8;
-
-    micSource.connect(analyser);
 
     const bufferLength = analyser.frequencyBinCount;
     const frequencyData = new Float32Array(bufferLength);
 
+    micSource.connect(analyser);
+
     let lastViolationTime = 0;
     const DECIBEL_THRESHOLD = -40;
     const VIOLATION_INTERVAL = 5000;
-
     const minFrequency = 800;
     const maxFrequency = 3500;
 
@@ -33,14 +31,10 @@ export const enableMicStream = async (setMicStream, setViolations) => {
 
       const sampleRate = audioContext.sampleRate;
       const binSize = sampleRate / analyser.fftSize;
-
       const minIndex = Math.floor(minFrequency / binSize);
       const maxIndex = Math.ceil(maxFrequency / binSize);
-      const detectedDBs = frequencyData.slice(minIndex, maxIndex);
-      console.log("Pitch range dB sample:", detectedDBs);
 
       const now = Date.now();
-
       const isLoudPitch = frequencyData
         .slice(minIndex, maxIndex)
         .some((db) => db > DECIBEL_THRESHOLD);
@@ -52,7 +46,7 @@ export const enableMicStream = async (setMicStream, setViolations) => {
         );
         setViolations?.((prev) => ({
           ...prev,
-          webcamViolation: (prev.webcamViolation || 0) + 1,
+          soundViolation: (prev.soundViolation || 0) + 1,
         }));
       }
 
@@ -64,17 +58,21 @@ export const enableMicStream = async (setMicStream, setViolations) => {
     toast.warn("Mic permission denied.");
     setViolations?.((prev) => ({
       ...prev,
-      webcamViolation: (prev.webcamViolation || 0) + 1,
+      soundViolation: (prev.soundViolation || 0) + 1,
     }));
   }
 };
 
 export const monitorTabSwitch = (setViolations) => {
+  if (tabListenerAttached) return;
+  tabListenerAttached = true;
+
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
+      toast.warn("Tab switched - violation logged");
       setViolations((prev) => ({
         ...prev,
-        tabSwitchingViolation: prev.tabSwitchingViolation + 1,
+        tabSwitchingViolation: (prev.tabSwitchingViolation || 0) + 1,
       }));
     }
   });
@@ -89,10 +87,55 @@ export const detectDevTools = (setViolations) => {
     const end = performance.now();
     if (end - start > threshold && !triggered) {
       triggered = true;
+      toast.warn("DevTools usage detected");
       setViolations((prev) => ({
         ...prev,
         devtoolsViolation: prev.devtoolsViolation + 1,
       }));
     }
   }, 1000);
+};
+
+export const preventCopyPaste = (setViolations) => {
+  if (listenersAttached) return;
+  listenersAttached = true;
+
+  const handler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  ["copy", "cut", "paste"].forEach((evt) => {
+    window.addEventListener(evt, handler, true);
+    document.addEventListener(evt, handler, true);
+  });
+
+  const blockSelection = (e) => e.preventDefault();
+  document.addEventListener("selectstart", blockSelection);
+  document.addEventListener("mousedown", blockSelection);
+  document.addEventListener("mouseup", blockSelection);
+};
+
+export const blockRightClick = (setViolations) => {
+  const handler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setViolations((prev) => ({
+      ...prev,
+      rightClickViolation: (prev.rightClickViolation || 0) + 1,
+    }));
+
+    if (!rightClickToastShown) {
+      toast.warn("Right click is not allowed");
+      rightClickToastShown = true;
+
+      setTimeout(() => {
+        rightClickToastShown = false;
+      }, 3000); 
+    }
+  };
+
+  window.addEventListener("contextmenu", handler, true);
+  document.addEventListener("contextmenu", handler, true);
 };
