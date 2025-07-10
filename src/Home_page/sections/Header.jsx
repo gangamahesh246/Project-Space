@@ -104,7 +104,7 @@ const Header = () => {
           with confidence.
         </p>
         <button 
-        onClick={() => navigate("/login")}
+        onClick={() => navigate("/studentlogin")}
         className="w-[150px] h-[50px] text-[20px] font-medium rounded-4xl bg-yellow-300 capitalize mt-10 relative left-1/2 -translate-x-1/2 opacity-80 hover:opacity-100 cursor-pointer">
           get started
         </button>

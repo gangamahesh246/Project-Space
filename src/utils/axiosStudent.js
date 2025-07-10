@@ -1,14 +1,14 @@
 import axios from "axios";
 import store from "../store";
-import { logout } from "../slices/adminAuthSlice";
+import { logoutStudent } from "../slices/studentAuthSlice";
 
-const axiosInstance = axios.create({
+const axiosStudent = axios.create({
   baseURL: "http://localhost:3000",
 });
 
-axiosInstance.interceptors.request.use(
+axiosStudent.interceptors.request.use(
   (config) => {
-    const token = store.getState().login?.token;
+    const token = store.getState().student?.token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -17,15 +17,15 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-axiosInstance.interceptors.response.use(
+axiosStudent.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      store.dispatch(logout());
-      window.location.href = "/isadmin";
+      store.dispatch(logoutStudent());
+      window.location.href = "/studentlogin";
     }
     return Promise.reject(err);
   }
 );
 
-export default axiosInstance;
+export default axiosStudent;

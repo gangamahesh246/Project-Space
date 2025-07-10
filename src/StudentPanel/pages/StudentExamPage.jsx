@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosStudent from "../../utils/axiosStudent";
 import { toast } from "react-toastify";
 import { Outlet, useNavigate } from "react-router-dom";
 import { FaCalendarAlt } from "react-icons/fa";
@@ -11,7 +11,7 @@ import socket from "../../utils/socket";
 const StudentExamPage = () => {
   const navigate = useNavigate();
   const dateInputRef = useRef(null);
-  const StudentMail = useSelector((state) => state.student.user.student_id);
+  const StudentMail = useSelector((state) => state.student.user.college_mail);
 
   const [studentId, setStudentId] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
@@ -22,7 +22,7 @@ const StudentExamPage = () => {
   useEffect(() => {
     if (!StudentMail) return;
 
-    axiosInstance
+    axiosStudent
       .get("/getstudentId", {
         params: {
           student_mail: StudentMail,
@@ -104,7 +104,7 @@ const StudentExamPage = () => {
   useEffect(() => {
     const fetchAndUpdateExams = async () => {
       try {
-        const res = await axiosInstance.get("/student", {
+        const res = await axiosStudent.get("/student", {
           params: { student_id: studentId },
         });
 
@@ -117,7 +117,6 @@ const StudentExamPage = () => {
 
             const { from, to } = timeLimitDays;
             const { from: timeFrom, to: timeTo } = timeActive;
-            console.log(res.data?.exams);
 
             const status = getExamStatus(
               from,
@@ -130,7 +129,7 @@ const StudentExamPage = () => {
 
             if (exam.status !== status && exam?.examId?._id) {
               try {
-                await axiosInstance.post("/status", {
+                await axiosStudent.post("/status", {
                   examId: exam.examId._id,
                   status,
                   student_id: studentId,

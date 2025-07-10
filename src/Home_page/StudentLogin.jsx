@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { loginSuccess } from "../slices/adminAuthSlice";
 import { loginStudent } from "../slices/studentAuthSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -11,11 +10,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import Forgot_Password from "./Forgot_Password";
 import SignIn from "./SignIn";
 
-const Login = () => {
+const StudentLogin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [data, setData] = useState({
-    id: "",
+    college_mail: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -34,39 +33,19 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3000/login", data);
-
+      const res = await axios.post("http://localhost:3000/studentlogin", data); 
       const { token, user, message } = res.data;
 
-      if (!user) {
-        toast.error("Invalid login response: no user returned");
+      if (!user || user.isAdmin) {
+        toast.error("Invalid student credentials");
         return;
       }
 
-      const authData = {
-        token,
-        user,
-      };
-
-      if (user.isAdmin) {
-        dispatch(loginSuccess({ ...authData, isAdmin: true }));
-        localStorage.setItem(
-          "adminAuth",
-          JSON.stringify({ ...authData, isAdmin: true })
-        );
-        navigate("/admin/dashboard");
-      } else {
-        dispatch(loginStudent(authData));
-        localStorage.setItem("studentAuth", JSON.stringify(authData));
-        navigate("/student/dashboard");
-      }
-
+      const authData = { token, user };
+      dispatch(loginStudent(authData));
+      localStorage.setItem("studentAuth", JSON.stringify(authData));
       toast.success(message || "Login successful");
-      if (user.isAdmin) {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/student/dashboard");
-      }
+      navigate("/student/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     }
@@ -127,12 +106,12 @@ const Login = () => {
             <p className="text-xl text-[#444444] font-light text-center mb-6">
               secure exam
             </p>
-            <label className="block mb-2 text-sm font-semibold">
-              Username/ID
+            <label className="capitalize block mb-2 text-sm font-semibold">
+              college mail
             </label>
             <input
-              name="id"
-              value={data.id}
+              name="college_mail"
+              value={data.college_mail}
               onChange={handleChange}
               className="w-full p-2 text-sm mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
             />
@@ -187,4 +166,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default StudentLogin;

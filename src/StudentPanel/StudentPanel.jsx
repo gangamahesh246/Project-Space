@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import socket from "../utils/socket";
 
-import axiosInstance from "../utils/axiosInstance";
+import axiosStudent from "../utils/axiosStudent";
 import { logoutStudent } from "../slices/studentAuthSlice";
 import ReverseCountdown from "./ReverseCountDown";
 
@@ -88,7 +88,7 @@ const StudentPanel = () => {
           title: examData.basicInfo.title,
           category: examData.basicInfo.category,
           coverPreview: examData.basicInfo.coverPreview,
-          assignedBy: examData.assignedBy || "Admin",
+          assignedBy: assignedBy || "Admin",
           timeFrom: examData.settings.availability.timeLimitDays.from,
           timeTo: examData.settings.availability.timeLimitDays.to,
           hourFrom: examData.settings.availability.timeLimitHours.from,
@@ -139,7 +139,7 @@ const StudentPanel = () => {
 
   const handleLogout = () => {
     dispatch(logoutStudent());
-    navigate("/login");
+    navigate("/studentlogin");
   };
 
   const handleClick = () => {
@@ -153,22 +153,23 @@ const StudentPanel = () => {
   };
 
   useEffect(() => {
-    if (!data.token) return;
-    axiosInstance
+    if (!data.token || !data.user?.college_mail) return;
+
+    axiosStudent
       .get("/student/matchprofile", {
         params: {
-          userId: data.user.student_id,
-          username: "",
+          userId: data.user.college_mail,
         },
       })
       .then((response) => {
+        if (Array.isArray(response.data)) {
         setProfile(response.data[0]);
+      }
       })
       .catch((error) => {
         console.log(error);
       });
-  }, [data.token]);
-  console.log(notifications)
+  }, [data.token, data.user?.student_id]);
 
   return (
     <div className="w-full h-screen">
@@ -260,7 +261,7 @@ const StudentPanel = () => {
 
               {notify && (
                 <div className="absolute right-40 top-15 w-fit bg-white rounded-lg shadow-lg max-h-[400px] overflow-y-auto z-50 cursor-pointer"
-                onClick={() => navigate('/student/exam')}
+                onClick={() => {navigate('/student/exam'); setNotificationCount(0); setNotifications("")}}
                 >
                   {notifications.length === 0 ? (
                     <p className="p-4 text-gray-500">No new notifications.</p>
@@ -312,7 +313,7 @@ const StudentPanel = () => {
                 className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"
                 style={{
                   backgroundImage: `url(https://info.aec.edu.in/ACET/StudentPhotos/${
-                    data.user.student_id.split("@")[0]
+                    data.user.college_mail.split("@")[0]
                   }.jpg)`,
                 }}
                 alt="profile"
@@ -354,6 +355,7 @@ const StudentPanel = () => {
           </div>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 };

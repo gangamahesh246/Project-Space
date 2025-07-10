@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosStudent from "../../utils/axiosStudent";
 
 const ExamInstructions = () => {
   const location = useLocation();
@@ -11,7 +11,7 @@ const ExamInstructions = () => {
   const [instructions, setInstructions] = useState([]);
 
   useEffect(() => {
-    axiosInstance
+    axiosStudent
       .get(`/getexaminstructions/${examId}`)
       .then((response) => {
         setInstructions(response.data);
@@ -102,7 +102,7 @@ const ExamInstructions = () => {
                 entry is allowed after the start.)
               </>
             ) : (
-              <p>No late entry allowed.</p>
+              "No late entry allowed."
             )}
           </p>
         </div>

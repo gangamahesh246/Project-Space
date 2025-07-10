@@ -8,7 +8,7 @@ const NavBar = () => {
         <div className='lg:w-[250px] flex items-center sm:w-[200px] h-[70px]'><img src='Qubee.png' alt='Logo' /></div>
         <div className='lg:w-[200px] flex items-center sm:w-[100px] h-[70px] '>
             <button 
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/studentlogin')}
             className='bg-yellow-300 text-black font-bold lg:w-1/2 h-2/3 text-[16px] sm:w-[70px] rounded-xl opacity-80 cursor-pointer hover:opacity-100'>Sign Up</button>
         </div>
     </div>

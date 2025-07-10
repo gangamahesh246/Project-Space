@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosStudent from "../../utils/axiosStudent";
 
 const StudentProfilePage = () => {
   const student = useSelector((state) => state.student.user);
-  const [PreviewImage, setPreviewImage] = useState("");
-  const [file, setFile] = useState(null);
 
   const initialForm = {
     userId: "",
@@ -30,12 +28,11 @@ const StudentProfilePage = () => {
   };
 
   const [form, setForm] = useState(initialForm);
-  console.log(student)
 
   useEffect(() => {
-    axiosInstance
+    axiosStudent
       .get("/student/getprofile", {
-        params: { userId: student.student_id },
+        params: { userId: student.college_mail },
       })
       .then((response) => {
         const data = response.data;
@@ -78,7 +75,7 @@ const StudentProfilePage = () => {
         }
       }
 
-      await axiosInstance.post("/student/profile", formData, {
+      await axiosStudent.post("/student/profile", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -97,7 +94,7 @@ const StudentProfilePage = () => {
           <div
             className="w-40 h-50 rounded-lg border-2 border-green-500 mb-6 ml-2 flex justify-center items-center cursor-pointer"
             style={{
-              backgroundImage: `url(https://info.aec.edu.in/ACET/StudentPhotos/${student.student_id.split("@")[0]}.jpg)`,
+              backgroundImage: `url(https://info.aec.edu.in/ACET/StudentPhotos/${student.college_mail.split("@")[0]}.jpg)`,
               backgroundSize: "cover" ,
               backgroundPosition: "center",
             }}

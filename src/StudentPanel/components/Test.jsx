@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosStudent from "../../utils/axiosStudent";
 import goFullscreen from "../../utils/FullScreen";
+import WebCamProctoring from "../../utils/WebCamProctoring";
 import {
   enableMicStream,
   detectDevTools,
@@ -17,6 +18,8 @@ import { GoPerson } from "react-icons/go";
 const Test = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const tabSwitchListenerRef = useRef(null);
+  const devToolsIntervalRef = useRef(null);
 
   const examId = location.state?.examId;
   const examTime = location.state?.examTime;
@@ -77,11 +80,12 @@ const Test = () => {
   const MAX_VIOLATIONS = 2;
 
   useEffect(() => {
-    if (!antiCheating || Object.keys(antiCheating).length === 0) return;
+    if (hasSubmitted || !antiCheating || Object.keys(antiCheating).length === 0)
+      return;
 
     preventCopyPaste();
     blockRightClick(setViolations);
-    detectDevTools(setViolations);
+    devToolsIntervalRef.current = detectDevTools(setViolations);
 
     let removeFullscreenListener;
 
@@ -111,7 +115,11 @@ const Test = () => {
     }
 
     if (antiCheating.switchingScreen > 0) {
-      monitorTabSwitch(setViolations);
+      tabSwitchListenerRef.current = monitorTabSwitch(setViolations);
+    }
+
+    if (violations.tabSwitchingViolation === antiCheating.switchingScreen) {
+      handleSubmit();
     }
 
     if (antiCheating.noiseDetection) {
@@ -120,8 +128,33 @@ const Test = () => {
 
     return () => {
       if (removeFullscreenListener) removeFullscreenListener();
+      if (tabSwitchListenerRef.current) {
+        document.removeEventListener(
+          "visibilitychange",
+          tabSwitchListenerRef.current
+        );
+      }
     };
-  }, [antiCheating]);
+  }, [antiCheating, hasSubmitted]);
+
+  const cleanupSecurity = () => {
+    if (micStream) {
+      micStream.getTracks().forEach((track) => track.stop());
+    }
+    if (tabSwitchListenerRef.current) {
+      document.removeEventListener(
+        "visibilitychange",
+        tabSwitchListenerRef.current
+      );
+      tabSwitchListenerRef.current = null;
+    }
+    if (devToolsIntervalRef.current) {
+      clearInterval(devToolsIntervalRef.current);
+      devToolsIntervalRef.current = null;
+    }
+
+    window.removeEventListener("contextmenu", blockRightClick);
+  };
 
   useEffect(() => {
     const savedAnswers = localStorage.getItem(`answers-${examId}`);
@@ -136,7 +169,9 @@ const Test = () => {
 
   useEffect(() => {
     const violationCount = Object.entries(violations)
-      .filter(([key]) => key !== "fullscreenViolation")
+      .filter(
+        ([key]) => key !== "fullscreenViolation" && key !== "webcamViolation"
+      )
       .reduce((acc, [_, count]) => acc + (count >= MAX_VIOLATIONS ? 1 : 0), 0);
 
     if (violationCount > 0 && !hasSubmitted) {
@@ -172,7 +207,7 @@ const Test = () => {
   }, []);
 
   useEffect(() => {
-    axiosInstance
+    axiosStudent
       .get(`/getexamquestions/${examId}`)
       .then((res) => {
         setExamQuestions(res.data.questions);
@@ -188,11 +223,10 @@ const Test = () => {
 
   useEffect(() => {
     if (!data.token) return;
-    axiosInstance
+    axiosStudent
       .get("/student/matchprofile", {
         params: {
-          userId: data.user.student_id,
-          username: "",
+          userId: data.user.college_mail,
         },
       })
       .then((res) => setFullname(res.data[0].fullname))
@@ -238,12 +272,12 @@ const Test = () => {
   }, [examId]);
 
   useEffect(() => {
-    if (!data.user.student_id) return;
+    if (!data.user.college_mail) return;
 
-    axiosInstance
+    axiosStudent
       .get("/getstudentId", {
         params: {
-          student_mail: data.user.student_id,
+          student_mail: data.user.college_mail,
         },
       })
       .then((response) => {
@@ -252,7 +286,7 @@ const Test = () => {
       .catch((error) => {
         console.error("Error fetching student ID:", error);
       });
-  }, [data.user.student_id]);
+  }, [data.user.college_mail]);
 
   useEffect(() => {
     if (questionTime > 0) {
@@ -328,9 +362,6 @@ const Test = () => {
 
       if (!answer || answer.length === 0) continue;
 
-      const isMulti =
-        Array.isArray(question.correct) && question.correct.length > 1;
-
       const selectedOptions = Array.isArray(answer)
         ? answer.map((index) => String.fromCharCode(65 + index))
         : [String.fromCharCode(65 + answer)];
@@ -386,11 +417,15 @@ const Test = () => {
     console.log("Attempt Data:", attemptData);
 
     try {
-      const res = await axiosInstance.post("/student/complete", attemptData);
+      const res = await axiosStudent.post("/student/complete", attemptData);
       toast.success("Exam submitted successfully!");
+
+      cleanupSecurity();
+
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
+
       navigate("/student/exam/results", {
         state: {
           score,
@@ -428,15 +463,43 @@ const Test = () => {
           </p>
         </div>
 
+        {antiCheating.webcam && (
+          <div>
+            <WebCamProctoring
+              studentId={studentId}
+              examId={examId}
+              hasSubmitted={hasSubmitted}
+              onWarningMessage={(message) => toast.warning(message)}
+              onViolation={() => {
+                setViolations((prev) => ({
+                  ...prev,
+                  webcamViolation: prev.webcamViolation + 1,
+                }));
+              }}
+              onMaxViolationsReached={() => {
+                toast.error("Multiple webcam violations! Submitting exam...");
+                if (!hasSubmitted) {
+                  setHasSubmitted(true);
+                  handleSubmit();
+                }
+              }}
+            />
+          </div>
+        )}
+
         <div className="flex items-center gap-5 text-white">
-          <p>
-            Answered:{" "}
-            {
-              userAnswers.filter((a) => a !== undefined && a.length !== 0)
-                .length
-            }
-            /{examQuestions.length}
-          </p>
+          {userAnswers?.length > 0 && examQuestions?.length > 0 && (
+            <span className="text-sm font-medium">
+              Answered:{" "}
+              {
+                userAnswers.filter(
+                  (a) => a !== undefined && (!Array.isArray(a) || a.length > 0)
+                ).length
+              }
+              /{examQuestions.length}
+            </span>
+          )}
+
           <div className="flex items-center gap-1">
             <MdAccessTime />
             <span

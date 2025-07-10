@@ -5,7 +5,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./Home_page/Home";
-import Login from "./Home_page/Login";
+import StudentLogin from "./Home_page/StudentLogin"; 
+import AdminLogin from "./Home_page/AdminLogin"; 
 import MainPanel from "./AdminPanel/MainPanel";
 import StudentPanel from "./StudentPanel/StudentPanel";
 import Test from "./StudentPanel/components/Test";
@@ -21,7 +22,6 @@ const App = () => {
 
   useEffect(() => {
     const auth = JSON.parse(localStorage.getItem("auth"));
-
     if (auth && auth.token && auth.user) {
       dispatch(
         loginSuccess({
@@ -32,6 +32,7 @@ const App = () => {
       );
     }
   }, []);
+
   return (
     <>
       <ToastContainer
@@ -49,8 +50,10 @@ const App = () => {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/studentlogin" element={<StudentLogin />} />
+        <Route path="/isadmin" element={<AdminLogin />} />
         <Route path="/test" element={<Test />} />
+        
         <Route
           path="/admin/*"
           element={
@@ -67,7 +70,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>

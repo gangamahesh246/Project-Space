@@ -2,7 +2,6 @@ import { toast } from "react-toastify";
 
 let listenersAttached = false;
 let rightClickToastShown = false;
-let tabListenerAttached = false;
 
 export const enableMicStream = async (setMicStream, setViolations) => {
   try {
@@ -21,10 +20,10 @@ export const enableMicStream = async (setMicStream, setViolations) => {
     micSource.connect(analyser);
 
     let lastViolationTime = 0;
-    const DECIBEL_THRESHOLD = -40;
+    const DECIBEL_THRESHOLD = -30;
     const VIOLATION_INTERVAL = 5000;
-    const minFrequency = 800;
-    const maxFrequency = 3500;
+    const minFrequency = 500;
+    const maxFrequency = 3000;
 
     const checkPitch = () => {
       analyser.getFloatFrequencyData(frequencyData);
@@ -64,10 +63,7 @@ export const enableMicStream = async (setMicStream, setViolations) => {
 };
 
 export const monitorTabSwitch = (setViolations) => {
-  if (tabListenerAttached) return;
-  tabListenerAttached = true;
-
-  document.addEventListener("visibilitychange", () => {
+  const listener = () => {
     if (document.hidden) {
       toast.warn("Tab switched - violation logged");
       setViolations((prev) => ({
@@ -75,13 +71,16 @@ export const monitorTabSwitch = (setViolations) => {
         tabSwitchingViolation: (prev.tabSwitchingViolation || 0) + 1,
       }));
     }
-  });
+  };
+
+  document.addEventListener("visibilitychange", listener);
+  return listener;
 };
 
 export const detectDevTools = (setViolations) => {
   let triggered = false;
   const threshold = 160;
-  setInterval(() => {
+  const intervalId = setInterval(() => {
     const start = performance.now();
     debugger;
     const end = performance.now();
@@ -90,10 +89,12 @@ export const detectDevTools = (setViolations) => {
       toast.warn("DevTools usage detected");
       setViolations((prev) => ({
         ...prev,
-        devtoolsViolation: prev.devtoolsViolation + 1,
+        devtoolsViolation: (prev.devtoolsViolation || 0) + 1,
       }));
     }
   }, 1000);
+
+  return intervalId;
 };
 
 export const preventCopyPaste = (setViolations) => {
@@ -132,7 +133,7 @@ export const blockRightClick = (setViolations) => {
 
       setTimeout(() => {
         rightClickToastShown = false;
-      }, 3000); 
+      }, 3000);
     }
   };
 

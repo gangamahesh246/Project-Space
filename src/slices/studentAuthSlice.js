@@ -1,10 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const storedStudentAuth = JSON.parse(localStorage.getItem("studentAuth"));
+let storedStudentAuth;
+try {
+  storedStudentAuth = JSON.parse(localStorage.getItem("studentAuth"));
+} catch {
+  storedStudentAuth = null;
+}
 
 const initialState = {
   token: storedStudentAuth?.token || null,
-  isAdmin: false, 
+  isAdmin: false,
   user: storedStudentAuth?.user || null,
 };
 
