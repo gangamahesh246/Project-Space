@@ -75,8 +75,12 @@ const StudentExamPage = () => {
           const start = new Date(now);
           start.setHours(fromHours, fromMinutes, 0, 0);
 
-          const end = new Date(now);
+          const end = new Date(start);
           end.setHours(toHours, toMinutes, 59, 999);
+
+          if (end <= start) {
+            end.setDate(end.getDate() + 1);
+          }
 
           if (lateTime && !isNaN(parseInt(lateTime))) {
             const lateLimit = new Date(
@@ -297,11 +301,15 @@ const StudentExamPage = () => {
                       </div>
                       <p className="text-sm text-gray-500">
                         Active Time:{" "}
-                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
-                          ?.from) || "--"}{" "}
-                        - {" "}
-                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
-                          ?.to) || "--"}
+                        {convertTo12Hour(
+                          item.examId?.settings?.availability?.timeLimitHours
+                            ?.from
+                        ) || "--"}{" "}
+                        -{" "}
+                        {convertTo12Hour(
+                          item.examId?.settings?.availability?.timeLimitHours
+                            ?.to
+                        ) || "--"}
                       </p>
                     </div>
                     <div className="flex justify-between items-start ">
@@ -375,13 +383,17 @@ const StudentExamPage = () => {
                           {new Date(item.assignedAt).toLocaleDateString()}
                         </p>
                         <p className="text-sm text-gray-500">
-                        Active Time:{" "}
-                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
-                          ?.from) || "--"}{" "}
-                        - {" "}
-                        {convertTo12Hour(item.examId?.settings?.availability?.timeLimitHours
-                          ?.to) || "--"}
-                      </p>
+                          Active Time:{" "}
+                          {convertTo12Hour(
+                            item.examId?.settings?.availability?.timeLimitHours
+                              ?.from
+                          ) || "--"}{" "}
+                          -{" "}
+                          {convertTo12Hour(
+                            item.examId?.settings?.availability?.timeLimitHours
+                              ?.to
+                          ) || "--"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex justify-between items-start ">

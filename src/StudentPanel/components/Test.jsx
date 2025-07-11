@@ -67,6 +67,7 @@ const Test = () => {
     return 0;
   });
   const [micStream, setMicStream] = useState(null);
+  const [showWebcamProctoring, setShowWebcamProctoring] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(true);
   const [violations, setViolations] = useState({
     tabSwitchingViolation: 0,
@@ -112,6 +113,10 @@ const Test = () => {
           handleFullscreenChange
         );
       };
+    }
+
+    if (antiCheating.webcam) {
+      setShowWebcamProctoring(true);
     }
 
     if (antiCheating.switchingScreen > 0) {
@@ -395,6 +400,9 @@ const Test = () => {
 
     const totalMarks = examQuestions.reduce((acc, q) => acc + q.marks, 0);
     const passMark = Math.round((results.passPercentage / 100) * totalMarks);
+    const timeTaken = Math.floor(
+      (new Date(attemptEnd) - new Date(attemptStart)) / 60000
+    );
 
     const attemptData = {
       examId,
@@ -406,9 +414,10 @@ const Test = () => {
       score,
       correct,
       incorrect,
+      timeTaken,
       startTime: availability.from,
       endTime: availability.to,
-      duration: Math.floor(examTime.examTime / 60),
+      duration: Math.floor(examTime.examTime),
       attemptStart: attemptStart || new Date(),
       attemptEnd,
       violations: violations,
@@ -463,7 +472,7 @@ const Test = () => {
           </p>
         </div>
 
-        {antiCheating.webcam && (
+        {showWebcamProctoring && (
           <div>
             <WebCamProctoring
               studentId={studentId}

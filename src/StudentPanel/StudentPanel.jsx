@@ -18,6 +18,7 @@ import { HiMenu } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import socket from "../utils/socket";
+import { MdOutlineDelete } from "react-icons/md";
 
 import axiosStudent from "../utils/axiosStudent";
 import { logoutStudent } from "../slices/studentAuthSlice";
@@ -107,13 +108,6 @@ const StudentPanel = () => {
         ...prev,
         {
           type: "deleted",
-          examId,
-          title: "Deleted Exam",
-          category: "Unknown",
-          coverPreview: null,
-          assignedBy: "",
-          timeTo: null,
-          timestamp: new Date().toISOString(),
         },
       ]);
     };
@@ -163,8 +157,8 @@ const StudentPanel = () => {
       })
       .then((response) => {
         if (Array.isArray(response.data)) {
-        setProfile(response.data[0]);
-      }
+          setProfile(response.data[0]);
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -260,8 +254,13 @@ const StudentPanel = () => {
               </div>
 
               {notify && (
-                <div className="absolute right-40 top-15 w-fit bg-white rounded-lg shadow-lg max-h-[400px] overflow-y-auto z-50 cursor-pointer"
-                onClick={() => {navigate('/student/exam'); setNotificationCount(0); setNotifications("")}}
+                <div
+                  className="absolute right-40 top-15 w-fit bg-white rounded-lg shadow-lg max-h-[400px] overflow-y-auto z-50 cursor-pointer"
+                  onClick={() => {
+                    navigate("/student/exam");
+                    setNotificationCount(0);
+                    setNotifications("");
+                  }}
                 >
                   {notifications.length === 0 ? (
                     <p className="p-4 text-gray-500">No new notifications.</p>
@@ -278,28 +277,13 @@ const StudentPanel = () => {
                             className="w-16 h-16 object-cover rounded"
                           />
                         ) : (
-                          <div className="w-16 h-16 flex items-center justify-center bg-gray-200 text-gray-600 rounded">
-                            🗑️
+                          <div className="w-16 h-16 flex items-center justify-center bg-red-200 text-gray-600 rounded">
+                            <MdOutlineDelete />
                           </div>
                         )}
-                        <div className="flex flex-col gap-1">
-                          <div className="flex gap-3 items-center">
-                            <p className="text-sm font-semibold capitalize text-primary">
-                               Title: {notif.title}
-                            </p>
-                            <p className="text-sm font-semibold text-primary">
-                              Category: {notif.category}
-                            </p>
-                          </div>
-                          {notif.type === "assigned" && notif.timeTo && (
-                            <div className="flex gap-3">
-                              <ReverseCountdown dateFrom={notif.timeFrom} dateTo={notif.timeTo} timeFrom={notif.hourFrom} timeTo={notif.hourTo} />
-                            </div>
-                          )}
-                          <p className="text-sm text-gray-500 italic">
-                            {notif.type === "assigned"
-                              ? `Assigned by ${notif.assignedBy}`
-                              : "This exam was deleted"}
+                        <div className="flex justify-center items-center">
+                          <p className="text-sm font-semibold capitalize text-primary">
+                            Title: {notif.title}
                           </p>
                         </div>
                       </div>

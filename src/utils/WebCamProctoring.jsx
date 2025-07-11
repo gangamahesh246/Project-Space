@@ -132,7 +132,7 @@ const WebCamProctoring = ({
       try {
         const res = await axiosStudent.post("/student/violation", formData);
       } catch (err) {
-        console.error("Upload failed:");
+        console.error("Upload failed:", err);
       }
     }, "image/png");
   };
@@ -257,7 +257,6 @@ const WebCamProctoring = ({
 
     return () => clearInterval(interval);
   }, [isReady, referenceDescriptor, warningCount, cameraDisabled]);
-  console.log(warningCount);
 
   const isLookingAway = (leftEye, rightEye) => {
     const eyeCenter = (eye) => {

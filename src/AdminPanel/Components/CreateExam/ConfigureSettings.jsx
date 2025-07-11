@@ -428,6 +428,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         Late time:
         <input
           type="number"
+          min="1"
+          inputMode="numeric"
           className="w-20 border-2 border-primary focus:outline-none rounded"
           value={settings.availability.lateTime}
           onChange={handleLateTimeChange}
@@ -467,9 +469,11 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Multiple:
           <input
             type="number"
+            min="2"
+            inputMode="numeric"
             className="w-15 border-2 border-primary focus:outline-none rounded"
             value={settings.examTakenTimes.multiple}
-            onChange={(e) => handleExamTakenChange("multiple", +e.target.value)}
+            onChange={(e) => handleExamTakenChange("multiple", Math.max(2, +e.target.value))}
           />
           times
         </p>
@@ -493,6 +497,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Time to complete exam:
           <input
             type="number"
+            min="1"
+            inputMode="numeric"
             className="w-15 border-2 border-primary focus:outline-none rounded"
             value={settings.answerTimeControl.examTime}
             disabled={settings.answerTimeControl.questionTime > 0 || settings.answerTimeControl.type === "dynamic"}
@@ -534,6 +540,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Time limit per question:{" "}
           <input
             type="number"
+            min="1"
+            inputMode="numeric"
             className="w-15 border-2 border-primary focus:outline-none rounded"
             value={settings.answerTimeControl.questionTime}
             onChange={handleQuestionTimeChange}
@@ -664,6 +672,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       <p className="ml-10 mt-3 flex gap-2">
         <input
           type="number"
+          min="1"
+          inputMode="numeric"
           value={settings.results.displayScore.passPercentage}
           className="w-10 border-2 focus:outline-none rounded"
           onChange={handlePassPercentageChange}
@@ -706,6 +716,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           Force to hand in test papers after switching the screen
           <input
             type="number"
+            min="1"
+            inputMode="numeric"
             className="w-10 border-2 border-primary focus:outline-none rounded"
             value={settings.antiCheating.switchingScreen}
             onChange={(e) =>

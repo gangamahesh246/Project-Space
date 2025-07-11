@@ -55,7 +55,7 @@ const ExamPage = () => {
                   status = "active";
                 }
               } else {
-                status = "active"; 
+                status = "active";
               }
             }
           }
@@ -82,16 +82,14 @@ const ExamPage = () => {
       .delete(`/deleteexam/${id}`)
       .then((res) => {
         toast.success(res.data.message);
+        
+        socket.emit("deleteExamFromStudents", { examId: id });
         fetchExams();
       })
       .catch((error) =>
         toast.error(error?.response?.data?.message || error.message)
       );
   };
-
-  socket.emit("deleteExamFromStudents", {
-    examId: id,
-  });
 
   const filteredExams = exam.filter(
     (e) =>
@@ -172,7 +170,11 @@ const ExamPage = () => {
                     Questions Count: {item.questionsCount} |
                   </p>
                   <p className="sm:hidden md:block">
-                    Late Time: {item.settings.availability.lateTime ? item.settings.availability.lateTime : "N/A" } {item.settings.availability.lateTime && "sec"} |
+                    Late Time:{" "}
+                    {item.settings.availability.lateTime
+                      ? item.settings.availability.lateTime
+                      : "N/A"}{" "}
+                    {item.settings.availability.lateTime && "sec"} |
                   </p>
                   <p className="sm:hidden xl:block">
                     Students Count:{" "}
@@ -224,7 +226,7 @@ const ExamPage = () => {
                   }}
                 />
                 <MdOutlineDelete
-                  className="cursor-pointer"
+                  className="cursor-pointer w-fit h-fit"
                   color="red"
                   onClick={() => deleteExam(item._id)}
                 />
