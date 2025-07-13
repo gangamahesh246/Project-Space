@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import Base from "./Base";
 import { toast } from "react-toastify";
-import axiosStudent from "./axiosStudent";
 
 const WebCamProctoring = ({
   studentId,
@@ -11,9 +10,13 @@ const WebCamProctoring = ({
   onMaxViolationsReached,
   hasSubmitted,
   onWarningMessage,
+  snapshots,
+  setSnapshots,
 }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const warningCountRef = useRef(0);
+  const captureInProgressRef = useRef(false);
 
   const [base64Path, setBase64Path] = useState("");
 
@@ -37,26 +40,21 @@ const WebCamProctoring = ({
   useEffect(() => {
     const MODEL_URL = "/models";
 
-    const loadAll = async () => {
-      try {
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-          faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-          faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-          faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-        ]);
-
-        if (base64Path) {
-          await loadReferenceImage();
-        }
-      } catch (err) {
-        toast.error("Model loading failed");
-      }
+    const loadModels = async () => {
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+      ]);
+      setIsReady(true);
     };
 
-    if (base64Path) {
-      loadAll();
-    }
+    loadModels();
+  }, []);
+
+  useEffect(() => {
+    if (base64Path) loadReferenceImage();
   }, [base64Path]);
 
   const loadReferenceImage = async () => {
@@ -129,11 +127,10 @@ const WebCamProctoring = ({
       formData.append("studentId", studentId);
       formData.append("examId", examId);
 
-      try {
-        const res = await axiosStudent.post("/student/violation", formData);
-      } catch (err) {
-        console.error("Upload failed:", err);
-      }
+      setSnapshots((prev) => {
+        const updated = [...prev, blob];
+        return updated;
+      });
     }, "image/png");
   };
 
@@ -171,8 +168,6 @@ const WebCamProctoring = ({
     const interval = setInterval(async () => {
       const video = videoRef.current;
       const canvas = canvasRef.current;
-
-      if (!video || !canvas || video.readyState !== 4) return;
 
       const size = { width: video.videoWidth, height: video.videoHeight };
       canvas.width = size.width;
@@ -218,45 +213,52 @@ const WebCamProctoring = ({
       });
 
       if (resized.length === 0) {
-        const msg = "No face detected.";
+        const msg = "We can't see your face — please adjust your position.";
         setWarningMessage(msg);
         onWarningMessage?.(msg);
         malpractice = true;
       } else if (resized.length > 1) {
-        const msg = "Multiple faces detected.";
+        const msg = "Multiple faces detected. Only the registered candidate is allowed.";
         setWarningMessage(msg);
         onWarningMessage?.(msg);
         malpractice = true;
       } else if (!matched) {
-        const msg = "Face does not match reference.";
+        const msg = "Face mismatch detected. Unauthorized user may be present.";
         setWarningMessage(msg);
         onWarningMessage?.(msg);
         malpractice = true;
       } else if (faceLookingAway) {
-        const msg = "User looking away.";
+        const msg = "Please face the screen during the test.";
         setWarningMessage(msg);
         onWarningMessage?.(msg);
         malpractice = true;
       }
 
-      if (malpractice) {
-        setTimeout(() => {
-          captureSnapshot();
-        }, 100);
+      if (
+        malpractice &&
+        warningCountRef.current <= 5 &&
+        !captureInProgressRef.current
+      ) {
+        captureInProgressRef.current = true;
 
-        const newCount = warningCount + 1;
-        setWarningCount(newCount);
+        const currentCount = warningCountRef.current + 1;
+        warningCountRef.current = currentCount;
+        setWarningCount(currentCount);
         onViolation();
 
-        if (newCount >= 5) {
+        await captureSnapshot();
+
+        if (currentCount === 6) {
           stopCamera();
           onMaxViolationsReached();
         }
+
+        captureInProgressRef.current = false;
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isReady, referenceDescriptor, warningCount, cameraDisabled]);
+  }, [isReady, referenceDescriptor, cameraDisabled]);
 
   const isLookingAway = (leftEye, rightEye) => {
     const eyeCenter = (eye) => {
@@ -286,7 +288,7 @@ const WebCamProctoring = ({
         autoPlay
         muted
         playsInline
-        className="w-20 h-10 border object-fill"
+        className="w-20 h-12 object-fill"
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>

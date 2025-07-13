@@ -40,6 +40,13 @@ const Test = () => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [title, setTitle] = useState("");
+  const [snapshots, setSnapshots] = useState([]);
+  const snapshotsRef = useRef([]);
+
+  useEffect(() => {
+    snapshotsRef.current = snapshots;
+  }, [snapshots]);
+
   const [createdAt, setCreatedAt] = useState("");
   const [fullname, setFullname] = useState("");
   const [timeLeft, setTimeLeft] = useState(() => {
@@ -80,67 +87,67 @@ const Test = () => {
 
   const MAX_VIOLATIONS = 2;
 
-  useEffect(() => {
-    if (hasSubmitted || !antiCheating || Object.keys(antiCheating).length === 0)
-      return;
+  // useEffect(() => {
+  //   if (hasSubmitted || !antiCheating || Object.keys(antiCheating).length === 0)
+  //     return;
 
-    preventCopyPaste();
-    blockRightClick(setViolations);
-    devToolsIntervalRef.current = detectDevTools(setViolations);
+  //   preventCopyPaste();
+  //   blockRightClick(setViolations);
+  //   devToolsIntervalRef.current = detectDevTools(setViolations);
 
-    let removeFullscreenListener;
+  //   let removeFullscreenListener;
 
-    if (antiCheating.forceFullscreen) {
-      goFullscreen();
+  //   if (antiCheating.forceFullscreen) {
+  //     goFullscreen();
 
-      const handleFullscreenChange = () => {
-        if (!document.fullscreenElement) {
-          setIsFullscreen(false);
-          setViolations((prev) => ({
-            ...prev,
-            fullscreenViolation: (prev.fullscreenViolation || 0) + 1,
-          }));
-          toast.warn("You exited fullscreen! Click to resume.");
-        } else {
-          setIsFullscreen(true);
-        }
-      };
+  //     const handleFullscreenChange = () => {
+  //       if (!document.fullscreenElement) {
+  //         setIsFullscreen(false);
+  //         setViolations((prev) => ({
+  //           ...prev,
+  //           fullscreenViolation: (prev.fullscreenViolation || 0) + 1,
+  //         }));
+  //         toast.warn("You exited fullscreen! Click to resume.");
+  //       } else {
+  //         setIsFullscreen(true);
+  //       }
+  //     };
 
-      document.addEventListener("fullscreenchange", handleFullscreenChange);
-      removeFullscreenListener = () => {
-        document.removeEventListener(
-          "fullscreenchange",
-          handleFullscreenChange
-        );
-      };
-    }
+  //     document.addEventListener("fullscreenchange", handleFullscreenChange);
+  //     removeFullscreenListener = () => {
+  //       document.removeEventListener(
+  //         "fullscreenchange",
+  //         handleFullscreenChange
+  //       );
+  //     };
+  //   }
 
-    if (antiCheating.webcam) {
-      setShowWebcamProctoring(true);
-    }
+  //   if (antiCheating.webcam) {
+  //     setShowWebcamProctoring(true);
+  //   }
 
-    if (antiCheating.switchingScreen > 0) {
-      tabSwitchListenerRef.current = monitorTabSwitch(setViolations);
-    }
+  //   if (antiCheating.switchingScreen > 0) {
+  //     tabSwitchListenerRef.current = monitorTabSwitch(setViolations);
+  //   }
 
-    if (violations.tabSwitchingViolation === antiCheating.switchingScreen) {
-      handleSubmit();
-    }
+  //   if (violations.tabSwitchingViolation === antiCheating.switchingScreen) {
+  //     handleSubmit();
+  //   }
 
-    if (antiCheating.noiseDetection) {
-      enableMicStream(setMicStream, setViolations);
-    }
+  //   if (antiCheating.noiseDetection) {
+  //     enableMicStream(setMicStream, setViolations);
+  //   }
 
-    return () => {
-      if (removeFullscreenListener) removeFullscreenListener();
-      if (tabSwitchListenerRef.current) {
-        document.removeEventListener(
-          "visibilitychange",
-          tabSwitchListenerRef.current
-        );
-      }
-    };
-  }, [antiCheating, hasSubmitted]);
+  //   return () => {
+  //     if (removeFullscreenListener) removeFullscreenListener();
+  //     if (tabSwitchListenerRef.current) {
+  //       document.removeEventListener(
+  //         "visibilitychange",
+  //         tabSwitchListenerRef.current
+  //       );
+  //     }
+  //   };
+  // }, [antiCheating, hasSubmitted]);
 
   const cleanupSecurity = () => {
     if (micStream) {
@@ -346,6 +353,8 @@ const Test = () => {
 
   const handleSubmit = async () => {
     micStream?.getTracks().forEach((track) => track.stop());
+    const currentSnapshots = snapshotsRef.current;
+
     const attemptEnd = new Date();
     const totalQuestions = examQuestions.length;
     const questionResults = [];
@@ -364,7 +373,6 @@ const Test = () => {
       });
 
       const answer = normalizedAnswers[i];
-
       if (!answer || answer.length === 0) continue;
 
       const selectedOptions = Array.isArray(answer)
@@ -399,37 +407,49 @@ const Test = () => {
     }
 
     const totalMarks = examQuestions.reduce((acc, q) => acc + q.marks, 0);
-    const passMark = Math.round((results.passPercentage / 100) * totalMarks);
-    const timeTaken = Math.floor(
-      (new Date(attemptEnd) - new Date(attemptStart)) / 60000
+    const passMark = Math.round(
+      ((results.passPercentage || 0) / 100) * totalMarks
+    );
+    const timeTaken = Math.floor((attemptEnd - new Date(attemptStart)) / 60000);
+
+    const formData = new FormData();
+    formData.append("examId", examId);
+    formData.append("studentId", studentId);
+
+    formData.append(
+      "attemptData",
+      JSON.stringify({
+        title: basicInfo.title,
+        category: basicInfo.category,
+        totalMarks,
+        passMark,
+        score,
+        correct,
+        incorrect,
+        timeTaken,
+        startTime: availability.from,
+        endTime: availability.to,
+        duration: Math.floor(examTime.examTime),
+        attemptStart: attemptStart || new Date(),
+        attemptEnd,
+        violations,
+      })
     );
 
-    const attemptData = {
-      examId,
-      student_id: studentId,
-      title: basicInfo.title,
-      category: basicInfo.category,
-      totalMarks,
-      passMark,
-      score,
-      correct,
-      incorrect,
-      timeTaken,
-      startTime: availability.from,
-      endTime: availability.to,
-      duration: Math.floor(examTime.examTime),
-      attemptStart: attemptStart || new Date(),
-      attemptEnd,
-      violations: violations,
-    };
-
-    console.log("Attempt Data:", attemptData);
+    if (Array.isArray(currentSnapshots) && currentSnapshots.length > 0) {
+      currentSnapshots.forEach((blob, index) => {
+        const file = new File([blob], `violation_${index}.png`, {
+          type: "image/png",
+        });
+        formData.append("violationImage", file);
+      });
+    }
 
     try {
-      const res = await axiosStudent.post("/student/complete", attemptData);
-      toast.success("Exam submitted successfully!");
+      const res = await axiosStudent.post("/student/complete", formData);
 
       cleanupSecurity();
+      toast.success("Exam submitted successfully!");
 
       if (document.fullscreenElement) {
         await document.exitFullscreen();
@@ -446,6 +466,7 @@ const Test = () => {
       });
     } catch (err) {
       toast.error("Error submitting exam");
+      console.error(err);
     }
   };
 
@@ -458,12 +479,12 @@ const Test = () => {
   }
 
   return (
-    <div className="w-full h-screen bg-aliceblue ">
+    <div className="w-full bg-aliceblue fixed">
       <div className="w-full h-fit bg-primary flex justify-between items-center p-3 ">
         <div className="flex items-center gap-2 text-white">
-          <div className='w-40 h-10 bg-[url("/Qubee.png")] bg-cover bg-center' />
-          <p>ProctorQube - Online Assessment</p> | <p>{title}</p> |
-          <p>
+          <div className='w-40 h-10 bg-[url("/Qubee.png")] bg-cover bg-center sm:hidden xl:block' />
+          <p className="sm:hidden xl:block">ProctorQube - Online Assessment |</p> <p>{title}</p> | 
+          <p className="sm:hidden xl:block">
             {new Date(createdAt).toLocaleDateString("en-GB", {
               day: "2-digit",
               month: "long",
@@ -478,6 +499,8 @@ const Test = () => {
               studentId={studentId}
               examId={examId}
               hasSubmitted={hasSubmitted}
+              snapshots={snapshots}
+              setSnapshots={setSnapshots}
               onWarningMessage={(message) => toast.warning(message)}
               onViolation={() => {
                 setViolations((prev) => ({
@@ -555,9 +578,9 @@ const Test = () => {
           MozUserSelect: "none",
           msUserSelect: "none",
         }}
-        className="flex mt-5 justify-around"
+        className="flex sm:flex-col sm:justify-around xl:flex-row xl:mt-5 sm:p-3 xl:justify-around"
       >
-        <div className="w-fit h-[550px] bg-white grid grid-cols-3 gap-7 p-5 shadow-md rounded-xl overflow-y-auto">
+        <div className="w-fit xl:h-[550px] sm:h-[300px] bg-white grid xl:grid-cols-3 xl:gap-7 sm:grid-cols-7 sm:gap-5 p-5 shadow-md rounded-xl overflow-y-auto">
           {examQuestions.map((_, index) => {
             const answered =
               userAnswers[index] !== undefined &&
@@ -592,8 +615,8 @@ const Test = () => {
           })}
         </div>
 
-        <div className="w-3/4 h-full">
-          <div className="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
+        <div className="xl:w-3/4 sm:mt-3 h-full">
+          <div className="xl:p-6 sm:p-3 sm:pl-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
             <h2 className="text-xl font-semibold mb-2">
               Question {currentIndex + 1}:
             </h2>

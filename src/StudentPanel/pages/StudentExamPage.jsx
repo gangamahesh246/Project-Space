@@ -257,16 +257,16 @@ const StudentExamPage = () => {
             <p className="text-gray-500 text-sm mt-4 font-semibold px-4">
               Active Exams
             </p>
-            <div className="w-full h-fit grid grid-cols-2 items-center gap-5 px-4">
+            <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
               {activeOrLateExams.map((item, i) => (
                 <div
                   key={`upcoming-${i}`}
-                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
                 >
                   <img
                     src={item.examId?.basicInfo?.coverPreview}
                     alt="Cover"
-                    className="sm:w-20 sm:h-20 md:w-30 md:h-30 object-cover rounded"
+                    className="sm:w-28 sm:h-30 md:w-30 md:h-30 object-cover rounded"
                   />
                   <div className="w-[80%] h-fit">
                     <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
@@ -345,16 +345,16 @@ const StudentExamPage = () => {
             <p className="capitalize text-gray-500 text-sm mt-4 font-semibold px-4">
               Upcoming / expired exams
             </p>
-            <div className="w-full h-fit grid grid-cols-2 items-center gap-5 px-4">
+            <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
               {inactiveExams.map((item, i) => (
                 <div
                   key={`upcoming-${i}`}
-                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
                 >
                   <img
                     src={item.examId?.basicInfo?.coverPreview}
                     alt="Cover"
-                    className="sm:w-20 sm:h-20 md:w-30 md:h-30 object-cover rounded"
+                    className="sm:w-25 sm:h-25 md:w-30 md:h-30 object-cover rounded"
                   />
                   <div className="w-[80%] h-fit">
                     <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
@@ -412,16 +412,16 @@ const StudentExamPage = () => {
             <p className="text-gray-500 text-sm mt-6 px-4 font-semibold">
               Completed Exams
             </p>
-            <div className="w-full h-fit grid grid-cols-2 items-center gap-5 px-4">
+            <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
               {completedExams.map((item, i) => (
                 <div
                   key={`completed-${i}`}
-                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-1 xl:gap-3 rounded-lg"
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
                 >
                   <img
                     src={item.examId?.basicInfo?.coverPreview}
                     alt="Cover"
-                    className="sm:w-20 sm:h-20 md:w-40 md:h-30 object-cover rounded"
+                    className="sm:w-25 sm:h-25 md:w-30 md:h-30 object-cover rounded"
                   />
                   <div className="w-[80%] h-fit">
                     <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
@@ -435,23 +435,28 @@ const StudentExamPage = () => {
                         Category: {item.examId?.basicInfo?.category}
                       </p>
                     </div>
-                    <div className="flex items-center xl:gap-10 mt-2">
+                    <div className="flex items-center sm:gap-5 xl:gap-10 mt-2">
                       <div>
                         <p className="text-sm text-gray-500 capitalize">
                           date of exam:{" "}
                           {new Date(item.assignedAt).toLocaleDateString()}
                         </p>
                       </div>
-                      {item.examId?.settings?.results?.displayScore.enabled && (
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm text-gray-500">
-                            Score: {item.score !== null ? item.score : "--"}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Result: {item.result}
-                          </p>
-                        </div>
-                      )}
+                      {item.examId?.settings?.results?.displayScore.enabled &&
+                        item.attempts?.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-gray-500">
+                              Score:{" "}
+                              {item.attempts[item.attempts.length - 1]?.score ??
+                                "--"}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Result:{" "}
+                              {item.attempts[item.attempts.length - 1]
+                                ?.result ?? "--"}
+                            </p>
+                          </div>
+                        )}
                     </div>
                     <div className="flex justify-between items-start ">
                       <p className="text-sm text-gray-500">

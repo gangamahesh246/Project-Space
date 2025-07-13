@@ -20,10 +20,10 @@ export const enableMicStream = async (setMicStream, setViolations) => {
     micSource.connect(analyser);
 
     let lastViolationTime = 0;
-    const DECIBEL_THRESHOLD = -30;
-    const VIOLATION_INTERVAL = 5000;
-    const minFrequency = 500;
-    const maxFrequency = 3000;
+    const DECIBEL_THRESHOLD = -60; 
+    const VIOLATION_INTERVAL = 2000; 
+    const minFrequency = 80;
+    const maxFrequency = 6000;
 
     const checkPitch = () => {
       analyser.getFloatFrequencyData(frequencyData);
@@ -34,14 +34,16 @@ export const enableMicStream = async (setMicStream, setViolations) => {
       const maxIndex = Math.ceil(maxFrequency / binSize);
 
       const now = Date.now();
-      const isLoudPitch = frequencyData
-        .slice(minIndex, maxIndex)
-        .some((db) => db > DECIBEL_THRESHOLD);
 
-      if (isLoudPitch && now - lastViolationTime > VIOLATION_INTERVAL) {
+      const relevantData = frequencyData.slice(minIndex, maxIndex);
+      const activeBins = relevantData.filter((db) => db > DECIBEL_THRESHOLD);
+
+      const isLoud = activeBins.length > 10; 
+
+      if (isLoud && now - lastViolationTime > VIOLATION_INTERVAL) {
         lastViolationTime = now;
         toast.warn(
-          `Pitch detected in ${minFrequency}-${maxFrequency}Hz (>30dB)`
+          'Suspicious audio detected'
         );
         setViolations?.((prev) => ({
           ...prev,

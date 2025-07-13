@@ -119,7 +119,7 @@ const StudentPanel = () => {
       socket.off("examAssigned", handleExamAssigned);
       socket.off("examDeleted", handleExamDeleted);
     };
-  }, [data?.user?.student_id]);
+  }, [data?.user?.college_mail]);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
