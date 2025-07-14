@@ -240,7 +240,7 @@ const StudentPanel = () => {
                 }}
               />
               <p className="text-sm font_primary text-[#a4bfce]">
-                Welcome back, {profile.fullname}🖐️
+                Welcome back, {profile?.fullname || data?.user?.username}🖐️
               </p>
             </div>
             <div className="flex justify-center items-center gap-2">
@@ -303,7 +303,7 @@ const StudentPanel = () => {
                 alt="profile"
               ></div>
               <p className="font_primary text-sm text-[#a4bfce]">
-                {profile.fullname}
+                {profile?.fullname || data?.user?.username}
               </p>
             </div>
           </div>

@@ -3,7 +3,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "../slices/adminAuthSlice";
+import { loginStudent } from "../slices/studentAuthSlice";
 import { useNavigate } from "react-router-dom";
 
 const SignIn = ({ setRegister }) => {
@@ -12,7 +12,7 @@ const SignIn = ({ setRegister }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [data, setData] = useState({
     username: "",
-    id: "",
+    college_mail: "",
     password: "",
   });
 
@@ -27,9 +27,9 @@ const SignIn = ({ setRegister }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3000/register", {
+      const res = await axios.post("http://localhost:3000/studentregister", {
         username: data.username,
-        student_id: data.id, 
+        college_mail: data.college_mail,
         password: data.password,
       });
 
@@ -40,17 +40,11 @@ const SignIn = ({ setRegister }) => {
         return;
       }
 
-      localStorage.setItem("adminAuth", JSON.stringify({ token, user }));
-
-      dispatch(
-        loginSuccess({
-          token,
-          isAdmin: user.isAdmin,
-          user,
-        })
-      );
+      const authData = { token, user };
+      dispatch(loginStudent(authData));
+      localStorage.setItem("studentAuth", JSON.stringify(authData));
       toast.success(message || "Register successful");
-      navigate("/admin/dashboard");
+      navigate("/student/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.message || "Register failed");
     }
@@ -71,16 +65,18 @@ const SignIn = ({ setRegister }) => {
         className="w-full p-2 text-sm mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
       />
 
-      <label className="block mb-2 text-sm font-semibold">Student ID</label>
+      <label className="capitalize block mb-2 text-sm font-semibold">
+        college mail
+      </label>
       <input
-        name="id"
-        value={data.id}
+        name="college_mail"
+        value={data.college_mail}
         onChange={handleChange}
         className="w-full p-2 text-sm mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
       />
 
       <div className="relative">
-        <label className="block mb-2 text-sm font-semibold">New Password</label>
+        <label className="block mb-2 text-sm font-semibold">Password</label>
         <input
           type={showPassword ? "text" : "password"}
           name="password"
@@ -97,7 +93,7 @@ const SignIn = ({ setRegister }) => {
       </div>
       <button
         onClick={handleLogin}
-        className="w-full p-2 text-white bg-green-500 rounded-lg hover:bg-green-500/80 transition-colors duration-300 mb-5 cursor-pointer"
+        className="w-full p-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none transition-colors duration-300 mb-5 cursor-pointer"
       >
         Register
       </button>
@@ -105,7 +101,7 @@ const SignIn = ({ setRegister }) => {
         onClick={() => setRegister(false)}
         className="text-[12px] underline text-blue-600 text-right cursor-pointer"
       >
-        Back to Login 
+        Back to Login
       </p>
     </div>
   );
