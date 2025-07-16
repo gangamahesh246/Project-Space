@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { RiMenuFoldFill } from "react-icons/ri";
 import { GoPlus } from "react-icons/go";
@@ -11,305 +10,223 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosInstance";
 
 const StudentsPage = () => {
-  const navigate = useNavigate();
-  const [students, setStudents] = useState([]);
-  const [branch, setBranch] = useState([]);
-  const [searchBranch, setSearchBranch] = useState("");
-  const [expandedBranch, setExpandedBranch] = useState(null);
-  const [expandedSection, setExpandedSection] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isActive, setIsActive] = useState("all");
-  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+  const [students, setStudents] = useState([]);
+  const [technology, setTechnology] = useState([]);
+  const [searchTech, setSearchTech] = useState("");
+  const [expandedTech, setExpandedTech] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isActive, setIsActive] = useState("all");
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    axiosInstance
-      .get("/getstudents")
-      .then((response) => {
-        setStudents(response.data);
-        const allbranches = [...new Set(response.data.map((q) => q.branch))];
-        setBranch(allbranches);
-      })
-      .catch((error) => {
-        toast.error(error?.response?.data?.message || error.message);
-      });
-  }, [students]);
+  useEffect(() => {
+    axiosInstance
+      .get("/getstudents")
+      .then((response) => {
+        setStudents(response.data);
+        const allTechs = [
+          ...new Set(
+            response.data
+              .map((q) => q.technology)
+              .filter((t) => typeof t === "string" && t.trim() !== "")
+          )
+        ];
+        setTechnology(allTechs);
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message || error.message);
+      });
+  }, []);
 
-  const grouped = students.reduce((acc, student) => {
-    const { branch, section } = student;
-    if (!acc[branch]) acc[branch] = {};
-    if (!acc[branch][section]) acc[branch][section] = [];
-    acc[branch][section].push(student.student_mail);
-    return acc;
-  }, {});
+  const grouped = students.reduce((acc, student) => {
+    const { technology } = student;
+    if (!acc[technology]) acc[technology] = [];
+    acc[technology].push(student.student_mail);
+    return acc;
+  }, {});
 
-  const handleBranchClick = (branch) => {
-    setExpandedBranch((prev) => (prev === branch ? null : branch));
-    setIsActive(branch);
-    setExpandedSection(null);
-  };
+  const handleTechClick = (tech) => {
+    setExpandedTech((prev) => (prev === tech ? null : tech));
+    setIsActive(tech);
+  };
 
-  const handleSectionClick = (section) => {
-    setExpandedSection((prev) => (prev === section ? null : section));
-  };
+  const filteredStudents = students
+    .filter((student) => {
+      const techMatch = isActive === "all" || student.technology === isActive;
+      const searchMatch = student.student_mail
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      return techMatch && searchMatch;
+    })
+    .map((student) => student.student_mail);
 
-  const filteredStudents = students
-    .filter((student) => {
-      const branchMatch = isActive === "all" || student.branch === isActive;
-      const sectionMatch =
-        expandedSection && isActive !== "all"
-          ? student.section === expandedSection && student.branch === isActive
-          : true;
-      const searchMatch = student.student_mail
-        .toLowerCase()
-        .includes(search.toLowerCase());
-      return branchMatch && sectionMatch && searchMatch;
-    })
-    .map((student) => student.student_mail);
+  const deleteTechnology = (tech) => {
+    axiosInstance
+      .delete("/deletebranch", {
+        data: { technology: tech },
+      })
+      .then((response) => {
+        toast.success(response.data.message);
+        setStudents((prev) =>
+          prev.filter((q) => q.technology !== tech)
+        );
+        setIsActive("all");
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message || error.message);
+      });
+  };
 
-  const deleteBranchOrSection = (branch, section = null) => {
-    axiosInstance
-      .delete("/deletebranch", {
-        data: section ? { branch, section } : { branch },
-      })
-      .then((response) => {
-        toast.success(response.data.message);
+  const handleDelete = (mail) => {
+    axiosInstance
+      .delete(`/deletestudent/${mail}`)
+      .then((response) => {
+        toast.success(response.data.message);
+        setStudents((prev) =>
+          prev.filter((q) => q.student_mail !== mail)
+        );
+      })
+      .catch((error) => {
+        toast.error(error?.response?.data?.message || error.message);
+      });
+  };
 
-        if (section) {
-          setStudents((prevStudents) =>
-            prevStudents.filter(
-              (q) => !(q.branch === branch && q.section === section)
-            )
-          );
-        } else {
-          setStudents((prevStudents) =>
-            prevStudents.filter((q) => q.branch !== branch)
-          );
-          setIsActive("all");
-        }
-      })
-      .catch((error) => {
-        toast.error(error?.response?.data?.message || error.message);
-      });
-  };
+  return (
+    <div className="w-full h-full bg-aliceblue flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
+      <div
+        className={`${
+          isOpen ? "md:w-15" : "sm:w-35 md:w-1/3"
+        } h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg sm:p-2 md:p-5 transition-all duration-300`}
+      >
+        <div className="flex justify-between items-center">
+          <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold"}`}>Students</p>
+          <RiMenuFoldFill
+            className="text-xl font-bold text-gray-500 cursor-pointer sm:hidden md:block"
+            onClick={() => setIsOpen(!isOpen)}
+          />
+        </div>
+        <input
+        type="text"
+        placeholder="Search"
+        className={`${isOpen ? "hidden" : "w-full h-8 rounded-lg border border-gray-500 px-2 text-sm focus:outline-none"}`}
+        onChange={(e) => setSearchTech(e.target.value)}
+        />
 
-  const handleDelete = (mail) => {
-    axiosInstance
-      .delete(`/deletestudent/${mail}`)
-      .then((response) => {
-        toast.success(response.data.message);
-        setStudents((prevStudents) =>
-          prevStudents.filter((q) => q.student_mail !== mail)
-        );
-      })
-      .catch((error) => {
-        toast.error(error?.response?.data?.message || error.message);
-      });
-  };
+        <div className={`${isOpen ? "hidden" : "w-full flex flex-col"}`}>
+          <p className="font-semibold text-lg underline">Technology</p>
 
-  return (
-    <div className="w-full h-full bg-aliceblue flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
-      <div
-        className={`${
-          isOpen
-            ? "md:w-15 md:transition-all md:duration-300" : "sm:w-35 md:w-1/3 md:transition-all md:duration-300"
-        } h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg sm:p-2 md:p-5`}
-      >
-        <div className="flex justify-between items-center">
-          <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold"}`}>
-            Students
-          </p>
-          <p className="text-xl font-bold text-gray-500">
-            <RiMenuFoldFill
-              className="cursor-pointer sm:hidden md:block"
-              onClick={() => setIsOpen(!isOpen)}
-            />
-          </p>
-        </div>
-        <div
-          className={`${
-            isOpen
-              ? "hidden"
-              : "w-full h-10 flex justify-around items-center border-1 border-gray-500 rounded-lg"
-          }`}
-        >
-          <input
-            type="text"
-            placeholder="Search"
-            className="pl-1 text-sm font-semibold outline-none"
-            value={searchBranch}
-            onChange={(e) => setSearchBranch(e.target.value)}
-          />
-          <CiSearch color="green" />
-        </div>
-        <div className={`${isOpen ? "hidden" : "w-full flex flex-col"}`}>
-          <div className={`${isOpen ? "hidden" : ""}`}>
-            <p className="font-semibold text-lg underline">Branch & Section</p>
-          </div>
-          <div
-            className={`flex items-center text-[12px] font-semibold h-7 md:pl-5 mt-5 gap-2 capitalize cursor-pointer
-                        ${
-                          isActive === "all"
-                            ? "bg-green-100 text-green-500"
-                            : "text-black"
-                        }`}
-            onClick={() => handleBranchClick("all")}
-          >
-            <PiStudentBold
-              size={isActive === "all" ? 20 : 18}
-              className="text-green-500 cursor-pointer"
-            />
-            <p>all students</p>
-          </div>
-          {branch
-            .filter((cat) =>
-              cat.toLowerCase().includes(searchBranch.toLowerCase().trim())
-            )
-            .map((br, idx) => (
-              <div className="w-full">
-                <div
-                  key={idx}
-                  onClick={() => handleBranchClick(br)}
-                  className={`flex justify-between items-center text-[12px] font-semibold h-7 md:pl-5 pr-3 cursor-pointer capitalize ${
-                    isActive === br
-                      ? "bg-green-100 text-green-500"
-                      : "text-black"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <PiStudentBold
-                      size={isActive === br ? 20 : 18}
-                      className="text-green-500"
-                    />
-                    <p>{br}</p>
-                  </div>
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteBranchOrSection(br);
-                    }}
-                    className="hover:bg-red-100 rounded-full p-[2px] cursor-pointer"
-                  >
-                    <MdOutlineDelete size={18} color="red" />
-                  </div>
-                </div>
-                <div
-                  className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                    expandedBranch === br
-                      ? "max-h-96 opacity-100"
-                      : "max-h-0 opacity-0"
-                  }`}
-                >
-                  {expandedBranch === br &&
-                    grouped[br] &&
-                    Object.keys(grouped[br])
-                      .sort((a, b) => a.localeCompare(b))
-                      .map((sec, secIdx) => (
-                        <div className="flex items-center gap-5" key={secIdx}>
-                          <div
-                            onClick={() => handleSectionClick(sec)}
-                            className={`sm:pl-5 md:pl-10 text-[12px] md:h-6 cursor-pointer font-medium capitalize flex items-center ${
-                              expandedSection === sec
-                                ? "text-blue-500 underline"
-                                : "text-gray-600"
-                            }`}
-                          >
-                            ↳ Section {sec}
-                          </div>
-                          <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteBranchOrSection(br, sec);
-                            }}
-                            className="hover:bg-red-100 rounded-full p-[2px] cursor-pointer"
-                          >
-                            <MdOutlineDelete size={18} color="red" />
-                          </div>
-                        </div>
-                      ))}
-                </div>
-              </div>
-            ))}
-        </div>
-      </div>
-      <div className="w-full h-full bg-white rounded-lg shadow-lg p-5 overflow-y-auto hide-scrollbar">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                const state = {};
+          <div
+            className={`flex items-center text-[12px] font-semibold h-7 md:pl-5 mt-3 gap-2 capitalize cursor-pointer ${
+              isActive === "all" ? "bg-green-100 text-green-500" : "text-black"
+            }`}
+            onClick={() => handleTechClick("all")}
+          >
+            <PiStudentBold size={isActive === "all" ? 20 : 18} className="text-green-500" />
+            <p>all students</p>
+          </div>
 
-                if (isActive !== "all") {
-                  state.selectedBranch = isActive;
-                }
+          {technology
+            .filter(
+              (cat) =>
+                typeof cat === "string" &&
+                cat.toLowerCase().includes(searchTech.toLowerCase().trim())
+            )
+            .map((tech, idx) => (
+              <div className="w-full" key={idx}>
+                <div
+                  onClick={() => handleTechClick(tech)}
+                  className={`flex justify-between items-center text-[12px] font-semibold h-7 md:pl-5 pr-3 cursor-pointer capitalize ${
+                    isActive === tech ? "bg-green-100 text-green-500" : "text-black"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <PiStudentBold size={isActive === tech ? 20 : 18} className="text-green-500" />
+                    <p>{tech}</p>
+                  </div>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteTechnology(tech);
+                    }}
+                    className="hover:bg-red-100 rounded-full p-[2px] cursor-pointer"
+                  >
+                    <MdOutlineDelete size={18} color="red" />
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
 
-                if (expandedSection) {
-                  state.selectedSection = expandedSection;
-                }
+      <div className="w-full h-full bg-white rounded-lg shadow-lg p-5 overflow-y-auto hide-scrollbar">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                const state = {};
+                if (isActive !== "all") {
+                  state.selectedTechnology = isActive;
+                }
+                navigate("/admin/students/add-student", { state });
+              }}
+              className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
+            >
+              <GoPlus size={20} />
+              <p className="sm:hidden md:block">Add Student</p>
+            </button>
 
-                navigate("/admin/students/add-student", { state });
-              }}
-              className="bg-green-500 p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
-            >
-              <GoPlus size={20}/> <p className="sm:hidden md:block">Add Student</p>
-            </button>
-            <button
-              onClick={() => {
-                const state = {};
+            <button
+              onClick={() => {
+                const state = {};
+                if (isActive !== "all") {
+                  state.selectedTechnology = isActive;
+                }
+                navigate("/admin/students/upload-students", { state });
+              }}
+              className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
+            >
+              <BsFilePerson size={20} />
+              <p className="sm:hidden xl:block">Upload Students</p>
+            </button>
+          </div>
 
-                if (isActive !== "all") {
-                  state.selectedBranch = isActive;
-                }
+          <div className="w-fit h-8 flex justify-around items-center border-1 border-gray-500 rounded-lg">
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-40 pl-3 h-full text-sm font-semibold outline-none"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <CiSearch color="green" className="mr-3" />
+          </div>
+        </div>
 
-                if (expandedSection) {
-                  state.selectedSection = expandedSection;
-                }
+        <p className="text-sm font-semibold text-blue-500">
+          Students count: {filteredStudents.length}
+        </p>
 
-                navigate("/admin/students/upload-students", { state });
-              }}
-              className="border-1 border-green-500 p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
-            >
-              <BsFilePerson size={20} /> <p className="sm:hidden xl:block">Upload Students</p>
-            </button>
-          </div>
-          <div className="w-fit h-8 flex justify-around items-center sm:ml-1 md:ml-0 border-1 border-gray-500 rounded-lg ">
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-40 pl-3 h-full text-sm font-semibold outline-none"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <CiSearch color="green" className="mr-3" />
-          </div>
-        </div>
-        <p className="text-sm font-semibold text-blue-500">
-          Students count: {filteredStudents.length}
-        </p>
-        <div className="mt-5 ">
-          {filteredStudents.map((student, index) => {
-            return (
-              <div
-                key={index}
-                className="flex justify-between items-start text-sm font-semibold border-t-2 border-gray-200 text-gray-500 p-3 hover:bg-gray-200 hover:text-black"
-              >
-                <div 
-                onClick={() => navigate(`/students/personal-info/${student}`)}
-                className="flex flex-col gap-3 w-full cursor-pointer">
-                  <p>{student}</p>
-                </div>
-                <p className="text-[12px] text-red-500 ml-5 cursor-pointer whitespace-nowrap">
-                  <MdOutlineDelete
-                    size={15}
-                    onClick={() => handleDelete(student)}
-                  />
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
+        <div className="mt-5">
+          {filteredStudents.map((student, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-start text-sm font-semibold border-t-2 border-gray-200 text-gray-500 p-3 hover:bg-gray-200 hover:text-black"
+            >
+              <div
+                onClick={() => navigate(`/admin/students/personal-info`, { state: student })}
+                className="flex flex-col gap-3 w-full cursor-pointer"
+              >
+                <p>{student}</p>
+              </div>
+              <p className="text-[12px] text-red-500 ml-5 cursor-pointer whitespace-nowrap">
+                <MdOutlineDelete size={15} onClick={() => handleDelete(student)} />
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default StudentsPage;

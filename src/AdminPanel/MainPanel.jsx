@@ -200,10 +200,7 @@ const MainPanel = () => {
                 <Route index element={<StudentsPage />} />
                 <Route path="add-student" element={<AddStudent />} />
                 <Route path="upload-students" element={<UploadStudents />} />
-                <Route
-                  path="personal-info/:studentMail"
-                  element={<StudentPersonalDetails />}
-                />
+                <Route path="personal-info" element={<StudentPersonalDetails />} />
               </Route>
 
               <Route path="profile" element={<Profile />} />

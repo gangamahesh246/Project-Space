@@ -266,7 +266,7 @@ const StudentExamPage = () => {
                   <img
                     src={item.examId?.basicInfo?.coverPreview}
                     alt="Cover"
-                    className="sm:w-28 sm:h-30 md:w-30 md:h-30 object-cover rounded"
+                    className="sm:w-25 sm:h-25 md:w-30 md:h-30 object-cover rounded"
                   />
                   <div className="w-[80%] h-fit">
                     <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">

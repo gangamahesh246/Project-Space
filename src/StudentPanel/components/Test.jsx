@@ -483,7 +483,7 @@ const Test = () => {
       <div className="w-full h-fit bg-primary flex justify-between items-center p-3 ">
         <div className="flex items-center gap-2 text-white">
           <div className='w-40 h-10 bg-[url("/Qubee.png")] bg-cover bg-center sm:hidden xl:block' />
-          <p className="sm:hidden xl:block">ProctorQube - Online Assessment |</p> <p>{title}</p> | 
+          <p className="sm:hidden xl:block">ProctorQube - Online Assessment |</p> <p>{title}</p> 
           <p className="sm:hidden xl:block">
             {new Date(createdAt).toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -578,9 +578,9 @@ const Test = () => {
           MozUserSelect: "none",
           msUserSelect: "none",
         }}
-        className="flex sm:flex-col sm:justify-around xl:flex-row xl:mt-5 sm:p-3 xl:justify-around"
+        className="flex sm:flex-col sm:justify-around lg:flex-row lg:mt-5 sm:p-3 lg:justify-around"
       >
-        <div className="w-fit xl:h-[550px] sm:h-[300px] bg-white grid xl:grid-cols-3 xl:gap-7 sm:grid-cols-7 sm:gap-5 p-5 shadow-md rounded-xl overflow-y-auto">
+        <div className="w-fit lg:h-[550px] sm:h-[300px] bg-white grid xl:grid-cols-3 xl:gap-7 sm:grid-cols-7 sm:gap-5 md:grid-cols-11 lg:grid-cols-3 p-5 shadow-md rounded-xl overflow-y-auto">
           {examQuestions.map((_, index) => {
             const answered =
               userAnswers[index] !== undefined &&
@@ -615,8 +615,8 @@ const Test = () => {
           })}
         </div>
 
-        <div className="xl:w-3/4 sm:mt-3 h-full">
-          <div className="xl:p-6 sm:p-3 sm:pl-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
+        <div className="lg:w-3/4 sm:mt-3 h-full">
+          <div className="lg:p-6 sm:p-3 sm:pl-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
             <h2 className="text-xl font-semibold mb-2">
               Question {currentIndex + 1}:
             </h2>

@@ -152,7 +152,7 @@ const StudentPanel = () => {
     axiosStudent
       .get("/student/matchprofile", {
         params: {
-          userId: data.user.college_mail,
+          email: data.user.college_mail,
         },
       })
       .then((response) => {
