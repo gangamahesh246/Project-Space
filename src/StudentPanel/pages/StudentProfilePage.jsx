@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import CountUp from "react-countup";
 import { toast } from "react-toastify";
 import {
   User,
@@ -9,6 +10,8 @@ import {
   Calendar,
   Mail,
   MapPin,
+  Lock,
+  KeyRound,
   GraduationCap,
   Award,
   Target,
@@ -41,20 +44,19 @@ const StudentProfilePage = () => {
     dateOfBirth: "",
     gender: "",
     address: "",
-    bio: "",
     guardianName: "",
     guardianphone: "",
     password: "",
   };
 
   const [form, setForm] = useState(initialForm);
-  const [isFocused, setIsFocused] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [studentData, setStudentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [studentId, setStudentId] = useState(null);
+  const [studentStats, setStudentStats] = useState(null);
   const [examsData, setExamsData] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [recentExamsData, setRecentExamsData] = useState([
@@ -126,46 +128,59 @@ const StudentProfilePage = () => {
   }, [studentId]);
 
   useEffect(() => {
+    if (!studentId) return;
+
     axiosStudent
-      .get("/student/getprofile/", {
-        params: { email: student.college_mail },
+      .get("/studentprofilestats", {
+        params: { student_id: studentId },
       })
       .then((res) => {
-        const backend = res.data;
-
-        setStudentData({
-          ...backend,
-          examStats: {
-            totalExams: examsData.length,
-            examsPassed: examsData.filter((e) =>
-              e?.attempts?.some((a) => a?.result === "pass")
-            ).length,
-            examsFailed: examsData.filter((e) =>
-              e?.attempts?.some((a) => a?.result === "fail")
-            ).length,
-            averageMarks: calculateAverageScore(examsData),
-            passPercentage: calculatePassPercentage(examsData),
-            highestMarks: getHighestScore(examsData),
-            lowestMarks: getLowestScore(examsData),
-            recentAccuracy: calculateRecentScore(examsData),
-            // leaderboardRank: backend.rank || 0,
-            // totalStudents: backend.totalStudents || 0,
-          },
-          achievements: [
-            "Best Student Award 2023",
-            "Coding Competition Winner",
-            "Academic Excellence Certificate",
-            "Leadership Award",
-          ],
-        });
-
-        setLoading(false);
+        setStudentStats(res.data.examStats);
       })
       .catch((err) => {
         console.log(err);
-        setLoading(false);
       });
-  }, [student.college_mail]);
+  }, [studentId]);
+
+  useEffect(() => {
+  if (!isEditing) {
+    setLoading(true);
+    axiosStudent
+      .get("/student/getprofile/", {
+        params: { email: student.college_mail },
+      })
+      .then((res) => {
+        const data = res.data;
+        const filledForm = {
+          fullname: data.fullname || "",
+          username: student.username,
+          email: student.college_mail,
+          phone: data.phone || "",
+          technology: data.technology || "",
+          college: data.college || "",
+          department: data.department || "",
+          yearOfStudy: data.yearOfStudy || "",
+          rollNumber: student.college_mail.split("@")[0],
+          skills: data.skills || [],
+          achievements: data.achievements || [],
+          dateOfBirth: data.dateOfBirth || "",
+          gender: data.gender || "",
+          address: data.address || "",
+          guardianName: data.guardianName || "",
+          guardianphone: data.guardianphone || "",
+          password: "",
+        };
+        setForm(filledForm);
+        setStudentData({ ...data });
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  }
+}, [student.college_mail, isEditing]);
+
 
   if (loading) {
     return (
@@ -196,7 +211,6 @@ const StudentProfilePage = () => {
     dateOfBirth,
     skills,
     examStats,
-    achievements,
   } = studentData;
 
   const handleChange = (e) => {
@@ -225,30 +239,61 @@ const StudentProfilePage = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      const payload = {
-        ...form,
-        skills: form.skills,
-      };
+  try {
+    const payload = {
+      ...form,
+      skills: form.skills,
+      achievements: form.achievements,
+    };
 
-      await axiosStudent.post("/student/profile", payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    await axiosStudent.post("/student/profile", payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      toast.success("Profile updated successfully");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update profile");
-    }
-  };
+    toast.success("Profile updated successfully");
+
+    const res = await axiosStudent.get("/student/getprofile/", {
+      params: { email: student.college_mail },
+    });
+
+    const updatedData = res.data;
+
+    const updatedForm = {
+      fullname: updatedData.fullname || "",
+      username: student.username,
+      email: student.college_mail,
+      phone: updatedData.phone || "",
+      technology: updatedData.technology || "",
+      college: updatedData.college || "",
+      department: updatedData.department || "",
+      yearOfStudy: updatedData.yearOfStudy || "",
+      rollNumber: student.college_mail.split("@")[0],
+      skills: updatedData.skills || [],
+      achievements: updatedData.achievements || [],
+      dateOfBirth: updatedData.dateOfBirth || "",
+      gender: updatedData.gender || "",
+      address: updatedData.address || "",
+      guardianName: updatedData.guardianName || "",
+      guardianphone: updatedData.guardianphone || "",
+    };
+
+    setForm(updatedForm);
+    setStudentData(updatedData);
+    setIsEditing(false); 
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update profile");
+  }
+};
 
   const handleChangePassword = async () => {
     if (!newPassword || newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters long");
       return;
     }
+
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -259,11 +304,17 @@ const StudentProfilePage = () => {
         newPassword,
       });
 
-      toast.success(res.data.message || "Password changed successfully");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to change password");
+      if (res.status === 200) {
+        toast.success(res.data.message || "Password changed successfully");
+        setNewPassword("");
+        setConfirmPassword("");
+        setShowChangePassword(false);
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    } catch (error) {
+      const msg = error.response?.data?.message || "Failed to change password";
+      toast.error(msg);
     }
   };
 
@@ -284,40 +335,91 @@ const StudentProfilePage = () => {
               </div>
               <div className="text-center md:text-left ">
                 <div>
-                  <div className="flex justify-between items-center">
-                    <h1 className="text-3xl font-bold mb-2">{fullname}</h1> 
+                  <div className="flex gap-5 items-center">
+                    <h1 className="text-3xl font-bold capitalize mb-2">
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          name="fullname"
+                          placeholder="Full Name"
+                          value={form.fullname}
+                          onChange={handleChange}
+                          className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                        />
+                      ) : (
+                        fullname
+                      )}
+                    </h1>
+                     
                     <button
                       onClick={() => {
                         if (isEditing) handleSubmit();
                         setIsEditing(!isEditing);
                       }}
-                      className="text-indigo-600 hover:text-indigo-800 transition-all flex items-center gap-1"
+                      className="text-indigo-600 hover:text-indigo-800 text-sm transition-all flex items-center cursor-pointer"
                     >
                       {isEditing ? (
-                        <Save className="w-5 h-5" />
+                        <Save className="w-4 h-4" />
                       ) : (
-                        <Pencil className="w-5 h-5" />
+                        <Pencil className="w-3 h-3" />
                       )}
                           {isEditing ? "Save" : "Edit"} 
                     </button>
                   </div>
                 </div>
-                <p className="text-lg mb-1">{rollNumber}</p>
-                <p className="mb-2">{college}</p>
+                <p className="uppercase text-md mb-1">{rollNumber}</p>
+                <p className="mb-2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="college"
+                      placeholder="College"
+                      value={form.college}
+                      onChange={handleChange}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-600 transition-all"
+                    />
+                  ) : (
+                    college
+                  )}
+                </p>
                 <p>
-                  {department} - {technology}
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="department"
+                      placeholder="Department"
+                      value={form.department}
+                      onChange={handleChange}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                    />
+                  ) : (
+                    department
+                  )}{" "}
+                  -{" "}
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="technology"
+                      placeholder="Technology"
+                      value={form.technology}
+                      onChange={handleChange}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                    />
+                  ) : (
+                    technology
+                  )}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
                   {skills.slice(0, 4).map((skill, i) => (
                     <span
                       key={i}
-                      className="bg-green-500/20 backdrop-blur-sm text-green-500 px-3 py-1 rounded-full text-sm font-medium"
+                      className="bg-green-500/20 backdrop-blur-sm text-green-500 px-3 py-1 capitalize rounded-full text-sm font-medium"
                     >
                       {skill}
                     </span>
                   ))}
                   {skills.length > 4 && (
-                    <span className="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <span className="bg-white/20 backdrop-blur-sm text-green-500 px-3 py-1 rounded-full text-sm font-medium">
                       +{skills.length - 4} more
                     </span>
                   )}
@@ -331,7 +433,7 @@ const StudentProfilePage = () => {
           <StatCard
             icon={<Target className="w-8 h-8" />}
             title="Total Exam Accuracy"
-            value={`${examStats.averageMarks}%`}
+            value={<CountUp end={studentStats?.averageMarks} duration={1.5} suffix="%" decimals={2} />}
             subtitle="Across all exams"
             color="bg-blue-500"
           />
@@ -339,7 +441,7 @@ const StudentProfilePage = () => {
           <StatCard
             icon={<TrendingUp className="w-8 h-8" />}
             title="Average Accuracy"
-            value={`${examStats.recentAccuracy}%`}
+            value={<CountUp end={studentStats?.recentAccuracy} duration={1.5} suffix="%" decimals={2} />}
             subtitle="Based on last 5 exams"
             color="bg-green-500"
           />
@@ -347,21 +449,21 @@ const StudentProfilePage = () => {
           <StatCard
             icon={<Award className="w-8 h-8" />}
             title="Pass Percentage"
-            value={`${examStats.passPercentage}%`}
-            subtitle={`${examStats.examsPassed}/${examStats.totalExams} passed`}
+            value={<CountUp end={studentStats?.passPercentage} duration={1.5} suffix="%" decimals={2} />}
+            subtitle={`${studentStats?.examsPassed}/${studentStats?.totalExams} passed`}
             color="bg-purple-500"
           />
 
           <StatCard
             icon={<Trophy className="w-8 h-8" />}
             title="Leaderboard Rank"
-            value={`#${examStats.leaderboardRank}`}
-            subtitle={`Out of ${examStats.totalStudents}`}
+            value={<CountUp end={studentStats?.leaderboardRank} duration={1.5} prefix="#" />}
+            subtitle={`Out of ${studentStats?.totalStudents}`}
             color="bg-orange-500"
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -376,32 +478,23 @@ const StudentProfilePage = () => {
                     isEditing ? (
                       <input
                         type="number"
-                        name="Year of Study"
-                        value={form.yearOfStudy}
+                        name="yearOfStudy"
+                        value={form.yearOfStudy ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
+                        min={1}
+                        max={6}
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
                       />
                     ) : (
-                      yearOfStudy
+                      yearOfStudy || "--"
                     )
                   }
                 />
+
                 <InfoItem
                   label="Email"
                   icon={<Mail className="w-4 h-4" />}
-                  value={
-                    isEditing ? (
-                      <input
-                        type="email"
-                        name="Email"
-                        value={form.email}
-                        onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
-                      />
-                    ) : (
-                      email
-                    )
-                  }
+                  value={email}
                 />
                 <InfoItem
                   label="Phone"
@@ -411,12 +504,12 @@ const StudentProfilePage = () => {
                       <input
                         type="text"
                         name="phone"
-                        value={form.phone}
+                        value={form?.phone ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
                       />
                     ) : (
-                      phone
+                      phone || "--"
                     )
                   }
                 />
@@ -426,21 +519,22 @@ const StudentProfilePage = () => {
                   value={
                     isEditing ? (
                       <input
-                        type="number"
-                        name="Date of Birth"
-                        value={new Date(form.dateOfBirth).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )}
+                        type="date"
+                        name="dateOfBirth"
+                        value={
+                          form?.dateOfBirth ? form?.dateOfBirth.slice(0, 10) : ""
+                        }
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
                       />
+                    ) : dateOfBirth ? (
+                      new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
                     ) : (
-                      dateOfBirth
+                      "--"
                     )
                   }
                 />
@@ -451,41 +545,53 @@ const StudentProfilePage = () => {
                     isEditing ? (
                       <input
                         type="text"
-                        name="Address"
-                        value={form.address}
+                        name="address"
+                        value={form?.address ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
                       />
                     ) : (
-                      address
+                      address || "--"
                     )
                   }
                 />
                 <InfoItem
-                  label="Guardian"
+                  label="Guardian Name"
                   icon={<User className="w-4 h-4" />}
                   value={
                     isEditing ? (
                       <input
                         type="text"
-                        name="Guardian"
-                        value={`${form.guardianName} (${form.guardianName})`}
+                        name="guardianName"
+                        value={form?.guardianName ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
                       />
                     ) : (
-                      guardianName + " (" + guardianphone + ")"
+                      guardianName || "--"
                     )
                   }
                 />
                 <InfoItem
-                  icon={<User className="w-4 h-4" />}
-                  label="Guardian"
-                  value={`${guardianName} (${guardianphone})`}
+                  label="Guardian Phone"
+                  icon={<Phone className="w-4 h-4" />}
+                  value={
+                    isEditing ? (
+                      <input
+                        type="text"
+                        name="guardianphone"
+                        value={form?.guardianphone ?? ""}
+                        onChange={handleChange}
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                      />
+                    ) : (
+                      guardianphone || "--"
+                    )
+                  }
                 />
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="bg-white rounded-2xl shadow-xl p-5">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <Star className="w-5 h-5 text-indigo-600" />
                 Skills & Achievements
@@ -495,7 +601,7 @@ const StudentProfilePage = () => {
                   <h3 className="font-semibold text-gray-700 mb-3">
                     Technical Skills
                   </h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 ">
                     {isEditing ? (
                       <>
                         {form.skills.map((skill, index) => (
@@ -506,14 +612,14 @@ const StudentProfilePage = () => {
                             onChange={(e) =>
                               handleSkillChange(index, e.target.value)
                             }
-                            className="border border-gray-300 rounded px-2 py-1 text-sm mr-2 mb-2"
+                            className="border border-gray-300 rounded px-2 py-1 text-sm mr-2 mb-2 focus:outline-none focus:border-indigo-500 transition-all"
                           />
                         ))}
                         <button
                           onClick={addSkill}
-                          className="text-indigo-600 text-sm hover:underline"
+                          className="text-indigo-600 text-sm hover:underline cursor-pointer"
                         >
-                                + Add Skill  
+                          + Add Skill  
                         </button>
                       </>
                     ) : (
@@ -521,9 +627,9 @@ const StudentProfilePage = () => {
                         {skills.map((skill, i) => (
                           <span
                             key={i}
-                            className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
+                            className="bg-indigo-100 text-indigo-800 capitalize px-3 py-1 rounded-full text-sm font-medium "
                           >
-                                    {skill}     
+                            {skill}     
                           </span>
                         ))}
                       </>
@@ -537,7 +643,7 @@ const StudentProfilePage = () => {
                   <div className="space-y-2">
                     {isEditing ? (
                       <>
-                        {form.achievements.map((ach, index) => (
+                        {form?.achievements?.map((ach, index) => (
                           <input
                             key={index}
                             type="text"
@@ -545,25 +651,25 @@ const StudentProfilePage = () => {
                             onChange={(e) =>
                               handleAchievementChange(index, e.target.value)
                             }
-                            className="border border-gray-300 rounded px-2 py-1 text-sm w-full mb-2"
+                            className="border border-gray-300 rounded px-2 py-1 text-sm w-full mb-2 focus:outline-none focus:border-indigo-500 transition-all"
                           />
                         ))}
-                           {" "}
                         <button
                           onClick={addAchievement}
-                          className="text-indigo-600 text-sm hover:underline"
+                          className="text-indigo-600 text-sm hover:underline cursor-pointer"
                         >
-                                + Add Achievement    
+                          + Add Achievement    
                         </button>
                       </>
                     ) : (
                       <>
-                        {achievements.map((achievement, i) => (
-                          <div key={i} className="flex items-center gap-2">
-                            <Award className="w-4 h-4 text-yellow-500" />      
-                            <span className="text-sm text-gray-600">
-                              {achievement}
-                            </span>
+                        {form?.achievements?.map((ach, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 capitalize text-gray-600 text-sm"
+                          >
+                            <Award className="w-4 h-4 text-yellow-500" />
+                            <span className="text-sm text-gray-600">{ach}</span>
                           </div>
                         ))}
                       </>
@@ -583,26 +689,26 @@ const StudentProfilePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PerformanceCard
                   title="Exams Written"
-                  value={examStats.totalExams}
+                  value={<CountUp end={studentStats?.totalExams} duration={1.5} />}
                   description="Total examinations"
                   color="bg-blue-50 text-blue-600"
                 />
                 <PerformanceCard
                   title="Exams Passed"
-                  value={examStats.examsPassed}
+                  value={<CountUp end={studentStats?.examsPassed} duration={1.5} />}
                   description="Successfully completed"
                   color="bg-green-50 text-green-600"
                 />
                 <PerformanceCard
                   title="Total Exams Attempted"
-                  value={examStats.totalExams}
+                  value={<CountUp end={studentStats?.totalExams} duration={1.5} />}
                   description="All tests attended"
                   color="bg-blue-50 text-blue-600"
                 />
 
                 <PerformanceCard
                   title="Top Score Achieved"
-                  value={`${examStats.highestMarks}`}
+                  value={<CountUp end={studentStats?.highestMarks} duration={1.5} />}
                   description="Most successful attempt"
                   color="bg-purple-50 text-purple-600"
                 />
@@ -625,6 +731,78 @@ const StudentProfilePage = () => {
             </div>
           </div>
         </div>
+
+      
+        <div className="bg-white shadow-xl rounded-2xl p-6 mt-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <KeyRound className="w-5 h-5 text-indigo-600" />
+            Account Information
+          </h2>
+
+          <div className="space-y-2 text-sm text-gray-700">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-gray-500" />
+              <span className="font-medium">Username:</span>
+              <span className="ml-1 text-gray-900">{form.username}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-gray-500" />
+              <span className="font-medium">Password:</span>
+              <span className="ml-1 text-gray-900">******</span>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            {showChangePassword ? (
+              <div className="space-y-4">
+                <div className="relative">
+                  <Lock className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="password"
+                    placeholder="New Password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleChangePassword}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl transition-all cursor-pointer"
+                  >
+                    Update Password
+                  </button>
+                  <button
+                    onClick={() => setShowChangePassword(false)}
+                    className="text-sm text-gray-600 underline cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowChangePassword(true)}
+                className="text-sm text-indigo-600 underline cursor-pointer"
+              >
+                Change Password
+              </button>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );

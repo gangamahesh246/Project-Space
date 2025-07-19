@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import CountUp from "react-countup";
 import {
   User,
   Phone,
@@ -27,6 +28,7 @@ const StudentPersonalDetails = () => {
   const [studentData, setStudentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [studentId, setStudentId] = useState(null);
+  const [studentStats, setStudentStats] = useState(null);
   const [examsData, setExamsData] = useState([]);
   const [recentExamsData, setRecentExamsData] = useState([
     {
@@ -98,6 +100,21 @@ const StudentPersonalDetails = () => {
   }, [studentId]);
 
   useEffect(() => {
+    if (!studentId) return;
+
+    axiosStudent
+      .get("/studentprofilestats", {
+        params: { student_id: studentId },
+      })
+      .then((res) => {
+        setStudentStats(res.data.examStats);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [studentId]);
+
+  useEffect(() => {
     axiosStudent
       .get("/student/getprofile/", {
         params: { email: studentMail },
@@ -106,29 +123,7 @@ const StudentPersonalDetails = () => {
         const backend = res.data;
 
         setStudentData({
-          ...backend,
-          examStats: {
-            totalExams: examsData.length,
-            examsPassed: examsData.filter((e) =>
-              e?.attempts?.some((a) => a?.result === "pass")
-            ).length,
-            examsFailed: examsData.filter((e) =>
-              e?.attempts?.some((a) => a?.result === "fail")
-            ).length,
-            averageMarks: calculateAverageScore(examsData),
-            passPercentage: calculatePassPercentage(examsData),
-            highestMarks: getHighestScore(examsData),
-            lowestMarks: getLowestScore(examsData),
-            recentAccuracy: calculateRecentScore(examsData),
-            // leaderboardRank: backend.rank || 0,
-            // totalStudents: backend.totalStudents || 0,
-          },
-          achievements: [
-            "Best Student Award 2023",
-            "Coding Competition Winner",
-            "Academic Excellence Certificate",
-            "Leadership Award",
-          ],
+          ...backend
         });
 
         setLoading(false);
@@ -167,7 +162,6 @@ const StudentPersonalDetails = () => {
     college,
     dateOfBirth,
     skills,
-    examStats,
     achievements,
   } = studentData;
 
@@ -188,12 +182,12 @@ const StudentPersonalDetails = () => {
               </div>
               <div className="text-center md:text-left ">
                 <h1 className="text-3xl font-bold mb-2">{fullname}</h1>
-                <p className="text-lg mb-1">{rollNumber}</p>
+                <p className="text-md uppercase mb-1">{rollNumber}</p>
                 <p className="mb-2">{college}</p>
                 <p>
                   {department} - {technology}
                 </p>
-                <div className="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
+                <div className="capitalize flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
                   {skills.slice(0, 4).map((skill, i) => (
                     <span
                       key={i}
@@ -217,7 +211,7 @@ const StudentPersonalDetails = () => {
           <StatCard
             icon={<Target className="w-8 h-8" />}
             title="Total Exam Accuracy"
-            value={`${examStats.averageMarks}%`}
+            value={<CountUp end={studentStats?.averageMarks} duration={1.5} suffix="%" decimals={2} />}
             subtitle="Across all exams"
             color="bg-blue-500"
           />
@@ -225,7 +219,7 @@ const StudentPersonalDetails = () => {
           <StatCard
             icon={<TrendingUp className="w-8 h-8" />}
             title="Average Accuracy"
-            value={`${examStats.recentAccuracy}%`}
+            value={<CountUp end={studentStats?.recentAccuracy} duration={1.5} suffix="%" decimals={2} />}
             subtitle="Based on last 5 exams"
             color="bg-green-500"
           />
@@ -233,16 +227,16 @@ const StudentPersonalDetails = () => {
           <StatCard
             icon={<Award className="w-8 h-8" />}
             title="Pass Percentage"
-            value={`${examStats.passPercentage}%`}
-            subtitle={`${examStats.examsPassed}/${examStats.totalExams} passed`}
+            value={<CountUp end={studentStats?.passPercentage} duration={1.5} suffix="%" decimals={2} />}
+            subtitle={`${studentStats?.examsPassed}/${studentStats?.totalExams} passed`}
             color="bg-purple-500"
           />
 
           <StatCard
             icon={<Trophy className="w-8 h-8" />}
             title="Leaderboard Rank"
-            value={`#${examStats.leaderboardRank}`}
-            subtitle={`Out of ${examStats.totalStudents}`}
+            value={<CountUp end={studentStats?.leaderboardRank} duration={1.5} prefix="#" />}
+            subtitle={`Out of ${studentStats?.totalStudents}`}
             color="bg-orange-500"
           />
         </div>
@@ -291,7 +285,7 @@ const StudentPersonalDetails = () => {
                 />
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="bg-white rounded-2xl shadow-xl p-5">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <Star className="w-5 h-5 text-indigo-600" />
                 Skills & Achievements
@@ -305,7 +299,7 @@ const StudentPersonalDetails = () => {
                     {skills.map((skill, i) => (
                       <span
                         key={i}
-                        className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
+                        className="capitalize bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
                       >
                         {skill}
                       </span>
@@ -320,7 +314,7 @@ const StudentPersonalDetails = () => {
                     {achievements.map((achievement, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <Award className="w-4 h-4 text-yellow-500" />
-                        <span className="text-sm text-gray-600">
+                        <span className="capitalize text-sm text-gray-600">
                           {achievement}
                         </span>
                       </div>
@@ -340,26 +334,26 @@ const StudentPersonalDetails = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PerformanceCard
                   title="Exams Written"
-                  value={examStats.totalExams}
+                  value={<CountUp end={studentStats?.totalExams} duration={1.5} />}
                   description="Total examinations"
                   color="bg-blue-50 text-blue-600"
                 />
                 <PerformanceCard
                   title="Exams Passed"
-                  value={examStats.examsPassed}
+                  value={<CountUp end={studentStats?.examsPassed} duration={1.5} />}
                   description="Successfully completed"
                   color="bg-green-50 text-green-600"
                 />
                 <PerformanceCard
                   title="Total Exams Attempted"
-                  value={examStats.totalExams}
+                  value={<CountUp end={studentStats?.totalExams} duration={1.5} />}
                   description="All tests attended"
                   color="bg-blue-50 text-blue-600"
                 />
 
                 <PerformanceCard
                   title="Top Score Achieved"
-                  value={`${examStats.highestMarks}`}
+                  value={<CountUp end={studentStats?.highestMarks} duration={1.5} />}
                   description="Most successful attempt"
                   color="bg-purple-50 text-purple-600"
                 />

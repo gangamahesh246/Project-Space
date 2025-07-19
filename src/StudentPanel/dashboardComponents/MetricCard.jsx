@@ -23,7 +23,7 @@ const MetricCard = ({
         )}
       </div>
       <div className="space-y-1">
-        <p className="text-2xl font-bold text-gray-900">{value.toLocaleString()}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
         <p className="text-sm font-medium text-gray-600">{title}</p>
       </div>
     </div>
