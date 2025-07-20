@@ -292,11 +292,19 @@ const StudentExamPage = () => {
                           Date of Exam:{" "}
                           {new Date(
                             item.examId?.settings.availability.timeLimitDays.from
-                          ).toLocaleDateString()}{" "}
+                          ).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
                           -{" "}
                           {new Date(
                             item.examId?.settings.availability.timeLimitDays.to
-                          ).toLocaleDateString()}
+                          ).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
                         </p>
                       </div>
                       <p className="text-sm text-gray-500">
@@ -380,7 +388,13 @@ const StudentExamPage = () => {
                       <div>
                         <p className="text-sm text-gray-500 capitalize">
                           date of exam:{" "}
-                          {new Date(item.assignedAt).toLocaleDateString()}
+                          {new Date(
+                            item.examId?.settings.availability.timeLimitDays.from
+                          ).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
                         </p>
                         <p className="text-sm text-gray-500">
                           Active Time:{" "}
@@ -438,8 +452,15 @@ const StudentExamPage = () => {
                     <div className="flex items-center sm:gap-5 xl:gap-10 mt-2">
                       <div>
                         <p className="text-sm text-gray-500 capitalize">
-                          date of exam:{" "}
-                          {new Date(item.assignedAt).toLocaleDateString()}
+                          assignedAt:{" "}
+                          {new Date(item.assignedAt).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
                         </p>
                       </div>
                       {item.examId?.settings?.results?.displayScore.enabled &&

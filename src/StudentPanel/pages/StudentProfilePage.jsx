@@ -143,44 +143,73 @@ const StudentProfilePage = () => {
   }, [studentId]);
 
   useEffect(() => {
-  if (!isEditing) {
-    setLoading(true);
-    axiosStudent
-      .get("/student/getprofile/", {
-        params: { email: student.college_mail },
-      })
-      .then((res) => {
-        const data = res.data;
-        const filledForm = {
-          fullname: data.fullname || "",
-          username: student.username,
-          email: student.college_mail,
-          phone: data.phone || "",
-          technology: data.technology || "",
-          college: data.college || "",
-          department: data.department || "",
-          yearOfStudy: data.yearOfStudy || "",
-          rollNumber: student.college_mail.split("@")[0],
-          skills: data.skills || [],
-          achievements: data.achievements || [],
-          dateOfBirth: data.dateOfBirth || "",
-          gender: data.gender || "",
-          address: data.address || "",
-          guardianName: data.guardianName || "",
-          guardianphone: data.guardianphone || "",
-          password: "",
-        };
-        setForm(filledForm);
-        setStudentData({ ...data });
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
-  }
-}, [student.college_mail, isEditing]);
+    if (!isEditing) {
+      setLoading(true);
 
+      axiosStudent
+        .get("/student/getprofile/", {
+          params: { email: student.college_mail },
+        })
+        .then((res) => {
+          const data = res?.data ?? {};
+
+          const formattedDOB = data.dateOfBirth
+            ? new Date(data.dateOfBirth).toLocaleDateString("en-GB")
+            : "";
+
+          const filledForm = {
+            fullname: data.fullname ?? "",
+            username: student.username ?? "",
+            email: student.college_mail ?? "",
+            phone: data.phone ?? "",
+            technology: data.technology ?? "",
+            college: data.college ?? "",
+            department: data.department ?? "",
+            yearOfStudy: data.yearOfStudy ?? "",
+            rollNumber: student?.college_mail?.split("@")[0] ?? "",
+            skills: Array.isArray(data.skills) ? data.skills : [],
+            achievements: Array.isArray(data.achievements)
+              ? data.achievements
+              : [],
+            dateOfBirth: formattedDOB,
+            gender: data.gender ?? "",
+            address: data.address ?? "",
+            guardianName: data.guardianName ?? "",
+            guardianphone: data.guardianphone ?? "",
+            password: "",
+          };
+
+          setForm(filledForm);
+          setStudentData({ ...data });
+          setLoading(false);
+        })
+        .catch((err) => {
+          // console.error("Error fetching profile:", err);
+
+          setForm({
+            fullname: "",
+            username: student?.username ?? "",
+            email: student?.college_mail ?? "",
+            phone: "",
+            technology: "",
+            college: "",
+            department: "",
+            yearOfStudy: "",
+            rollNumber: student?.college_mail?.split("@")[0] ?? "",
+            skills: [],
+            achievements: [],
+            dateOfBirth: "",
+            gender: "",
+            address: "",
+            guardianName: "",
+            guardianphone: "",
+            password: "",
+          });
+
+          setLoading(false);
+        });
+    }
+  }, [student.college_mail, isEditing]);
 
   if (loading) {
     return (
@@ -193,25 +222,20 @@ const StudentProfilePage = () => {
     );
   }
 
-  if (!studentData)
-    return <div className="text-center p-4">No data available</div>;
-
   const {
     fullname,
-    rollNumber,
     yearOfStudy,
     department,
     technology,
-    email,
     phone,
+    gender,
     guardianName,
     guardianphone,
     address,
     college,
     dateOfBirth,
     skills,
-    examStats,
-  } = studentData;
+  } = studentData ?? {};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -239,54 +263,54 @@ const StudentProfilePage = () => {
   };
 
   const handleSubmit = async () => {
-  try {
-    const payload = {
-      ...form,
-      skills: form.skills,
-      achievements: form.achievements,
-    };
+    try {
+      const payload = {
+        ...form,
+        skills: form.skills,
+        achievements: form.achievements,
+      };
 
-    await axiosStudent.post("/student/profile", payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+      await axiosStudent.post("/student/profile", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    toast.success("Profile updated successfully");
+      toast.success("Profile updated successfully");
 
-    const res = await axiosStudent.get("/student/getprofile/", {
-      params: { email: student.college_mail },
-    });
+      const res = await axiosStudent.get("/student/getprofile/", {
+        params: { email: student.college_mail },
+      });
 
-    const updatedData = res.data;
+      const updatedData = res.data;
 
-    const updatedForm = {
-      fullname: updatedData.fullname || "",
-      username: student.username,
-      email: student.college_mail,
-      phone: updatedData.phone || "",
-      technology: updatedData.technology || "",
-      college: updatedData.college || "",
-      department: updatedData.department || "",
-      yearOfStudy: updatedData.yearOfStudy || "",
-      rollNumber: student.college_mail.split("@")[0],
-      skills: updatedData.skills || [],
-      achievements: updatedData.achievements || [],
-      dateOfBirth: updatedData.dateOfBirth || "",
-      gender: updatedData.gender || "",
-      address: updatedData.address || "",
-      guardianName: updatedData.guardianName || "",
-      guardianphone: updatedData.guardianphone || "",
-    };
+      const updatedForm = {
+        fullname: updatedData.fullname || "",
+        username: student.username,
+        email: student.college_mail,
+        phone: updatedData.phone || "",
+        technology: updatedData.technology || "",
+        college: updatedData.college || "",
+        department: updatedData.department || "",
+        yearOfStudy: updatedData.yearOfStudy || "",
+        rollNumber: student.college_mail.split("@")[0],
+        skills: updatedData.skills || [],
+        achievements: updatedData.achievements || [],
+        dateOfBirth: updatedData.dateOfBirth || "",
+        gender: updatedData.gender || "",
+        address: updatedData.address || "",
+        guardianName: updatedData.guardianName || "",
+        guardianphone: updatedData.guardianphone || "",
+      };
 
-    setForm(updatedForm);
-    setStudentData(updatedData);
-    setIsEditing(false); 
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update profile");
-  }
-};
+      setForm(updatedForm);
+      setStudentData(updatedData);
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Fill all the fields");
+    }
+  };
 
   const handleChangePassword = async () => {
     if (!newPassword || newPassword.length < 6) {
@@ -367,7 +391,21 @@ const StudentProfilePage = () => {
                     </button>
                   </div>
                 </div>
-                <p className="uppercase text-md mb-1">{rollNumber}</p>
+                <p className="uppercase text-md mb-1">{form?.rollNumber}</p>
+                <p className="mb-2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="gender"
+                      placeholder="Gender"
+                      value={form.gender}
+                      onChange={handleChange}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-600 transition-all"
+                    />
+                  ) : (
+                    gender
+                  )}
+                </p>
                 <p className="mb-2">
                   {isEditing ? (
                     <input
@@ -390,12 +428,14 @@ const StudentProfilePage = () => {
                       placeholder="Department"
                       value={form.department}
                       onChange={handleChange}
-                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                      className={`border border-gray-300 rounded px-2 py-1 ${
+                        form?.department ? "mb-0" : "mb-2"
+                      } text-sm w-full focus:outline-none focus:border-indigo-500 transition-all`}
                     />
                   ) : (
                     department
                   )}{" "}
-                  -{" "}
+                  {form.department && "- "}
                   {isEditing ? (
                     <input
                       type="text"
@@ -410,7 +450,7 @@ const StudentProfilePage = () => {
                   )}
                 </p>
                 <div className="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
-                  {skills.slice(0, 4).map((skill, i) => (
+                  {skills?.slice(0, 4).map((skill, i) => (
                     <span
                       key={i}
                       className="bg-green-500/20 backdrop-blur-sm text-green-500 px-3 py-1 capitalize rounded-full text-sm font-medium"
@@ -418,7 +458,7 @@ const StudentProfilePage = () => {
                       {skill}
                     </span>
                   ))}
-                  {skills.length > 4 && (
+                  {skills?.length > 4 && (
                     <span className="bg-white/20 backdrop-blur-sm text-green-500 px-3 py-1 rounded-full text-sm font-medium">
                       +{skills.length - 4} more
                     </span>
@@ -433,7 +473,14 @@ const StudentProfilePage = () => {
           <StatCard
             icon={<Target className="w-8 h-8" />}
             title="Total Exam Accuracy"
-            value={<CountUp end={studentStats?.averageMarks} duration={1.5} suffix="%" decimals={2} />}
+            value={
+              <CountUp
+                end={studentStats?.averageMarks}
+                duration={1.5}
+                suffix="%"
+                decimals={2}
+              />
+            }
             subtitle="Across all exams"
             color="bg-blue-500"
           />
@@ -441,7 +488,14 @@ const StudentProfilePage = () => {
           <StatCard
             icon={<TrendingUp className="w-8 h-8" />}
             title="Average Accuracy"
-            value={<CountUp end={studentStats?.recentAccuracy} duration={1.5} suffix="%" decimals={2} />}
+            value={
+              <CountUp
+                end={studentStats?.recentAccuracy}
+                duration={1.5}
+                suffix="%"
+                decimals={2}
+              />
+            }
             subtitle="Based on last 5 exams"
             color="bg-green-500"
           />
@@ -449,7 +503,14 @@ const StudentProfilePage = () => {
           <StatCard
             icon={<Award className="w-8 h-8" />}
             title="Pass Percentage"
-            value={<CountUp end={studentStats?.passPercentage} duration={1.5} suffix="%" decimals={2} />}
+            value={
+              <CountUp
+                end={studentStats?.passPercentage}
+                duration={1.5}
+                suffix="%"
+                decimals={2}
+              />
+            }
             subtitle={`${studentStats?.examsPassed}/${studentStats?.totalExams} passed`}
             color="bg-purple-500"
           />
@@ -457,7 +518,13 @@ const StudentProfilePage = () => {
           <StatCard
             icon={<Trophy className="w-8 h-8" />}
             title="Leaderboard Rank"
-            value={<CountUp end={studentStats?.leaderboardRank} duration={1.5} prefix="#" />}
+            value={
+              <CountUp
+                end={studentStats?.leaderboardRank}
+                duration={1.5}
+                prefix="#"
+              />
+            }
             subtitle={`Out of ${studentStats?.totalStudents}`}
             color="bg-orange-500"
           />
@@ -494,7 +561,7 @@ const StudentProfilePage = () => {
                 <InfoItem
                   label="Email"
                   icon={<Mail className="w-4 h-4" />}
-                  value={email}
+                  value={student?.college_mail}
                 />
                 <InfoItem
                   label="Phone"
@@ -522,7 +589,9 @@ const StudentProfilePage = () => {
                         type="date"
                         name="dateOfBirth"
                         value={
-                          form?.dateOfBirth ? form?.dateOfBirth.slice(0, 10) : ""
+                          form?.dateOfBirth
+                            ? form?.dateOfBirth.slice(0, 10)
+                            : ""
                         }
                         onChange={handleChange}
                         className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
@@ -604,7 +673,7 @@ const StudentProfilePage = () => {
                   <div className="flex flex-wrap gap-2 ">
                     {isEditing ? (
                       <>
-                        {form.skills.map((skill, index) => (
+                        {form?.skills?.map((skill, index) => (
                           <input
                             key={index}
                             type="text"
@@ -619,12 +688,12 @@ const StudentProfilePage = () => {
                           onClick={addSkill}
                           className="text-indigo-600 text-sm hover:underline cursor-pointer"
                         >
-                          + Add Skill  
+                        + Add Skill  
                         </button>
                       </>
                     ) : (
                       <>
-                        {skills.map((skill, i) => (
+                        {skills?.map((skill, i) => (
                           <span
                             key={i}
                             className="bg-indigo-100 text-indigo-800 capitalize px-3 py-1 rounded-full text-sm font-medium "
@@ -689,26 +758,34 @@ const StudentProfilePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PerformanceCard
                   title="Exams Written"
-                  value={<CountUp end={studentStats?.totalExams} duration={1.5} />}
+                  value={
+                    <CountUp end={studentStats?.totalExams} duration={1.5} />
+                  }
                   description="Total examinations"
                   color="bg-blue-50 text-blue-600"
                 />
                 <PerformanceCard
                   title="Exams Passed"
-                  value={<CountUp end={studentStats?.examsPassed} duration={1.5} />}
+                  value={
+                    <CountUp end={studentStats?.examsPassed} duration={1.5} />
+                  }
                   description="Successfully completed"
                   color="bg-green-50 text-green-600"
                 />
                 <PerformanceCard
                   title="Total Exams Attempted"
-                  value={<CountUp end={studentStats?.totalExams} duration={1.5} />}
+                  value={
+                    <CountUp end={studentStats?.totalExams} duration={1.5} />
+                  }
                   description="All tests attended"
                   color="bg-blue-50 text-blue-600"
                 />
 
                 <PerformanceCard
                   title="Top Score Achieved"
-                  value={<CountUp end={studentStats?.highestMarks} duration={1.5} />}
+                  value={
+                    <CountUp end={studentStats?.highestMarks} duration={1.5} />
+                  }
                   description="Most successful attempt"
                   color="bg-purple-50 text-purple-600"
                 />
@@ -720,6 +797,9 @@ const StudentProfilePage = () => {
                 <BookOpen className="w-5 h-5 text-indigo-600" />
                 Recent Examinations
               </h2>
+              {recentExamsData.length === 0 && (
+                <p className="text-gray-500 text-center">No recent exams</p>
+              )}
               <div className="space-y-4">
                 {recentExamsData.map((exam, i) => (
                   <ExamCard
@@ -732,7 +812,6 @@ const StudentProfilePage = () => {
           </div>
         </div>
 
-      
         <div className="bg-white shadow-xl rounded-2xl p-6 mt-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <KeyRound className="w-5 h-5 text-indigo-600" />
@@ -802,7 +881,6 @@ const StudentProfilePage = () => {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -877,52 +955,3 @@ const ExamCard = ({ exam }) => (
   </div>
 );
 
-const calculateAverageScore = (exams) => {
-  let scores = [];
-  exams.forEach((exam) => {
-    exam.attempts?.forEach((a) => {
-      if (typeof a?.score === "number") scores.push(a.score);
-    });
-  });
-  if (scores.length === 0) return 0;
-  return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-};
-
-const calculatePassPercentage = (exams) => {
-  const total = exams.length;
-  const passed = exams.filter((e) =>
-    e.attempts?.some((a) => a.result === "pass")
-  ).length;
-  return total === 0 ? 0 : ((passed / total) * 100).toFixed(2);
-};
-
-const getHighestScore = (exams) => {
-  let scores = [];
-  exams.forEach((exam) =>
-    exam.attempts?.forEach((a) => {
-      if (typeof a?.score === "number") scores.push(a.score);
-    })
-  );
-  return scores.length === 0 ? 0 : Math.max(...scores);
-};
-
-const getLowestScore = (exams) => {
-  let scores = [];
-  exams.forEach((exam) =>
-    exam.attempts?.forEach((a) => {
-      if (typeof a?.score === "number") scores.push(a.score);
-    })
-  );
-  return scores.length === 0 ? 0 : Math.min(...scores);
-};
-
-const calculateRecentScore = (exams) => {
-  let recentAttempts = exams
-    .flatMap((exam) => exam.attempts || [])
-    .sort((a, b) => new Date(b.attemptStart) - new Date(a.attemptStart))
-    .slice(0, 5);
-  let scores = recentAttempts.map((a) => a.score).filter(Boolean);
-  return scores.length === 0
-    ? 0
-    : (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-};

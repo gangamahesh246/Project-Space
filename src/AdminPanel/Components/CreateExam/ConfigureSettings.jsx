@@ -13,64 +13,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const time = useSelector((state) => state.exam.settings);
 
   const [file, setFile] = useState(null);
-  const [students, setStudents] = useState([]);
-  const [branch, setBranch] = useState([]);
-  const [expandedBranch, setExpandedBranch] = useState(null);
-  const [expandedSection, setExpandedSection] = useState(null);
-  const [selectedBranch, setSelectedBranch] = useState(null);
-  const [selectedSection, setSelectedSection] = useState(null);
-  const [isActive, setIsActive] = useState("");
-
-  useEffect(() => {
-    axiosInstance
-      .get("/getstudents")
-      .then((response) => {
-        setStudents(response.data);
-        const allbranches = [...new Set(response.data.map((q) => q.branch))];
-        setBranch(allbranches);
-      })
-      .catch((error) => {
-        toast.error(error?.response?.data?.message || error.message);
-      });
-  }, []);
-
-  const grouped = students.reduce((acc, student) => {
-    const { branch, section } = student;
-    if (!acc[branch]) acc[branch] = {};
-    if (!acc[branch][section]) acc[branch][section] = [];
-    acc[branch][section].push(student.student_mail);
-    return acc;
-  }, {});
-
-  const handleBranchClick = (branch) => {
-    const isSame = expandedBranch === branch;
-    setExpandedBranch(isSame ? null : branch);
-    setIsActive(branch);
-    setExpandedSection(null);
-
-    setSelectedBranch(branch);
-    setSelectedSection(null);
-  };
-
-  const handleSectionClick = (section) => {
-    const isSame = expandedSection === section;
-    setExpandedSection(isSame ? null : section);
-
-    setSelectedSection(section);
-  };
-
-  const filteredStudents = useMemo(() => {
-    if (!isActive) return [];
-    return students
-      .filter((student) => {
-        const branchMatch = student.branch === isActive;
-        const sectionMatch = expandedSection
-          ? student.section === expandedSection && student.branch === isActive
-          : true;
-        return branchMatch && sectionMatch;
-      })
-      .map((student) => student.student_mail);
-  }, [students, isActive, expandedSection]);
 
   useEffect(() => {
     if (isOpen && id) {
@@ -138,10 +80,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         examData,
       });
 
-      if (!selectedBranch || !selectedSection) {
-        toast.error("Please select both branch and section.");
-        return;
-      }
       const postedExam = response.data.updatedExam;
       toast.success(response.data.message);
 
@@ -182,16 +120,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       },
     }));
   };
-
-  useEffect(() => {
-    setLocalSettings((prev) => ({
-      ...prev,
-      assignExamTo: {
-        ...prev.assignExamTo,
-        specificUsers: filteredStudents,
-      },
-    }));
-  }, [filteredStudents]);
 
   const handleLateTimeChange = (e) => {
     setLocalSettings((prev) => ({
@@ -596,53 +524,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           </div>
         </div>
         <p className="text-gray-500 text-sm ml-7">(Through Branch & Section)</p>
-        <div className="xl:w-50 xl:ml-10 xl:mt-3 shadow-sm rounded overflow-hidden">
-          {branch.map((br, idx) => (
-            <div className="w-full">
-              <div
-                key={idx}
-                onClick={() => handleBranchClick(br)}
-                className={`flex justify-between items-center text-[12px] font-semibold h-7 md:pl-5 pr-3 cursor-pointer capitalize ${
-                  isActive === br ? "bg-green-100 text-green-500" : "text-black"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <p>{br}</p>
-                </div>
-              </div>
-              <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                  expandedBranch === br
-                    ? "max-h-96 opacity-100"
-                    : "max-h-0 opacity-0"
-                }`}
-              >
-                {expandedBranch === br &&
-                  grouped[br] &&
-                  Object.keys(grouped[br])
-                    .sort((a, b) => a.localeCompare(b))
-                    .map((sec, secIdx) => (
-                      <div className="flex items-center gap-5" key={secIdx}>
-                        <div
-                          onClick={() => handleSectionClick(sec)}
-                          className={`sm:pl-5 md:pl-10 text-[12px] md:h-6 cursor-pointer font-medium capitalize flex items-center ${
-                            expandedSection === sec
-                              ? "text-blue-500 underline"
-                              : "text-gray-600"
-                          }`}
-                        >
-                          ↳ Section {sec}
-                        </div>
-                      </div>
-                    ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="text-sm text-gray-700 ml-5">
-          Selected: {selectedBranch ? `Branch ${selectedBranch}` : "None"},
-          {selectedSection ? `Section ${selectedSection}` : "None"}
-        </p>
+
       </div>
 
       <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
@@ -771,10 +653,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         <div
           className="w-full h-10 mt-5 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
           onClick={() => {
-            if (!selectedBranch || !selectedSection) {
-              toast.error("Please select both branch and section.");
-              return;
-            }
             setActiveTab("finish");
             dispatch(setSettings(settings));
             setLocalSettings({

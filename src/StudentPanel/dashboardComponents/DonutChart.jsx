@@ -27,7 +27,7 @@ const DonutChart = ({
         borderWidth: 2,
         borderColor: '#fff',
         hoverOffset: 10,
-        cutout: '60%' // Creates donut hole
+        cutout: '60%'
       }
     ]
   };
@@ -53,7 +53,7 @@ const DonutChart = ({
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
-      <div className="flex items-center space-x-6">
+      <div className="space-y-6">
         <div className="relative w-32 h-32">
           <Doughnut data={chartData} options={options} />
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

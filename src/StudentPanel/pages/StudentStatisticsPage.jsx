@@ -10,14 +10,9 @@ import DataTable from "../dashboardComponents/DataTable";
 import ExamCard from "../dashboardComponents/ExamCard";
 
 import {
-  scoreDistributionData,
-  timeTakenData,
-  proctorFlagsData,
   upcomingExams,
-  completedExams,
-  examHistoryData,
-  proctorFlagRecords,
 } from "../data/studentMockData";
+
 import { useSelector } from "react-redux";
 
 const StudentStatisticsPage = () => {
@@ -25,87 +20,6 @@ const StudentStatisticsPage = () => {
 
   const [studentId, setStudentId] = useState(null);
   const [data, setData] = useState(null);
-
-  const examHistoryColumns = [
-    { key: "examName", label: "Exam Name", sortable: true },
-    { key: "date", label: "Date", sortable: true },
-    {
-      key: "score",
-      label: "Score",
-      sortable: true,
-      render: (score) => (
-        <span
-          className={`font-semibold ${
-            score >= 80
-              ? "text-green-600"
-              : score >= 60
-              ? "text-yellow-600"
-              : "text-red-600"
-          }`}
-        >
-          {score}%
-        </span>
-      ),
-    },
-    {
-      key: "status",
-      label: "Status",
-      render: (status) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            status === "Passed"
-              ? "bg-green-100 text-green-800"
-              : status === "Failed"
-              ? "bg-red-100 text-red-800"
-              : "bg-yellow-100 text-yellow-800"
-          }`}
-        >
-          {status}
-        </span>
-      ),
-    },
-    {
-      key: "proctorAlerts",
-      label: "Proctoring Alerts",
-      render: (alerts) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            alerts === 0
-              ? "bg-green-100 text-green-800"
-              : alerts <= 2
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {alerts}
-        </span>
-      ),
-    },
-  ];
-
-  const proctorFlagColumns = [
-    { key: "exam", label: "Exam", sortable: true },
-    { key: "timestamp", label: "Timestamp", sortable: true },
-    { key: "flagType", label: "Flag Type" },
-    {
-      key: "severity",
-      label: "Severity",
-      render: (severity) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            severity === "High"
-              ? "bg-red-100 text-red-800"
-              : severity === "Medium"
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-green-100 text-green-800"
-          }`}
-        >
-          {severity}
-        </span>
-      ),
-    },
-    { key: "description", label: "Description" },
-  ];
 
   useEffect(() => {
     if (!student.college_mail) return;
@@ -132,14 +46,14 @@ const StudentStatisticsPage = () => {
         params: { student_id: studentId },
       })
       .then((res) => {
-        setData(res.data);
+        setData(res.data || {});
       })
       .catch((err) => {
         console.log(err);
       });
   }, [studentId]);
 
-  console.log(data)
+  console.log(data);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -147,7 +61,7 @@ const StudentStatisticsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
             title="Exams Completed"
-            value={data?.examStats?.totalExams}
+            value={data?.examStats?.attemptedExams ?? 0}
             icon={CheckCircle}
             colorClass="text-green-600"
             bgColorClass="bg-green-100"
@@ -155,7 +69,7 @@ const StudentStatisticsPage = () => {
           />
           <MetricCard
             title="Average Score"
-            value={Math.floor(data?.examStats?.averageMarks)}
+            value={Math.floor(data?.examStats?.averageMarks ?? 0)}
             icon={TrendingUp}
             colorClass="text-blue-600"
             bgColorClass="bg-blue-100"
@@ -170,11 +84,7 @@ const StudentStatisticsPage = () => {
           />
           <MetricCard
             title="Total Flags"
-            value={
-              (data?.violationSummary?.audioIssues || 0) +
-              (data?.violationSummary?.cameraOff || 0) +
-              (data?.violationSummary?.tabSwitch || 0)
-            }
+            value={data?.violationDistribution?.map((val) => val.value).reduce((a, b) => a + b, 0) ?? 0}
             icon={AlertTriangle}
             colorClass="text-red-600"
             bgColorClass="bg-red-100"
@@ -184,30 +94,45 @@ const StudentStatisticsPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 mb-8">
           <div className="xl:col-span-2">
-            <LineChart
-              data={data?.performanceTrend}
-              title="Performance Trend Over Time"
-              color="#3B82F6"
-            />
+            {data?.performanceTrend &&
+              Array.isArray(data.performanceTrend) &&
+              data.performanceTrend.length > 0 && (
+                <LineChart
+                  data={data.performanceTrend}
+                  title="Performance Trend Over Time"
+                  color="#3B82F6"
+                />
+              )}
           </div>
-          {proctorFlagsData.length > 0 && (
-            <DonutChart
-              data={proctorFlagsData}
-              title="Proctoring Events Distribution"
-            />
-          )}
-          <BarChart
-            data={scoreDistributionData}
-            title="Score Distribution per Exam"
-            color="#10B981"
-          />
+          {data?.violationDistribution &&
+            Array.isArray(data.violationDistribution) &&
+            data.violationDistribution.length > 0 && (
+              <DonutChart
+                data={data.violationDistribution}
+                title="Proctoring Events Distribution"
+              />
+            )}
+          {data?.scoreDistribution &&
+            Array.isArray(data.scoreDistribution) &&
+            data.scoreDistribution.length > 0 && (
+              <BarChart
+                data={data?.scoreDistribution}
+                title="Score Distribution per Exam"
+                color="#10B981"
+              />
+            )}
           <div className="lg:col-span-2">
-            <BarChart
-              data={timeTakenData}
-              title="Time Taken vs Exam Duration"
-              color="#8B5CF6"
-              horizontal={true}
-            />
+            {data?.timeVsDuration &&
+              Array.isArray(data.timeVsDuration) &&
+              data.timeVsDuration.length > 0 && (
+                <BarChart
+                  data={data?.timeVsDuration}
+                  title="Time Taken vs Exam Duration"
+                  color="#8B5CF6"
+                  horizontal={true}
+                  showPercentage={true}
+                />
+              )}
           </div>
         </div>
 
@@ -219,35 +144,41 @@ const StudentStatisticsPage = () => {
                 <span>Upcoming Exams</span>
               </h3>
               <span className="text-sm text-gray-500">
-                {upcomingExams.length} scheduled
+                {data?.upcomingExams?.length} scheduled
               </span>
             </div>
             <div className="space-y-4">
-              {upcomingExams.map((exam) => (
+              {data?.upcomingExams.map((exam) => (
                 <ExamCard key={exam.id} exam={exam} type="upcoming" />
               ))}
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="h-fit bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 <span>Recent Completed Exams</span>
               </h3>
               <span className="text-sm text-gray-500">
-                {completedExams.length} completed
+                {data?.completedExams?.length ?? 0} completed
               </span>
             </div>
-            <div className="space-y-4">
-              {completedExams.map((exam) => (
+            {data?.completedExams?.length > 0 ? (
+              <div className="space-y-4">
+              {data?.completedExams?.map((exam) => (
                 <ExamCard key={exam.id} exam={exam} type="completed" />
               ))}
             </div>
+            ):(
+              <p className="text-gray-500 text-center">
+                No completed exams yet.
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="space-y-8">
+        {/* <div className="space-y-8">
           <DataTable
             title="Exam History"
             columns={examHistoryColumns}
@@ -265,7 +196,7 @@ const StudentStatisticsPage = () => {
               filterable={true}
             />
           )}
-        </div>
+        </div> */}
       </main>
     </div>
   );

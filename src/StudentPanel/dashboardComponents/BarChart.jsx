@@ -10,10 +10,9 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
-// Register required chart components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const BarChart = ({ data, title, color = '#10B981', horizontal = false }) => {
+const BarChart = ({ data, title, color = '#10B981', horizontal = false, showPercentage = false}) => {
   const labels = data.map(item => item.label);
   const values = data.map(item => item.value);
 
@@ -38,7 +37,7 @@ const BarChart = ({ data, title, color = '#10B981', horizontal = false }) => {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: context => `${context.raw}%`
+          label: context => `${context.label}: ${context.raw}${showPercentage ? '%' : ''}`
         }
       }
     },

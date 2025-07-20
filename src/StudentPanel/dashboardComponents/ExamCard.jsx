@@ -1,53 +1,67 @@
-import React from 'react';
-import { Clock, User, Play, Eye, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import React from "react";
+import {
+  Clock,
+  User,
+  Play,
+  Eye,
+  Calendar,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 
 const ExamCard = ({ exam, type }) => {
-  const isUpcoming = type === 'upcoming';
-  const isCompleted = type === 'completed';
+  const isUpcoming = type === "upcoming";
+  const isCompleted = type === "completed";
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Passed':
-        return 'text-green-600 bg-green-100';
-      case 'Failed':
-        return 'text-red-600 bg-red-100';
-      case 'Under Review':
-        return 'text-yellow-600 bg-yellow-100';
+      case "pass":
+        return "text-green-600 bg-green-100";
+      case "fail":
+        return "text-red-600 bg-red-100";
       default:
-        return 'text-gray-600 bg-gray-100';
+        return "text-gray-600 bg-gray-100";
     }
   };
 
   const getUrgencyColor = (hoursUntil) => {
-    if (hoursUntil <= 2) return 'border-red-200 bg-red-50';
-    if (hoursUntil <= 24) return 'border-yellow-200 bg-yellow-50';
-    return 'border-gray-200 bg-white';
+    if (hoursUntil <= 2) return "border-red-200 bg-red-50";
+    if (hoursUntil <= 24) return "border-yellow-200 bg-yellow-50";
+    return "border-gray-200 bg-white";
   };
 
   return (
-    <div className={`rounded-lg border p-4 transition-all duration-200 hover:shadow-md ${
-      isUpcoming ? getUrgencyColor(exam.hoursUntil) : 'border-gray-200 bg-white'
-    }`}>
+    <div
+      className={`rounded-lg border p-4 transition-all duration-200 hover:shadow-md ${
+        isUpcoming
+          ? getUrgencyColor(exam.hoursUntil)
+          : "border-gray-200 bg-white"
+      }`}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h4 className="font-semibold text-gray-900 mb-1">{exam.examTitle}</h4>
+          <h4 className="capitalize font-semibold text-gray-900 mb-1">
+            {exam.examTitle}
+          </h4>
           <div className="flex items-center space-x-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-1">
+            <div className="capitalize flex items-center space-x-1">
               <User className="w-4 h-4" />
               <span>{exam.faculty}</span>
             </div>
             {isUpcoming && (
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4" />
-                <span>{exam.duration}</span>
+                <span>{exam.duration} hours</span>
               </div>
             )}
           </div>
         </div>
         {isCompleted && (
           <div className="flex items-center space-x-2">
-            <span className="text-lg font-bold text-gray-900">{exam.score}%</span>
-            {exam.status === 'Passed' ? (
+            <span className="text-lg font-bold text-gray-900">
+              {exam.score}
+            </span>
+            {exam.status === "pass" ? (
               <CheckCircle className="w-5 h-5 text-green-600" />
             ) : (
               <XCircle className="w-5 h-5 text-red-600" />
@@ -63,19 +77,31 @@ const ExamCard = ({ exam, type }) => {
             <span>{exam.date}</span>
           </div>
           <div className="flex items-center space-x-1 text-gray-600">
-            <Clock className="w-4 h-4" />
-            <span>{exam.time}</span>
+            {exam.time && (
+              <>
+                <Clock className="w-4 h-4" />
+                <span>{exam.time}</span>
+              </>
+            )}
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          {isUpcoming && exam.hoursUntil <= 2 && (
-            <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
-              Starting Soon
-            </span>
-          )}
+          {isUpcoming &&
+            exam.hoursUntil <= 2 &&
+            new Date(exam.date).toDateString() ===
+              new Date().toDateString() && (
+              <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
+                      Starting Soon   
+              </span>
+            )}
+
           {isCompleted && (
-            <span className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(exam.status)}`}>
+            <span
+              className={`text-xs font-medium capitalize px-3 py-1 rounded-full ${getStatusColor(
+                exam.status
+              )}`}
+            >
               {exam.status}
             </span>
           )}
