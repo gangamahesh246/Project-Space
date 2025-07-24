@@ -4,18 +4,21 @@ import { Search, Filter, ArrowUpDown } from 'lucide-react';
 const DataTable = ({
   title,
   columns,
-  data,
+  data = [],
   searchable = true,
   filterable = false
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState(null);
 
-  const filteredData = data.filter(row =>
-    Object.values(row).some(value =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  const filteredData = Array.isArray(data)
+  ? data.filter(row =>
+      Object.values(row).some(value =>
+        value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    )
+  : [];
+
 
   const sortedData = React.useMemo(() => {
     if (!sortConfig) return filteredData;
@@ -58,7 +61,7 @@ const DataTable = ({
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 focus:outline-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         )}

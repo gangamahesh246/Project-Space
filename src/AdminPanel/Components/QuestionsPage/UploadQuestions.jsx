@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { TbFileUpload } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
+import { Download } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
 
@@ -14,13 +15,12 @@ const UploadQuestions = () => {
   const [file, setFile] = useState(null);
   const [category, setCategory] = useState(selectcategory);
 
-
   const handleFileUpload = async (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
 
     if (!selectedFile || !category.trim()) {
-      toast.error("Please select a file and enter a category first")
+      toast.error("Please select a file and enter a category first");
       return;
     }
 
@@ -62,22 +62,28 @@ const UploadQuestions = () => {
       });
 
       try {
-        const response = await axiosInstance.post(
-          "/uploadquestions",
-          {
-            category,
-            questions: formattedQuestions,
-          }
-        );
+        const response = await axiosInstance.post("/uploadquestions", {
+          category,
+          questions: formattedQuestions,
+        });
         toast.success(response.data.message);
         setFile(null);
       } catch (error) {
-        toast.err(error?.response?.data?.message || error.message)
+        toast.err(error?.response?.data?.message || error.message);
       }
     };
 
     reader.readAsBinaryString(selectedFile);
     navigate("/admin/questions");
+  };
+
+  const handleLocalExcelDownload = () => {
+    const link = document.createElement("a");
+    link.href = "/assets/Questions_Format.xlsx";
+    link.setAttribute("download", "Questions_Format.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -88,15 +94,22 @@ const UploadQuestions = () => {
         </div>
 
         <label className="block text-md font-semibold border-l-4 border-secondary pl-2 m-3">
-            Category
-          </label>
-        <input
+          Category
+        </label>
+        <div className="w-full h-15 flex items-center justify-between px-2">
+          <input
             type="text"
             placeholder="Category"
             className="w-50 p-2 text-sm font-semibold outline-none border-1 border-gray-500 rounded-lg ml-8"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
+          <Download
+            onClick={handleLocalExcelDownload}
+            className="w-9 h-9 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer"
+          />
+        </div>
+
         <div className="flex flex-col justify-center items-center h-full gap-2 p-3">
           <TbFileUpload size={80} className="text-green-100" />
           <p className="text-gray-500 font_primary text-center text-sm">
@@ -106,7 +119,8 @@ const UploadQuestions = () => {
             Supports Excel(xlsx) files.
           </p>
           <p className="text-gray-500 font_primary text-center text-sm">
-            Note: The file should have the following columns: question, option a, option b, option c, option d, correct answer, and marks.
+            Note: The file should have the following columns: question, option
+            a, option b, option c, option d, correct answer, and marks.
           </p>
           <label
             htmlFor="fileInput"

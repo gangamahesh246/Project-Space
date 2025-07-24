@@ -419,6 +419,7 @@ const Test = () => {
     formData.append(
       "attemptData",
       JSON.stringify({
+        student_mail: data.user.college_mail,
         title: basicInfo.title,
         category: basicInfo.category,
         totalMarks,

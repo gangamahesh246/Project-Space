@@ -61,8 +61,8 @@ const StepWrapper = ({setactiveTab}) => {
     }
   };
   return (
-    <div className="w-full h-fit bg-aliceblue p-10">
-      <div className="w-full h-fit bg-white shadow-lg text-sm rounded-lg p-5 font_primary flex justify-around items-center">
+    <div className="w-full h-fit bg-white p-10">
+      <div className="w-full h-fit bg-amber-100 shadow-lg text-sm rounded-lg p-5 font_primary flex justify-around items-center">
         {steps.map((step, index) => {
           return (
             <>
@@ -75,7 +75,7 @@ const StepWrapper = ({setactiveTab}) => {
                   className="w-1/8 h-1 rounded-full"
                   style={{
                     backgroundColor:
-                      index < activeStepIndex ? "#00C951" : "aliceblue",
+                      index < activeStepIndex ? "#00C951" : "white",
                   }}
                 ></div>
               )}

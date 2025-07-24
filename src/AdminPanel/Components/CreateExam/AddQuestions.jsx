@@ -6,11 +6,15 @@ import { FaPencilAlt } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import { setQuestions, setSettings } from "../../../slices/ExamSlice";
 import { toast } from "react-toastify";
-import axios from "axios";
+import { Download } from "lucide-react";
 import axiosInstance from "../../../utils/axiosInstance";
 
-const PreSelected = ({ handleFileUpload, file }) => (
+const PreSelected = ({ handleFileUpload, handleLocalExcelDownload, file }) => (
   <div className="p-4 xl:h-5/6 flex flex-col items-center justify-center gap-2">
+    <div className="w-full flex justify-end">
+      <Download onClick={handleLocalExcelDownload} className="w-9 h-9 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer" />
+    </div>
+
     <RiFileExcel2Fill size={100} color="#00C951" />
     <p className="text-gray-500 font_primary text-center text-sm">
       Drag & drop files here or select a file to upload questions in bulk
@@ -49,15 +53,15 @@ const Categories = () => {
         setQQuestions(response.data);
         const allCats = [...new Set(response.data.map((q) => q.category))];
         setCategories(allCats);
-        setIsActive(allCats[0]);
       })
       .catch((error) => {
         toast.error(error?.response?.data?.message || error.message);
       });
   }, []);
 
-  const filteredQuestions =
-    qquestions.find((q) => q.category === isActive)?.questions || [];
+  const filteredQuestions = isActive
+    ? qquestions.find((q) => q.category === isActive)?.questions || []
+    : [];
 
   return (
     <div className="p-6">
@@ -130,6 +134,15 @@ const AddQuestions = ({ setActiveTab }) => {
     questionTime: 0,
   });
 
+  const handleLocalExcelDownload = () => {
+    const link = document.createElement("a");
+    link.href = "/assets/Questions_Format.xlsx"; 
+    link.setAttribute("download", "Questions_Format.xlsx");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     setFile(file);
@@ -175,10 +188,29 @@ const AddQuestions = ({ setActiveTab }) => {
     reader.readAsBinaryString(file);
   };
 
+  const selectedQuestions = useSelector((state) => state.exam.questions);
+
+  const handleSaveNext = () => {
+    const hasUploadedFile = !!file;
+    const hasSelectedCategoryQuestions = selectedQuestions?.length > 0;
+
+    if (!hasUploadedFile && !hasSelectedCategoryQuestions) {
+      toast.error(
+        "Please either upload an Excel file or select a question category."
+      );
+      return;
+    }
+
+    setActiveTab("customizedSettings");
+
+    const { examTime, questionTime } = time;
+    dispatch(setSettings({ examTime, questionTime }));
+  };
+
   return (
-    <div className="w-full h-fit bg-aliceblue sm:flex sm:flex-col xl:flex-row justify-center gap-4 p-4">
-      <div className="xl:w-4/6 h-full bg-white rounded-md p-4">
-        <div className="w-full h-10 border-b-2 border-aliceblue text-primary flex items-center font-semibold text-md gap-15">
+    <div className="w-full h-fit bg-white sm:flex sm:flex-col xl:flex-row justify-center gap-4 p-4">
+      <div className="xl:w-4/6 h-full bg-white shadow-md rounded-md p-4">
+        <div className="w-full h-10 border-b-2 border-gray-200 text-primary flex items-center font-semibold text-md gap-15">
           <p
             className="cursor-pointer"
             onClick={() => setIsActive("PreSelected")}
@@ -212,13 +244,13 @@ const AddQuestions = ({ setActiveTab }) => {
         </div>
         <div className="w-full xl:h-98.5 overflow-y-auto">
           {isActive === "PreSelected" ? (
-            <PreSelected handleFileUpload={handleFileUpload} file={file} />
+            <PreSelected handleFileUpload={handleFileUpload} handleLocalExcelDownload={handleLocalExcelDownload} file={file} />
           ) : (
             <Categories />
           )}
         </div>
       </div>
-      <div className="xl:w-2/6 h-fit bg-white rounded-md p-4 flex flex-col justify-center items-start gap-4">
+      <div className="xl:w-2/6 h-fit bg-white shadow-md rounded-md p-4 flex flex-col justify-center items-start gap-4">
         <p className="text-primary font-semibold text-md underline">
           Exam Title
         </p>
@@ -240,11 +272,7 @@ const AddQuestions = ({ setActiveTab }) => {
         </div>
         <div
           className="w-full h-10 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
-          onClick={() => {
-            setActiveTab("customizedSettings");
-            const { examTime, questionTime } = time;
-            dispatch(setSettings({ examTime, questionTime }));
-          }}
+          onClick={handleSaveNext}
         >
           Save & Next
         </div>
@@ -293,7 +321,6 @@ const ExamTimeSetting = ({ handleInputChange, time }) => {
     </div>
   );
 };
-
 const TimeSelector = ({ setIsOpen, time, setTime }) => {
   const [selectedOption, setSelectedOption] = useState("Question time setting");
 

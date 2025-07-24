@@ -261,7 +261,7 @@ const StudentExamPage = () => {
               {activeOrLateExams.map((item, i) => (
                 <div
                   key={`upcoming-${i}`}
-                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-md sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
                 >
                   <img
                     src={item.examId?.basicInfo?.coverPreview}

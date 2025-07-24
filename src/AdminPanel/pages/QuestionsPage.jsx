@@ -59,7 +59,7 @@ const QuestionsPage = () => {
   }
 
   return (
-    <div className="w-full h-full bg-aliceblue flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
+    <div className="w-full h-full bg-amber-100 flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
       <div className={`${isOpen ? "md:w-15 md:transition-all md:duration-300" : "md:w-1/3 md:transition-all md:duration-300"} h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg sm:p-2 md:p-5`}>
         <div className="flex justify-between items-center">
           <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold"}`}>Questions</p>

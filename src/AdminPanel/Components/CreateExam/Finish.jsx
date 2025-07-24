@@ -71,8 +71,8 @@ const Finish = ({ coverFile }) => {
   };
 
   return (
-    <div className="w-full h-fit pb-5 bg-white">
-      <div className="w-full h-15 border-b-2 border-aliceblue text-xl text-primary capitalize font-bold text-center pt-5">
+    <div className="w-full h-screen pb-5 bg-white">
+      <div className="w-full h-15 border-b-2 border-gray-200 text-xl text-primary capitalize font-bold text-center pt-5">
         {data.basicInfo?.title}
       </div>
       <div className="flex flex-col items-center pt-5 text-green-600">

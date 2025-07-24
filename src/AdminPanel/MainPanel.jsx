@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { MdSpaceDashboard } from "react-icons/md";
-import { FaPencilAlt } from "react-icons/fa";
-import { RiBookShelfFill } from "react-icons/ri";
-import { IoPersonSharp } from "react-icons/io5";
+import { MdOutlineDashboard } from "react-icons/md";
+import { MdOutlineAssignment } from "react-icons/md";
+import { RiBookShelfLine } from "react-icons/ri";
+import { MdOutlinePersonOutline } from "react-icons/md";
 import { LuBlocks } from "react-icons/lu";
-import { BsFillPersonPlusFill } from "react-icons/bs";
+import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { LuLogOut } from "react-icons/lu";
 import { HiMenu } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
+import "../index.css";
 
 import DashBoard from "./pages/DashBoard";
 import ExamPage from "./pages/ExamPage";
@@ -29,10 +30,14 @@ import axiosInstance from "../utils/axiosInstance";
 import { logout } from "../slices/adminAuthSlice";
 
 let dashboardNavs = [
-  { name: "dashboard", path: "/admin/dashboard", icon: <MdSpaceDashboard /> },
-  { name: "exam", path: "/admin/exam", icon: <FaPencilAlt /> },
-  { name: "questions", path: "/admin/questions", icon: <RiBookShelfFill /> },
-  { name: "students", path: "/admin/students", icon: <IoPersonSharp /> },
+  { name: "dashboard", path: "/admin/dashboard", icon: <MdOutlineDashboard /> },
+  { name: "exam", path: "/admin/exam", icon: <MdOutlineAssignment /> },
+  { name: "questions", path: "/admin/questions", icon: <RiBookShelfLine /> },
+  {
+    name: "students",
+    path: "/admin/students",
+    icon: <MdOutlinePersonOutline />,
+  },
   { name: "more", path: "/admin/more", icon: <LuBlocks /> },
 ];
 
@@ -84,8 +89,8 @@ const MainPanel = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-aliceblue">
-      <div className="w-full h-full shadow-2xl overflow-hidden flex">
+    <div className="w-full h-screen">
+      <div className="w-full h-full overflow-hidden flex">
         <AnimatePresence>
           {isSidebarVisible && (
             <motion.div
@@ -93,88 +98,101 @@ const MainPanel = () => {
               animate={isSidebarAnimated ? { x: 0 } : false}
               exit={isSidebarAnimated ? { x: "-100%" } : false}
               transition={isSidebarAnimated ? { duration: 0.3 } : false}
-              className="sm:w-2/4 md:w-2/6 md:h-fit sm:absolute sm:z-50 xl:w-1/6 lg:h-full lg:relative lg:block lg:pt-5 bg-primary"
+              className="w-[250px] h-full lg:relative lg:block lg:pt-5 bg-white p-4 flex flex-col border-r border-gray-300 shadow-md"
               id="sidebar"
             >
-              <div className="sm:w-[170px] sm:h-[40px] sm:mt-5 lg:mt-0 lg:w-[220px] lg:h-[70px] flex justify-center items-center">
-                <img src="/Qubee.png" alt="Logo" />
+              <div>
+                <div className="flex items-center">
+                  <img
+                    src="/Qubee.png"
+                    alt="Logo"
+                    className="w-[45px] h-[45px] object-contain"
+                  />
+                  <p className="agbalumo-regular sm:text-md xl:text-xl font-semibold text-[#008738] tracking-wide">
+                    ProctorQube
+                  </p>
+                </div>
+
+                <div className="mt-8 space-y-3 flex-1">
+                  {dashboardNavs.map((navs, i) => {
+                    const isActive = location.pathname.startsWith(navs.path);
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => {
+                          setMenu(false);
+                          navigate(navs.path);
+                        }}
+                        className={`flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group ${
+                          isActive
+                            ? "bg-[#C3E76D] text-black"
+                            : "hover:bg-[#C3E76D] text-gray-700"
+                        }`}
+                      >
+                        <span className="text-lg">{navs.icon}</span>
+                        <p className="ml-4 text-sm capitalize font_primary tracking-wide">
+                          {navs.name}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="w-full h-[350px] flex flex-col justify-evenly items-center mt-5 lg:border-r-1 lg:border-[#a4bfce]">
-                {dashboardNavs.map((navs, i) => {
-                  const isActive = location.pathname.startsWith(navs.path);
-                  return (
-                    <div
-                      key={i}
-                      className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer"
-                      style={isActive ? { border: "2px solid #a4bfce" } : {}}
-                      onClick={() => {
-                        setMenu(false);
-                        navigate(navs.path);
-                      }}
-                    >
-                      {navs.icon}
-                      <p className="ml-3 font_primary font-semibold capitalize tracking-wide">
-                        {navs.name}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="w-full h-fit pt-5 mt-5 flex flex-col justify-center items-center lg:border-r-1 lg:border-[#a4bfce]">
-                <div className="w-5/6 h-fit flex flex-col justify-evenly items-center border-t-2 border-[#a4bfce]">
-                  <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
-                    <BsFillPersonPlusFill size={17} />
-                    <p className="ml-3 font_primary font-semibold">Add Admin</p>
-                  </div>
-                  <div className="w-[200px] h-[50px] text-[#a4bfce] rounded-lg pl-3 flex justify-start items-center cursor-pointer">
-                    <LuLogOut size={17} />
-                    <p 
-                    onClick={handleLogout}
-                    className="ml-3 font_primary font-semibold">Logout</p>
-                  </div>
+
+              <div className="pt-4 mt-4 border-t border-gray-300 space-y-3">
+                <div className="flex items-center px-4 py-3 rounded-xl cursor-pointer text-gray-700 hover:bg-[#C3E76D]">
+                  <AiOutlineUsergroupAdd size={18} />
+                  <p className="ml-3 text-sm font-medium font_primary">
+                    Add Admin
+                  </p>
+                </div>
+                <div
+                  onClick={handleLogout}
+                  className="flex items-center px-4 py-3 rounded-lg cursor-pointer text-gray-700 bg-gray-100 hover:bg-[#C3E76D]"
+                >
+                  <LuLogOut size={17} />
+                  <p className="ml-3 text-sm font-medium font_primary">
+                    Logout
+                  </p>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-        <div className="sm:w-full sm:p-3 bg-primary xl:w-5/6 xl:p-8">
-          <div className="w-full h-11 flex justify-between items-center pb-5 border-b-1 border-[#a4bfce]">
-            <div className="flex justify-center items-center gap-2">
-              <HiMenu
-                className="sm:block lg:hidden"
-                size={25}
-                color="#a4bfce"
-                onClick={() => {
-                  setMenu(!menu);
-                }}
-              />
-              <p className="text-sm font_primary text-[#a4bfce]">
-                Welcome back, {profile.fullName}🖐️
-              </p>
-            </div>
-            <div className="flex justify-center items-center gap-2">
-              <div className="relative cursor-pointer">
-                🔔
+        <div className={`w-full ${location.pathname === "/admin/dashboard" ? "p-5" : "p-0"} bg-amber-100`}>
+          {location.pathname === "/admin/dashboard" && (
+            <div className="w-full h-8 flex justify-between items-center">
+              <div className="flex justify-center items-center gap-2">
+                <HiMenu
+                  className={`sm:block lg:hidden `}
+                  size={25}
+                  color="#008738"
+                  onClick={() => {
+                    setMenu(!menu);
+                  }}
+                />
+                <p className="font_primary font-bold capitalize text-[#008738]">
+                  Hello, {profile.fullName}!🖐️
+                </p>
               </div>
-              <div
-                onClick={() => navigate("/admin/profile")}
-                className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-1 border-[#a4bfce] cursor-pointer"
-                style={{
-                  backgroundImage: `url(${encodeURI(profile.photo)})`,
-                }}
-                alt="profile"
-              ></div>
-              <p className="font_primary text-sm text-[#a4bfce]">
-                {profile.fullName}
-              </p>
+              <div className="flex justify-center items-center gap-2">
+                <div className="relative cursor-pointer">🔔</div>
+                <div
+                  onClick={() => navigate("/admin/profile")}
+                  className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-2 border-[#008738] cursor-pointer"
+                  style={{
+                    backgroundImage: `url(${encodeURI(profile.photo)})`,
+                  }}
+                  alt="profile"
+                ></div>
+                <p className="font_primary capitalize font-semibold text-sm text-[#008738]">
+                  {profile.fullName}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="w-full h-11/12  overflow-auto hide-scrollbar md:mt-5">
-            {location.pathname === "/admin/dashboard" && (
-              <p className="capitalize sm:text-2xl xl:text-[30px] font_primary text-aliceblue tracking-wide">
-                Dashboard
-              </p>
-            )}
+          )}
+
+          <div className="w-full h-full overflow-auto hide-scrollbar bg-[#fcf8de]">
             <Routes>
               <Route index element={<DashBoard />} />
               <Route path="dashboard" element={<DashBoard />} />
@@ -182,7 +200,7 @@ const MainPanel = () => {
               <Route path="exam">
                 <Route index element={<ExamPage />} />
                 <Route path="create-exam" element={<StepWrapper />} />
-                <Route path="takenlist/:examId" element={<TakenList />} />
+                <Route path="takenlist" element={<TakenList />} />
                 <Route
                   path="exam-questions/:examId"
                   element={<ExamQuestions />}
@@ -195,12 +213,15 @@ const MainPanel = () => {
                 <Route path="add-question" element={<AddQuestion />} />
                 <Route path="upload-questions" element={<UploadQuestions />} />
               </Route>
-              
+
               <Route path="students">
                 <Route index element={<StudentsPage />} />
                 <Route path="add-student" element={<AddStudent />} />
                 <Route path="upload-students" element={<UploadStudents />} />
-                <Route path="personal-info" element={<StudentPersonalDetails />} />
+                <Route
+                  path="personal-info"
+                  element={<StudentPersonalDetails />}
+                />
               </Route>
 
               <Route path="profile" element={<Profile />} />

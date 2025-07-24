@@ -82,7 +82,7 @@ const ExamPage = () => {
       .delete(`/deleteexam/${id}`)
       .then((res) => {
         toast.success(res.data.message);
-        
+
         socket.emit("deleteExamFromStudents", { examId: id });
         fetchExams();
       })
@@ -98,11 +98,11 @@ const ExamPage = () => {
   );
 
   return (
-    <div className="w-full h-full bg-aliceblue flex gap-5 overflow-y-auto hide-scrollbar">
+    <div className="w-full h-full bg-white flex gap-5 overflow-y-auto hide-scrollbar">
       <div className="w-full h-full">
         <div className="w-full h-16 bg-white shadow-lg flex items-center justify-between px-4">
           <button
-            className="bg-green-500 p-2 rounded-sm flex items-center gap-1 cursor-pointer text-aliceblue"
+            className="bg-[#C3E76D] px-2 py-3 rounded-sm text-sm flex items-center gap-1 cursor-pointer text-gray-700"
             onClick={() => {
               navigate("/admin/exam/create-exam");
             }}
@@ -127,78 +127,53 @@ const ExamPage = () => {
             </select>
           </div>
         </div>
-        {filteredExams?.map((item, i) => {
-          return (
-            <div
-              key={i}
-              className="w-full h-fit bg-white shadow-lg sm:p-2 md:p-5 flex justify-around items-center sm:gap-1 xl:gap-2 border-t-1 border-gray-300"
-            >
-              <img
-                src={item.basicInfo.coverPreview}
-                alt="Cover"
-                className="sm:w-20 sm:h-20 md:w-30 md:h-20 object-cover rounded"
-              />
-              <div>
-                <div className="flex items-center justify-between text-lg font_primary font-semibold">
-                  <p className="flex items-center gap-2">
-                    {item.basicInfo.title}{" "}
-                    <LuExternalLink
-                      className="cursor-pointer"
-                      color="green"
-                      onClick={() =>
-                        navigate(`/admin/exam/takenlist/${item._id}`)
-                      }
-                    />
-                  </p>{" "}
-                  <p
-                    className={`text-xs font-semibold px-2 py-1 rounded ${
-                      item.status === "active"
-                        ? "text-green-500 bg-green-100"
-                        : "text-red-500 bg-red-100"
-                    }`}
-                  >
-                    {item.status === "active" ? "Active" : "In Active"}
-                  </p>
-                </div>
-                <div className="font_primary text-sm font-semibold text-gray-500 flex items-center lg:gap-1 overflow-x-auto">
-                  <p>{item.basicInfo.category} |</p>
-                  <p>
-                    Exam Taken Times:{" "}
-                    {item.settings?.examTakenTimes?.multiple ?? "N/A"} |
-                  </p>
-                  <p className="sm:hidden md:block">
-                    Questions Count: {item.questionsCount} |
-                  </p>
-                  <p className="sm:hidden md:block">
-                    Late Time:{" "}
-                    {item.settings.availability.lateTime
-                      ? item.settings.availability.lateTime
-                      : "N/A"}{" "}
-                    {item.settings.availability.lateTime && "sec"} |
-                  </p>
-                  <p className="sm:hidden xl:block">
-                    Students Count:{" "}
-                    {item.settings.assignExamTo.specificUsersCount} |
-                  </p>
-                  <p className="sm:hidden xl:block">
-                    Pass Percentage:{" "}
-                    {item.settings.results.displayScore.passPercentage}%{" "}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 text-sm font_primary text-green-500 mt-5">
-                  <div className="gap-1 sm:hidden md:flex">
-                    <p className="text-gray-500">
-                      Open:{" "}
-                      {item.settings?.availability?.timeLimitDays?.from ??
-                        "N/A"}
+        <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-3 sm:px-4 md:px-30 xl:px-5 xl:pb-4 lg:px-35">
+          {filteredExams?.map((item, i) => {
+            return (
+              <div
+                key={i}
+                className="w-full h-fit bg-white shadow-sm hover:shadow-md p-2 mt-2 flex items-center sm:gap-2 md:gap-3 xl:gap-5 rounded-lg"
+              >
+                <img
+                  src={item.basicInfo.coverPreview}
+                  alt="Cover"
+                  className="w-30 h-30 object-cover rounded"
+                />
+                <div>
+                  <div className="flex items-center justify-between text-lg font_primary font-semibold">
+                    <p className="flex items-center gap-2">
+                      {item.basicInfo.title}{" "}
+                      <LuExternalLink
+                        className="cursor-pointer"
+                        color="green"
+                        onClick={() =>
+                          navigate("/admin/exam/takenlist", {
+                            state: {
+                              id: item._id,
+                              title: item.basicInfo.title,
+                            },
+                          })
+                        }
+                      />
                     </p>
-                    <p className="text-gray-500">
-                      -{" "}
-                      {item.settings?.availability?.timeLimitDays?.to ?? "N/A"}
+                    <p
+                      className={`text-xs font-semibold px-2 py-1 rounded ${
+                        item.status === "active"
+                          ? "text-green-500 bg-green-100"
+                          : "text-red-500 bg-red-100"
+                      }`}
+                    >
+                      {item.status === "active" ? "Active" : "In Active"}
                     </p>
                   </div>
-                  <p
-                    className="md:ml-30 hover:underline cursor-pointer"
+                    <p className="font_primary text-sm text-gray-500">
+                      Category: {item.basicInfo.category}
+                    </p>
+                  <div className={`flex items-center ${item.settings?.answerTimeControl?.examTime ? "sm:gap-5 xl:gap-25" : "sm:gap-5 xl:gap-15" } text-sm font_primary text-green-600`}>
+                    <p className="text-gray-500 text-sm font-primary">{item.settings?.answerTimeControl?.examTime ? `Duration: ${item.settings?.answerTimeControl?.examTime} min` : `Duration: ${item.settings?.answerTimeControl?.questionTime} sec/question`}</p>
+                    <div className="flex items-center gap-1">
+                    <p
+                    className="hover:underline cursor-pointer"
                     onClick={() =>
                       navigate(`/admin/exam/exam-questions/${item._id}`)
                     }
@@ -214,34 +189,89 @@ const ExamPage = () => {
                   >
                     Statistics
                   </p>
+                  </div>
+                  </div>
+                    <div className="gap-1 mt-4 text-sm font_primary md:flex">
+                      <p className="text-gray-500">
+                        Open:{" "}
+                        {item.settings?.availability?.timeLimitDays?.from
+                          ? `${new Date(
+                              item.settings.availability.timeLimitDays.from
+                            ).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })} at ${new Date(
+                              item.settings.availability.timeLimitDays.from
+                            ).toLocaleTimeString("en-GB", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}`
+                          : "N/A"}
+                      </p>
+
+                      <p className="text-gray-500">
+                        -{" "}
+                        {item.settings?.availability?.timeLimitDays?.to
+                          ? `${new Date(
+                              item.settings.availability.timeLimitDays.to
+                            ).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })} at ${new Date(
+                              item.settings.availability.timeLimitDays.to
+                            ).toLocaleTimeString("en-GB", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}`
+                          : "N/A"}
+                      </p>
+                    </div>
                 </div>
+                <div className="flex flex-col items-center gap-5 pl-2 sm:pr-1 md:pr-0 border-l-1 border-gray-300">
+                  {item.settings?.availability?.timeLimitDays?.from && (
+                    <FaRegEdit
+                      className={`cursor-pointer ${
+                        new Date(item.settings.availability.timeLimitDays.to) <
+                        new Date()
+                          ? "opacity-50 cursor-not-allowed pointer-events-none"
+                          : ""
+                      }`}
+                      color="blue"
+                      onClick={() => {
+                        if (
+                          new Date(
+                            item.settings.availability.timeLimitDays.to
+                          ) >= new Date()
+                        ) {
+                          setisOpen(true);
+                          setId(item._id);
+                        }
+                      }}
+                    />
+                  )}
+
+                  <MdOutlineDelete
+                    className="cursor-pointer w-fit h-fit"
+                    color="red"
+                    onClick={() => deleteExam(item._id)}
+                  />
+                </div>
+                {isOpen && (
+                  <UpdatePage
+                    setisOpen={setisOpen}
+                    ConfigureSettings={ConfigureSettings}
+                    id={id}
+                    isOpen={isOpen}
+                  />
+                )}
               </div>
-              <div className="flex flex-col items-center gap-5 pl-2 sm:pr-1 md:pr-0 border-l-1 border-gray-500">
-                <FaRegEdit
-                  className="cursor-pointer"
-                  color="blue"
-                  onClick={() => {
-                    setisOpen(true);
-                    setId(item._id);
-                  }}
-                />
-                <MdOutlineDelete
-                  className="cursor-pointer w-fit h-fit"
-                  color="red"
-                  onClick={() => deleteExam(item._id)}
-                />
-              </div>
-              {isOpen && (
-                <UpdatePage
-                  setisOpen={setisOpen}
-                  ConfigureSettings={ConfigureSettings}
-                  id={id}
-                  isOpen={isOpen}
-                />
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -251,8 +281,8 @@ export default ExamPage;
 
 const UpdatePage = ({ setisOpen, ConfigureSettings, id, isOpen }) => {
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black/20 backdrop-blur-[1px] flex justify-center items-center z-50">
-      <div className="relative bg-white rounded-xl shadow-lg p-4 w-[80%] max-h-[90vh] hide-scrollbar overflow-y-auto">
+    <div className="fixed top-0 left-0 w-full h-full bg-transparent backdrop-blur-[1px] flex justify-center items-center z-50">
+      <div className="relative bg-white p-4 w-[80%] max-h-[90vh] hide-scrollbar overflow-y-auto">
         <button
           onClick={() => setisOpen(!isOpen)}
           className="absolute cursor-pointer top-2 right-4 text-lg"

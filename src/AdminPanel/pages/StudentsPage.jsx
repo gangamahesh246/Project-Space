@@ -14,7 +14,6 @@ const StudentsPage = () => {
   const [students, setStudents] = useState([]);
   const [technology, setTechnology] = useState([]);
   const [searchTech, setSearchTech] = useState("");
-  const [expandedTech, setExpandedTech] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isActive, setIsActive] = useState("all");
   const [search, setSearch] = useState("");
@@ -38,15 +37,7 @@ const StudentsPage = () => {
       });
   }, []);
 
-  const grouped = students.reduce((acc, student) => {
-    const { technology } = student;
-    if (!acc[technology]) acc[technology] = [];
-    acc[technology].push(student.student_mail);
-    return acc;
-  }, {});
-
   const handleTechClick = (tech) => {
-    setExpandedTech((prev) => (prev === tech ? null : tech));
     setIsActive(tech);
   };
 
@@ -92,7 +83,7 @@ const StudentsPage = () => {
   };
 
   return (
-    <div className="w-full h-full bg-aliceblue flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
+    <div className="w-full h-full bg-amber-100 flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
       <div
         className={`${
           isOpen ? "md:w-15" : "sm:w-35 md:w-1/3"

@@ -9,10 +9,6 @@ import DonutChart from "../dashboardComponents/DonutChart";
 import DataTable from "../dashboardComponents/DataTable";
 import ExamCard from "../dashboardComponents/ExamCard";
 
-import {
-  upcomingExams,
-} from "../data/studentMockData";
-
 import { useSelector } from "react-redux";
 
 const StudentStatisticsPage = () => {
@@ -53,7 +49,54 @@ const StudentStatisticsPage = () => {
       });
   }, [studentId]);
 
-  console.log(data);
+  const examHistoryColumns = [
+    { key: 'examName', label: 'Exam Name', sortable: true },
+    { key: 'date', label: 'Date', sortable: true },
+    { 
+      key: 'score', 
+      label: 'Score', 
+      sortable: true,
+      render: (score) => (
+        <div className="flex items-center space-x-2">
+          <span className={`font-semibold ${score >= 50 ? 'text-green-600' : score >= 30 ? 'text-yellow-600' : 'text-red-600'}`}>
+            {score}
+          </span>
+        </div>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (status) => (
+        <span className={`px-2 py-1 capitalize rounded-full text-xs font-medium ${
+          status === 'pass' 
+            ? 'bg-green-100 text-green-800'
+            : status === 'fail'
+            ? 'bg-red-100 text-red-800'
+            : 'bg-yellow-100 text-yellow-800'
+        }`}>
+          {status}
+        </span>
+      )
+    },
+    { 
+      key: 'proctorAlerts', 
+      label: 'Proctoring Alerts',
+      render: (alerts) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+          alerts === 0 
+            ? 'bg-green-100 text-green-800'
+            : alerts <= 2
+            ? 'bg-yellow-100 text-yellow-800'
+            : 'bg-red-100 text-red-800'
+        }`}>
+          {alerts}
+        </span>
+      )
+    }
+  ];
+
+  console.log(data)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -77,7 +120,7 @@ const StudentStatisticsPage = () => {
           />
           <MetricCard
             title="Upcoming Exams"
-            value={data?.examStats?.upcomingExams?.length || 0}
+            value={data?.upcomingExams?.length || 0}
             icon={Calendar}
             colorClass="text-purple-600"
             bgColorClass="bg-purple-100"
@@ -148,7 +191,7 @@ const StudentStatisticsPage = () => {
               </span>
             </div>
             <div className="space-y-4">
-              {data?.upcomingExams.map((exam) => (
+              {data?.upcomingExams?.map((exam) => (
                 <ExamCard key={exam.id} exam={exam} type="upcoming" />
               ))}
             </div>
@@ -178,25 +221,16 @@ const StudentStatisticsPage = () => {
           </div>
         </div>
 
-        {/* <div className="space-y-8">
+        <div className="space-y-8">
           <DataTable
             title="Exam History"
             columns={examHistoryColumns}
-            data={examHistoryData}
+            data={data?.examsHistory || []}
             searchable={true}
             filterable={true}
           />
 
-          {proctorFlagRecords.length > 0 && (
-            <DataTable
-              title="Proctoring Flag Records"
-              columns={proctorFlagColumns}
-              data={proctorFlagRecords}
-              searchable={true}
-              filterable={true}
-            />
-          )}
-        </div> */}
+        </div>
       </main>
     </div>
   );

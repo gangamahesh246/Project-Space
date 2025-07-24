@@ -31,10 +31,10 @@ const BasicInfo = ({ setActiveTab, setCoverFile }) => {
   };
 
   return (
-    <div className="w-full h-fit bg-aliceblue sm:p-3 xl:p-10">
+    <div className="w-full h-fit bg-white sm:p-3 xl:p-10">
       <div className="sm:w-78 sm:p-5 md:w-145 xl:w-4/5 h-fit xl:mx-auto bg-white shadow-lg rounded-lg xl:p-8 ">
         <form>
-          <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
+          <label className="block mb-6 text-md font-semibold border-l-4 border-green-500 pl-2">
             Exam Title
           </label>
           <input
@@ -46,7 +46,7 @@ const BasicInfo = ({ setActiveTab, setCoverFile }) => {
             placeholder="Enter exam title"
             onChange={handleInputChange}
           />
-          <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
+          <label className="block mb-6 text-md font-semibold border-l-4 border-green-500 pl-2">
             Exam Category
           </label>
           <input
@@ -58,7 +58,7 @@ const BasicInfo = ({ setActiveTab, setCoverFile }) => {
             placeholder="Enter Exam Category"
             onChange={handleInputChange}
           />
-          <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
+          <label className="block mb-6 text-md font-semibold border-l-4 border-green-500 pl-2">
             Exam Cover
           </label>
           <div
@@ -77,7 +77,7 @@ const BasicInfo = ({ setActiveTab, setCoverFile }) => {
               accept="image/*"
             />
           </div>
-          <label className="block mb-6 text-md font-semibold border-l-4 border-secondary pl-2">
+          <label className="block mb-6 text-md font-semibold border-l-4 border-green-500 pl-2">
             Description
           </label>
           <textarea
@@ -90,7 +90,7 @@ const BasicInfo = ({ setActiveTab, setCoverFile }) => {
         </form>
         <div className="flex justify-end">
           <button
-            className="text-white px-4 py-2 rounded-lg bg-green-500 cursor-pointer "
+            className="text-white px-5 py-2 rounded-lg bg-green-500 cursor-pointer "
             onClick={() => {
               if (!basicInfo.title || !basicInfo.category) {
                 alert("Please fill in all fields.");

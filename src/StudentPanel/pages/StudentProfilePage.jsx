@@ -775,7 +775,7 @@ const StudentProfilePage = () => {
                 <PerformanceCard
                   title="Total Exams Attempted"
                   value={
-                    <CountUp end={studentStats?.totalExams} duration={1.5} />
+                    <CountUp end={studentStats?.attemptedExams} duration={1.5} />
                   }
                   description="All tests attended"
                   color="bg-blue-50 text-blue-600"
