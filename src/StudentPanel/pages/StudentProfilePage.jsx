@@ -341,9 +341,9 @@ const StudentProfilePage = () => {
       toast.error(msg);
     }
   };
-
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6">
+    <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
           <div className="bg-white px-8 py-4">
@@ -368,7 +368,7 @@ const StudentProfilePage = () => {
                           placeholder="Full Name"
                           value={form.fullname}
                           onChange={handleChange}
-                          className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                          className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                         />
                       ) : (
                         fullname
@@ -380,7 +380,7 @@ const StudentProfilePage = () => {
                         if (isEditing) handleSubmit();
                         setIsEditing(!isEditing);
                       }}
-                      className="text-indigo-600 hover:text-indigo-800 text-sm transition-all flex items-center cursor-pointer"
+                      className="text-blue-600 hover:text-blue-800 text-sm transition-all flex items-center cursor-pointer"
                     >
                       {isEditing ? (
                         <Save className="w-4 h-4" />
@@ -400,7 +400,7 @@ const StudentProfilePage = () => {
                       placeholder="Gender"
                       value={form.gender}
                       onChange={handleChange}
-                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-600 transition-all"
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-600 transition-all"
                     />
                   ) : (
                     gender
@@ -414,7 +414,7 @@ const StudentProfilePage = () => {
                       placeholder="College"
                       value={form.college}
                       onChange={handleChange}
-                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-600 transition-all"
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-600 transition-all"
                     />
                   ) : (
                     college
@@ -430,7 +430,7 @@ const StudentProfilePage = () => {
                       onChange={handleChange}
                       className={`border border-gray-300 rounded px-2 py-1 ${
                         form?.department ? "mb-0" : "mb-2"
-                      } text-sm w-full focus:outline-none focus:border-indigo-500 transition-all`}
+                      } text-sm w-full focus:outline-none focus:border-green-500 transition-all`}
                     />
                   ) : (
                     department
@@ -443,7 +443,7 @@ const StudentProfilePage = () => {
                       placeholder="Technology"
                       value={form.technology}
                       onChange={handleChange}
-                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                      className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                     />
                   ) : (
                     technology
@@ -453,13 +453,13 @@ const StudentProfilePage = () => {
                   {skills?.slice(0, 4).map((skill, i) => (
                     <span
                       key={i}
-                      className="bg-green-500/20 backdrop-blur-sm text-green-500 px-3 py-1 capitalize rounded-full text-sm font-medium"
+                      className="bg-amber-100 backdrop-blur-sm text-amber-500 px-3 py-1 capitalize rounded-full text-sm font-medium"
                     >
                       {skill}
                     </span>
                   ))}
                   {skills?.length > 4 && (
-                    <span className="bg-white/20 backdrop-blur-sm text-green-500 px-3 py-1 rounded-full text-sm font-medium">
+                    <span className="bg-white/20 backdrop-blur-sm text-amber-500 px-3 py-1 rounded-full text-sm font-medium">
                       +{skills.length - 4} more
                     </span>
                   )}
@@ -534,7 +534,7 @@ const StudentProfilePage = () => {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <User className="w-5 h-5 text-indigo-600" />
+                <User className="w-5 h-5 text-amber-600" />
                 Personal Information
               </h2>
               <div className="space-y-4">
@@ -550,7 +550,7 @@ const StudentProfilePage = () => {
                         onChange={handleChange}
                         min={1}
                         max={6}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                       />
                     ) : (
                       yearOfStudy || "--"
@@ -573,7 +573,7 @@ const StudentProfilePage = () => {
                         name="phone"
                         value={form?.phone ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                       />
                     ) : (
                       phone || "--"
@@ -594,7 +594,7 @@ const StudentProfilePage = () => {
                             : ""
                         }
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                       />
                     ) : dateOfBirth ? (
                       new Date(dateOfBirth).toLocaleDateString("en-GB", {
@@ -617,7 +617,7 @@ const StudentProfilePage = () => {
                         name="address"
                         value={form?.address ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                       />
                     ) : (
                       address || "--"
@@ -634,7 +634,7 @@ const StudentProfilePage = () => {
                         name="guardianName"
                         value={form?.guardianName ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                       />
                     ) : (
                       guardianName || "--"
@@ -651,7 +651,7 @@ const StudentProfilePage = () => {
                         name="guardianphone"
                         value={form?.guardianphone ?? ""}
                         onChange={handleChange}
-                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-indigo-500 transition-all"
+                        className="border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:border-green-500 transition-all"
                       />
                     ) : (
                       guardianphone || "--"
@@ -662,7 +662,7 @@ const StudentProfilePage = () => {
             </div>
             <div className="bg-white rounded-2xl shadow-xl p-5">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Star className="w-5 h-5 text-indigo-600" />
+                <Star className="w-5 h-5 text-amber-600" />
                 Skills & Achievements
               </h2>
               <div className="space-y-4">
@@ -681,12 +681,12 @@ const StudentProfilePage = () => {
                             onChange={(e) =>
                               handleSkillChange(index, e.target.value)
                             }
-                            className="border border-gray-300 rounded px-2 py-1 text-sm mr-2 mb-2 focus:outline-none focus:border-indigo-500 transition-all"
+                            className="border border-gray-300 rounded px-2 py-1 text-sm mr-2 mb-2 focus:outline-none focus:border-green-500 transition-all"
                           />
                         ))}
                         <button
                           onClick={addSkill}
-                          className="text-indigo-600 text-sm hover:underline cursor-pointer"
+                          className="text-green-600 text-sm hover:underline cursor-pointer"
                         >
                         + Add Skill  
                         </button>
@@ -696,7 +696,7 @@ const StudentProfilePage = () => {
                         {skills?.map((skill, i) => (
                           <span
                             key={i}
-                            className="bg-indigo-100 text-indigo-800 capitalize px-3 py-1 rounded-full text-sm font-medium "
+                            className="bg-amber-100 text-amber-500 capitalize px-3 py-1 rounded-full text-sm font-medium "
                           >
                             {skill}     
                           </span>
@@ -720,12 +720,12 @@ const StudentProfilePage = () => {
                             onChange={(e) =>
                               handleAchievementChange(index, e.target.value)
                             }
-                            className="border border-gray-300 rounded px-2 py-1 text-sm w-full mb-2 focus:outline-none focus:border-indigo-500 transition-all"
+                            className="border border-gray-300 rounded px-2 py-1 text-sm w-full mb-2 focus:outline-none focus:border-green-500 transition-all"
                           />
                         ))}
                         <button
                           onClick={addAchievement}
-                          className="text-indigo-600 text-sm hover:underline cursor-pointer"
+                          className="text-green-600 text-sm hover:underline cursor-pointer"
                         >
                           + Add Achievement    
                         </button>
@@ -752,7 +752,7 @@ const StudentProfilePage = () => {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-indigo-600" />
+                <BarChart3 className="w-5 h-5 text-amber-600" />
                 Performance Overview
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -794,7 +794,7 @@ const StudentProfilePage = () => {
 
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-indigo-600" />
+                <BookOpen className="w-5 h-5 text-amber-600" />
                 Recent Examinations
               </h2>
               {recentExamsData.length === 0 && (
@@ -814,7 +814,7 @@ const StudentProfilePage = () => {
 
         <div className="bg-white shadow-xl rounded-2xl p-6 mt-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <KeyRound className="w-5 h-5 text-indigo-600" />
+            <KeyRound className="w-5 h-5 text-amber-600" />
             Account Information
           </h2>
 
@@ -905,7 +905,7 @@ const StatCard = ({ icon, title, value, subtitle, color }) => (
 
 const InfoItem = ({ icon, label, value }) => (
   <div className="flex items-start gap-3">
-    <div className="mt-1 text-indigo-600">{icon}</div>
+    <div className="mt-1 text-amber-600">{icon}</div>
     <div>
       <p className="text-sm font-medium text-gray-700">{label}</p>
       <p className="text-sm text-gray-600">{value}</p>

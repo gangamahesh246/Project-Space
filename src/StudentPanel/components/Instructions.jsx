@@ -38,8 +38,8 @@ const ExamInstructions = () => {
   };
 
   return (
-    <div className="max-w-full flex justify-center items-center sm:p-3 xl:p-10 bg-aliceblue shadow-md font-primary text-gray-800">
-      <div className="xl:w-[75%] p-5 bg-white shadow-lg rounded-lg">
+    <div className="max-w-full flex justify-center items-center sm:p-3 xl:p-10 bg-gray-100 shadow-md font-primary text-gray-800">
+      <div className="xl:w-[75%] p-5 bg-white shadow-lg rounded">
         <h2 className="text-2xl font-bold capitalize text-center mb-6 border-b-2 border-gray-300 pb-2">
           {instructions?.basicInfo?.title}
         </h2>
@@ -135,7 +135,7 @@ const ExamInstructions = () => {
         <div className="text-center mt-8">
           <button
             onClick={startExam}
-            className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition duration-300 cursor-pointer"
+            className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition duration-300 cursor-pointer"
           >
             Start Exam
           </button>

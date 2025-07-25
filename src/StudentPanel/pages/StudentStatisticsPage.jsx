@@ -96,8 +96,6 @@ const StudentStatisticsPage = () => {
     }
   ];
 
-  console.log(data)
-
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -135,7 +133,7 @@ const StudentStatisticsPage = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8">
           <div className="xl:col-span-2">
             {data?.performanceTrend &&
               Array.isArray(data.performanceTrend) &&
@@ -143,7 +141,7 @@ const StudentStatisticsPage = () => {
                 <LineChart
                   data={data.performanceTrend}
                   title="Performance Trend Over Time"
-                  color="#3B82F6"
+                  color="#FE9A00"
                 />
               )}
           </div>
@@ -161,7 +159,7 @@ const StudentStatisticsPage = () => {
               <BarChart
                 data={data?.scoreDistribution}
                 title="Score Distribution per Exam"
-                color="#10B981"
+                color="#C3E76D"
               />
             )}
           <div className="lg:col-span-2">
@@ -171,7 +169,7 @@ const StudentStatisticsPage = () => {
                 <BarChart
                   data={data?.timeVsDuration}
                   title="Time Taken vs Exam Duration"
-                  color="#8B5CF6"
+                  color="#FE9A00"
                   horizontal={true}
                   showPercentage={true}
                 />
@@ -179,11 +177,11 @@ const StudentStatisticsPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
+                <Calendar className="w-5 h-5 text-amber-500" />
                 <span>Upcoming Exams</span>
               </h3>
               <span className="text-sm text-gray-500">
@@ -197,7 +195,7 @@ const StudentStatisticsPage = () => {
             </div>
           </div>
 
-          <div className="h-fit bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="h-fit bg-white rounded-xl shadow-xl border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />

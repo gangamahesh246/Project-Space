@@ -258,7 +258,7 @@ const WebCamProctoring = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isReady, referenceDescriptor, cameraDisabled]);
+  }, [isReady, referenceDescriptor, cameraDisabled, onViolation]);
 
   const isLookingAway = (leftEye, rightEye) => {
     const eyeCenter = (eye) => {

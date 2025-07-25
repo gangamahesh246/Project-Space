@@ -127,7 +127,7 @@ const ExamPage = () => {
             </select>
           </div>
         </div>
-        <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-3 sm:px-4 md:px-30 xl:px-5 xl:pb-4 lg:px-35">
+        <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 bg-gray-100 items-center sm:gap-2 xl:gap-3 sm:px-4 md:px-30 xl:px-5 xl:pb-4 lg:px-35">
           {filteredExams?.map((item, i) => {
             return (
               <div

@@ -75,7 +75,7 @@ const Categories = () => {
               ${
                 isActive === cat
                   ? "bg-green-500 text-white border-green-500"
-                  : "bg-white text-gray-700 border-green-300 hover:bg-green-100"
+                  : "bg-white text-gray-700 border-green-500 hover:bg-green-100"
               }`}
             onClick={() => {
               setIsActive(cat);
@@ -337,7 +337,7 @@ const TimeSelector = ({ setIsOpen, time, setTime }) => {
     setIsOpen(false);
   };
   return (
-    <div className="absolute top-0 left-0 w-full h-full bg-black/30 backdrop-blur-[0.5px] flex justify-center items-center z-50 ">
+    <div className="absolute top-0 left-0 w-full h-full bg-black/30 backdrop-blur-[0.5px] flex justify-center items-center z-50">
       <div className="bg-white xl:w-140 rounded-md p-6 flex flex-col items-center sm:gap-2 xl:gap-4 shadow-lg">
         <div className="w-full flex justify-between items-center border-b-2 border-aliceblue">
           <p className="text-primary font-bold text-sm capitalize">

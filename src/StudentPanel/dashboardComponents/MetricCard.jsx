@@ -9,7 +9,7 @@ const MetricCard = ({
   trend
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100">
+    <div className="bg-white rounded-xl shadow-xl hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100">
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-lg ${bgColorClass}`}>
           <Icon className={`w-6 h-6 ${colorClass}`} />

@@ -59,26 +59,26 @@ const QuestionsPage = () => {
   }
 
   return (
-    <div className="w-full h-full bg-amber-100 flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
-      <div className={`${isOpen ? "md:w-15 md:transition-all md:duration-300" : "md:w-1/3 md:transition-all md:duration-300"} h-full bg-white flex flex-col gap-5 rounded-lg shadow-lg sm:p-2 md:p-5`}>
+    <div className="w-full h-full bg-gray-100 flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
+      <div className={`${isOpen ? "md:w-15 md:transition-all md:duration-300" : "md:w-1/3 md:transition-all md:duration-300"} h-full bg-white flex flex-col gap-5 sm:p-2 md:p-5`}>
         <div className="flex justify-between items-center">
-          <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold"}`}>Questions</p>
+          <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold text-gray-900"}`}>Questions</p>
           <p className="text-xl font-bold text-gray-500">
             <RiMenuFoldFill className="sm:hidden md:block cursor-pointer" onClick={() => setIsOpen(!isOpen)} />
           </p>
         </div>
-        <div className={`${isOpen ? "hidden" : "sm:w-25 md:w-full h-10 flex justify-around items-center border-1 border-gray-500 rounded-lg"}`}>
+        <div className={`${isOpen ? "hidden" : "sm:w-25 md:w-full h-10 flex items-center px-2 gap-13 border-1 border-gray-500 rounded-lg"}`}>
           <input
             type="text"
             placeholder="Search category"
-            className="sm:text-[12px] md:text-sm font-semibold outline-none pl-1"
+            className="sm:text-[12px] md:text-sm outline-none"
             value={searchCategory}
             onChange={(e) => setSearchCategory(e.target.value)}
           />
           <CiSearch color="green" className="md:mr-1" />
         </div>
         <div className={`${isOpen ? "hidden" : "flex justify-between items-center"}`}>
-          <p className="md:text-lg font-semibold underline flex justify-center items-center gap-1"><p className="sm:hidden md:block">Question</p> Categories</p>
+          <p className="md:text-lg font-semibold underline flex justify-center text-gray-900 items-center gap-1"><p className="sm:hidden md:block">Question</p> Categories</p>
           <p className="sm:hidden lg:block text-xl font-bold text-gray-500">
             <TiFolderAdd />
           </p>
@@ -88,12 +88,12 @@ const QuestionsPage = () => {
             className={`flex items-center text-[12px] font-semibold h-7 md:pl-5 gap-2 capitalize cursor-pointer
               ${
                 isActive === "all"
-                  ? "bg-green-100 text-green-500"
+                  ? "bg-amber-100 text-amber-500"
                   : "text-black"
               }`}
             onClick={() => setIsActive("all")}
           >
-            <FaFolderOpen size={18} className="text-green-500 cursor-pointer" />
+            <FaFolderOpen size={18} className="text-amber-500 cursor-pointer" />
             <p>all questions</p>
           </div>
           {categories
@@ -109,11 +109,11 @@ const QuestionsPage = () => {
                   className={`w-full flex items-center text-[12px] font-semibold h-7 md:pl-5 gap-2 capitalize cursor-pointer
                 ${
                   isActive === cat
-                    ? "bg-green-100 text-green-500"
+                    ? "bg-amber-100 text-amber-500"
                     : "text-black"
                 }`}
                 >
-                  <FaFolderOpen size={18} className="text-green-500" />
+                  <FaFolderOpen size={18} className="text-amber-500" />
                   <p>{cat}</p>
                 </div>
                   <MdOutlineDelete className="cursor-pointer hover:bg-red-100 p-[2px]" size={25} color="red" onClick={() => deleteCategory(cat)} />
@@ -122,7 +122,7 @@ const QuestionsPage = () => {
             })}
         </div>
       </div>
-      <div className="w-full h-full bg-white rounded-lg shadow-lg p-5 overflow-y-auto hide-scrollbar">
+      <div className="w-full h-full bg-white p-5 overflow-y-auto hide-scrollbar">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <button
@@ -135,9 +135,9 @@ const QuestionsPage = () => {
                   navigate("/admin/questions/add-question");
                 }
               }}
-              className="bg-green-500 sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-white"
+              className="bg-[#C3E76D] sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-gray-700"
             >
-              <GoPlus size={20}/> <p className="sm:hidden md:block">New question</p>
+              <GoPlus size={18}/> <p className="sm:hidden md:block">New question</p>
             </button>
             <button
               onClick={() => {
@@ -149,7 +149,7 @@ const QuestionsPage = () => {
                   navigate("/admin/questions/upload-questions");
                 }
               }}
-              className="border-1 border-green-500 sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-green-500"
+              className="border-1 border-[#C3E76D] sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-[#8ca84c] hover:bg-[#C3E76D] hover:text-gray-700"
             >
               <TbFileUpload size={20} /> <p className="sm:hidden xl:block">Upload questions</p>
             </button>
@@ -165,15 +165,15 @@ const QuestionsPage = () => {
             <CiSearch color="green" className="mr-3" />
           </div>
         </div>
-        <p className="text-sm font-semibold text-blue-500">
+        <p className="text-sm font-semibold text-amber-500">
           Questions count: {filteredQuestions.length}
         </p>
-        <div className="mt-5">
+        <div className="mt-1">
           {filteredQuestions.map((question, index) => {
             return (
               <div
                 key={index}
-                className="flex justify-between items-start text-sm font-semibold border-t-2 border-gray-200 text-gray-500 sm:p-1 md:p-3"
+                className="flex justify-between items-start text-sm font-semibold border-t-1 border-gray-300 text-gray-700 sm:p-1 md:p-3"
               >
                 <div className="flex flex-col gap-3 w-full">
                   <p>
@@ -192,7 +192,7 @@ const QuestionsPage = () => {
                   </p>
                 </div>
                 <p
-                  className="text-[12px] text-blue-500 ml-5 whitespace-nowrap"
+                  className="text-[12px] text-amber-500 ml-5 whitespace-nowrap"
                 >{question.marks} {question.marks > 1 ? "Points" : "Point"}
                 </p>
               </div>

@@ -31,7 +31,7 @@ import { logout } from "../slices/adminAuthSlice";
 
 let dashboardNavs = [
   { name: "dashboard", path: "/admin/dashboard", icon: <MdOutlineDashboard /> },
-  { name: "exam", path: "/admin/exam", icon: <MdOutlineAssignment /> },
+  { name: "exams", path: "/admin/exam", icon: <MdOutlineAssignment /> },
   { name: "questions", path: "/admin/questions", icon: <RiBookShelfLine /> },
   {
     name: "students",
@@ -159,12 +159,11 @@ const MainPanel = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        <div className={`w-full ${location.pathname === "/admin/dashboard" ? "p-5" : "p-0"} bg-amber-100`}>
-          {location.pathname === "/admin/dashboard" && (
-            <div className="w-full h-8 flex justify-between items-center">
+        <div className={`w-full bg-white`}>
+            <div className="w-full h-8 px-2 py-7 flex justify-between items-center border-b-1 border-gray-300">
               <div className="flex justify-center items-center gap-2">
                 <HiMenu
-                  className={`sm:block lg:hidden `}
+                  className={`${menu ? "sm:hidden" : "sm:block" } lg:hidden`}
                   size={25}
                   color="#008738"
                   onClick={() => {
@@ -190,7 +189,6 @@ const MainPanel = () => {
                 </p>
               </div>
             </div>
-          )}
 
           <div className="w-full h-full overflow-auto hide-scrollbar bg-[#fcf8de]">
             <Routes>

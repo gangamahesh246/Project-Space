@@ -87,67 +87,71 @@ const Test = () => {
 
   const MAX_VIOLATIONS = 2;
 
-  // useEffect(() => {
-  //   if (hasSubmitted || !antiCheating || Object.keys(antiCheating).length === 0)
-  //     return;
+  useEffect(() => {
+    if (hasSubmitted || !antiCheating || Object.keys(antiCheating).length === 0)
+      return;
 
-  //   preventCopyPaste();
-  //   blockRightClick(setViolations);
-  //   devToolsIntervalRef.current = detectDevTools(setViolations);
+    preventCopyPaste();
+    blockRightClick(setViolations);
+    devToolsIntervalRef.current = detectDevTools(setViolations);
 
-  //   let removeFullscreenListener;
+    let removeFullscreenListener;
 
-  //   if (antiCheating.forceFullscreen) {
-  //     goFullscreen();
+    if (antiCheating.forceFullscreen) {
+      goFullscreen();
 
-  //     const handleFullscreenChange = () => {
-  //       if (!document.fullscreenElement) {
-  //         setIsFullscreen(false);
-  //         setViolations((prev) => ({
-  //           ...prev,
-  //           fullscreenViolation: (prev.fullscreenViolation || 0) + 1,
-  //         }));
-  //         toast.warn("You exited fullscreen! Click to resume.");
-  //       } else {
-  //         setIsFullscreen(true);
-  //       }
-  //     };
+      const handleFullscreenChange = () => {
+        if (!document.fullscreenElement) {
+          setIsFullscreen(false);
+          setViolations((prev) => ({
+            ...prev,
+            fullscreenViolation: (prev.fullscreenViolation || 0) + 1,
+          }));
+          toast.warn("You exited fullscreen! Click to resume.");
+        } else {
+          setIsFullscreen(true);
+        }
+      };
 
-  //     document.addEventListener("fullscreenchange", handleFullscreenChange);
-  //     removeFullscreenListener = () => {
-  //       document.removeEventListener(
-  //         "fullscreenchange",
-  //         handleFullscreenChange
-  //       );
-  //     };
-  //   }
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+      removeFullscreenListener = () => {
+        document.removeEventListener(
+          "fullscreenchange",
+          handleFullscreenChange
+        );
+      };
+    }
 
-  //   if (antiCheating.webcam) {
-  //     setShowWebcamProctoring(true);
-  //   }
+    if (antiCheating.webcam) {
+      setShowWebcamProctoring(true);
+    }
 
-  //   if (antiCheating.switchingScreen > 0) {
-  //     tabSwitchListenerRef.current = monitorTabSwitch(setViolations);
-  //   }
+    if (antiCheating.switchingScreen > 0) {
+      tabSwitchListenerRef.current = monitorTabSwitch(setViolations);
+    }
 
-  //   if (violations.tabSwitchingViolation === antiCheating.switchingScreen) {
-  //     handleSubmit();
-  //   }
+    if (
+  antiCheating.switchingScreen &&
+  violations.tabSwitchingViolation === antiCheating.switchingScreen
+) {
+  handleSubmit();
+}
 
-  //   if (antiCheating.noiseDetection) {
-  //     enableMicStream(setMicStream, setViolations);
-  //   }
 
-  //   return () => {
-  //     if (removeFullscreenListener) removeFullscreenListener();
-  //     if (tabSwitchListenerRef.current) {
-  //       document.removeEventListener(
-  //         "visibilitychange",
-  //         tabSwitchListenerRef.current
-  //       );
-  //     }
-  //   };
-  // }, [antiCheating, hasSubmitted]);
+    if (antiCheating.noiseDetection) {
+      enableMicStream(setMicStream, setViolations);
+    }
+
+    return () => {
+      if (removeFullscreenListener) removeFullscreenListener();
+      if (tabSwitchListenerRef.current) {
+        document.removeEventListener(
+          "visibilitychange",
+          tabSwitchListenerRef.current
+        );
+      }
+    };
+  }, [antiCheating, hasSubmitted]);
 
   const cleanupSecurity = () => {
     if (micStream) {
@@ -238,7 +242,7 @@ const Test = () => {
     axiosStudent
       .get("/student/matchprofile", {
         params: {
-          userId: data.user.college_mail,
+          email: data.user.college_mail,
         },
       })
       .then((res) => setFullname(res.data[0].fullname))
@@ -480,11 +484,12 @@ const Test = () => {
   }
 
   return (
-    <div className="w-full bg-aliceblue fixed">
-      <div className="w-full h-fit bg-primary flex justify-between items-center p-3 ">
-        <div className="flex items-center gap-2 text-white">
-          <div className='w-40 h-10 bg-[url("/Qubee.png")] bg-cover bg-center sm:hidden xl:block' />
-          <p className="sm:hidden xl:block">ProctorQube - Online Assessment |</p> <p>{title}</p> 
+    <div className="w-full bg-gray-100 fixed">
+      <div className="w-full h-fit bg-[#C3E76D] flex justify-between items-center p-3 ">
+        <div className="flex items-center gap-1 text-gray-700">
+          <div className='w-10 h-10 bg-[url("/Qubee.png")] bg-cover bg-center sm:hidden xl:block' />
+          <p className="sm:hidden xl:block">ProctorQube - Online Assessment | </p>  
+          <p>{title}</p> 
           <p className="sm:hidden xl:block">
             {new Date(createdAt).toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -520,7 +525,7 @@ const Test = () => {
           </div>
         )}
 
-        <div className="flex items-center gap-5 text-white">
+        <div className="flex items-center gap-5 text-gray-700">
           {userAnswers?.length > 0 && examQuestions?.length > 0 && (
             <span className="text-sm font-medium">
               Answered:{" "}
@@ -543,7 +548,7 @@ const Test = () => {
               {formatTime(timeLeft)}
             </span>
           </div>
-          <div className="flex items-center gap-1 bg-[#122b3e] p-2">
+          <div className="flex items-center gap-1 border-2 border-gray-700 rounded p-2">
             <GoPerson size={25} />
             <span className="text-sm capitalize">{fullname}</span>
           </div>
@@ -581,7 +586,7 @@ const Test = () => {
         }}
         className="flex sm:flex-col sm:justify-around lg:flex-row lg:mt-5 sm:p-3 lg:justify-around"
       >
-        <div className="w-fit lg:h-[550px] sm:h-[300px] bg-white grid xl:grid-cols-3 xl:gap-7 sm:grid-cols-7 sm:gap-5 md:grid-cols-11 lg:grid-cols-3 p-5 shadow-md rounded-xl overflow-y-auto">
+        <div className="w-fit lg:h-[550px] sm:h-[300px] bg-white grid xl:grid-cols-3 xl:gap-7 sm:grid-cols-7 sm:gap-5 md:grid-cols-11 lg:grid-cols-3 p-5 shadow-sm rounded overflow-y-auto">
           {examQuestions.map((_, index) => {
             const answered =
               userAnswers[index] !== undefined &&
@@ -596,16 +601,16 @@ const Test = () => {
                 }}
                 className={`w-12 h-12 rounded-full cursor-pointer flex items-center justify-center border ${
                   currentIndex === index
-                    ? "bg-transparent border-gray-500"
+                    ? "bg-transparent border-yellow-400"
                     : answered
                     ? "bg-green-500 border-green-500"
-                    : "bg-gray-700 border-gray-500"
+                    : "bg-yellow-400 border-yellow-400"
                 }`}
               >
                 <span
                   className={
                     currentIndex === index
-                      ? "text-gray-500 font-semibold"
+                      ? "text-yellow-400 font-semibold"
                       : "text-red-100"
                   }
                 >
@@ -616,8 +621,8 @@ const Test = () => {
           })}
         </div>
 
-        <div className="lg:w-3/4 sm:mt-3 h-full">
-          <div className="lg:p-6 sm:p-3 sm:pl-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
+        <div className="lg:w-3/4 sm:mt-3 lg:mt-0 h-full">
+          <div className="lg:p-6 sm:p-3 sm:pl-6 max-w-4xl mx-auto bg-white rounded shadow-sm">
             <h2 className="text-xl font-semibold mb-2">
               Question {currentIndex + 1}:
             </h2>
@@ -677,7 +682,7 @@ const Test = () => {
               ) : (
                 <button
                   onClick={handleNext}
-                  className="bg-blue-600 focus:outline-none cursor-pointer text-white px-4 py-2 rounded hover:bg-blue-700"
+                  className="bg-amber-400 focus:outline-none cursor-pointer text-white px-4 py-2 rounded hover:bg-amber-500"
                 >
                   Next Question
                 </button>

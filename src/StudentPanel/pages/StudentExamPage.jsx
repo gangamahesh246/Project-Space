@@ -196,7 +196,7 @@ const StudentExamPage = () => {
   };
 
   return (
-    <div className="w-full h-full bg-aliceblue overflow-y-auto hide-scrollbar">
+    <div className="w-full h-full bg-gray-100 overflow-y-auto hide-scrollbar">
       <div className="w-full h-fit pb-2">
         <div className="w-full h-16 bg-white shadow-lg px-5 flex items-center justify-between">
           <input

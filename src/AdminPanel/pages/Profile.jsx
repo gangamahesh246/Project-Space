@@ -59,7 +59,6 @@ const Profile = () => {
       });
   }, []);
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -133,10 +132,10 @@ const Profile = () => {
   };
 
   return (
-    <div className="w-full h-fit bg-aliceblue sm:p-3 xl:p-10 flex justify-center items-center">
+    <div className="w-full h-fit bg-gray-100 sm:p-3 xl:p-10 flex justify-center items-center">
       <div className="sm:w-78 sm:p-5 md:w-145 xl:w-4/5 h-fit xl:mx-auto bg-white shadow-lg rounded-lg xl:p-8">
         <form>
-          <div
+          <label
             className="w-50 h-50 rounded-lg border-2 border-green-500 mb-6 ml-2 flex justify-center items-center cursor-pointer"
             style={{
               backgroundImage: `url(${encodeURI(PreviewImage || form.photo)})`,
@@ -144,8 +143,15 @@ const Profile = () => {
               backgroundPosition: "center",
             }}
           >
-          </div>
-          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleCoverChange(e)}
+              className="hidden"
+            />
+          </label>
+
+          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-green-500">
             Personal Information
           </h2>
 
@@ -217,7 +223,7 @@ const Profile = () => {
             className="w-full p-2 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
-          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
+          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-green-500">
             Institutional Info
           </h2>
 
@@ -253,7 +259,7 @@ const Profile = () => {
             className="w-full p-2 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary"
           />
 
-          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
+          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-green-500">
             Academic Qualifications
           </h2>
 
@@ -310,7 +316,7 @@ const Profile = () => {
             + Add another qualification
           </button>
 
-          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-secondary">
+          <h2 className="text-xl font-bold mb-6 border-l-4 pl-2 border-green-500">
             Account Info
           </h2>
 
@@ -330,7 +336,7 @@ const Profile = () => {
         <div className="flex justify-end">
           <button
             onClick={handleSubmit}
-            className="bg-green-500 p-2 rounded text-white cursor-pointer outline-none"
+            className="bg-green-500 px-4 py-1 rounded text-white cursor-pointer outline-none"
           >
             Save
           </button>
