@@ -69,8 +69,8 @@ const TakenList = () => {
   useEffect(() => {
     if (studentIds.length === 0 || !id) return;
 
-    axios
-      .get("http://localhost:3000/studentattempts", {
+    axiosInstance
+      .get("/studentattempts", {
         params: {
           student_id: studentIds,
           examId: id,
@@ -209,9 +209,9 @@ const Completed = ({ attempts, examId }) => {
     rank: item.lastAttemptStats.rank,
   }));
 
-  axios
-    .put("http://localhost:3000/rank", payload)
-    .then(() => console.log(""))
+  axiosStudent
+    .put("/rank", payload)
+    .then(() => console.log())
     .catch((err) => console.error("Failed to update ranks", err));
 }, [examId]);
 

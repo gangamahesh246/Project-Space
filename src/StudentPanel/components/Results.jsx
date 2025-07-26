@@ -1,10 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import { IoMdArrowRoundBack } from "react-icons/io";
 
 const Results = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     if (!state) {
@@ -14,24 +16,37 @@ const Results = () => {
 
   if (!state) return null;
 
-  const { score, questionResults, totalMarks, passMark, result } = state;
+  const { score, questionResults, totalMarks, passMark, result, show } = state;
+
+  useEffect(() => {
+    if (show) {
+      setShowResults(true);
+    }
+  }, [show]);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white">
-      <h2 className="text-2xl font-bold text-center mb-2">
-        Score: <span className="text-blue-600">{score}</span> / {totalMarks}
-      </h2>
-      <h3
-        className={`text-lg font-semibold text-center mb-6 ${
-          result === "Pass" ? "text-green-600" : "text-red-600"
-        }`}
-      >
-        {result} (Pass Mark: {passMark})
-      </h3>
+    <div className="h-full p-6 bg-gray-100">
+      {showResults ? (
+        <p></p>
+      ) : (
+        <>
+          <h2 className="text-2xl font-bold text-center mb-2">
+            Score: <span className="text-amber-500">{score}</span> /
+            {totalMarks}
+          </h2>
+          <h3
+            className={`text-lg font-semibold text-center mb-6 ${
+              result === "Pass" ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {result} (Pass Mark: {passMark})
+          </h3>
+        </>
+      )}
 
       <div className="space-y-6">
         {questionResults.map((q, index) => (
-          <div key={index} className={`rounded-xl p-4 shadow bg-white`}>
+          <div key={index} className={`rounded p-4 shadow bg-white`}>
             <h4 className="font-semibold mb-2">
               Q{index + 1}: {q.questionText}
             </h4>
@@ -68,10 +83,10 @@ const Results = () => {
       </div>
       <div className="flex justify-end">
         <button
-          onClick={() => navigate("/student/exam")}
+          onClick={() => navigate("/student/dashboard")}
           className="px-4 py-2 mt-5 cursor-pointer bg-green-500 rounded text-white flex items-center gap-2"
         >
-          <IoMdArrowRoundBack size={18} /> Back to exam page
+          <IoMdArrowRoundBack size={18} /> Back
         </button>
       </div>
     </div>

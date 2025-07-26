@@ -27,6 +27,7 @@ import StudentExamPage from "./pages/StudentExamPage";
 import StudentStatisticsPage from "./pages/StudentStatisticsPage";
 import StudentProfilePage from "./pages/StudentProfilePage";
 import InterviewQuestions from "./pages/InterviewQuestions";
+import PracticeTests from "./pages/PracticeTests";
 import ExamInstructions from "./components/Instructions";
 import Results from "./components/Results";
 
@@ -44,7 +45,7 @@ let dashboardNavs = [
   },
   {
     name: "practice tests",
-    path: "/student/practice",
+    path: "/student/practice-tests",
     icon: <MdAssignmentAdd />,
   },
   {
@@ -174,7 +175,7 @@ const StudentPanel = () => {
               animate={isSidebarAnimated ? { x: 0 } : false}
               exit={isSidebarAnimated ? { x: "-100%" } : false}
               transition={isSidebarAnimated ? { duration: 0.3 } : false}
-              className="w-[250px] h-full lg:relative lg:block lg:pt-5 bg-white p-4 flex flex-col border-r border-gray-300 shadow-md"
+              className="w-[250px] h-full lg:relative lg:block lg:pt-5 bg-white p-3 flex flex-col border-r border-gray-300 shadow-md"
               id="sidebar"
             >
               <div className="flex items-center">
@@ -320,19 +321,14 @@ const StudentPanel = () => {
                 <Route path="results" element={<Results />} />
               </Route>
 
-              <Route path="dashboard">
-                <Route index element={<StudentStatisticsPage />} />
-              </Route>
-
-              <Route path="interview-questions">
-                <Route index element={<InterviewQuestions />} />
-              </Route>
-
               <Route path="profile" element={<StudentProfilePage />} />
+              <Route path="dashboard" element={<StudentStatisticsPage />} />
+              <Route path="interview-questions" element={<InterviewQuestions />} />           
+              <Route path="practice-tests" element={<PracticeTests />} />           
 
               <Route
                 path="*"
-                element={<p className="text-red-500">Page Not Found</p>}
+                element={<p className="text-red-500 text-center p-4">Page Not Found</p>}
               />
             </Routes>
           </div>
