@@ -7,6 +7,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useRef } from "react";
 import socket from "../../utils/socket";
+import { Eye } from "lucide-react";
 
 const StudentExamPage = () => {
   const navigate = useNavigate();
@@ -252,7 +253,7 @@ const StudentExamPage = () => {
               No exams assigned
             </p>
           )}
-        {activeOrLateExams.length > 0 && (
+        {activeOrLateExams?.length > 0 && (
           <>
             <p className="text-gray-500 text-sm mt-4 font-semibold px-4">
               Active Exams
@@ -354,7 +355,7 @@ const StudentExamPage = () => {
               Upcoming / expired exams
             </p>
             <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
-              {inactiveExams.map((item, i) => (
+              {inactiveExams?.map((item, i) => (
                 <div
                   key={`upcoming-${i}`}
                   className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
@@ -427,7 +428,7 @@ const StudentExamPage = () => {
               Completed Exams
             </p>
             <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
-              {completedExams.map((item, i) => (
+              {completedExams?.map((item, i) => (
                 <div
                   key={`completed-${i}`}
                   className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
@@ -483,6 +484,14 @@ const StudentExamPage = () => {
                       <p className="text-sm text-gray-500">
                         Assigned by: {item.assignedBy}
                       </p>
+                      <button 
+                      onClick={() => navigate("/student/exam/rankbyexam", {
+                        state: { examId: item.examId._id}
+                      })}
+                      className="flex items-center space-x-1 cursor-pointer mt-1 bg-amber-100 text-amber-500 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors">
+                        <Eye className="w-4 h-4" />
+                        <span>View Results</span>
+                      </button>
                     </div>
                   </div>
                 </div>

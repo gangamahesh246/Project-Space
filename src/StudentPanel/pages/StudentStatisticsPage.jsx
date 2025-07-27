@@ -10,11 +10,13 @@ import DataTable from "../dashboardComponents/DataTable";
 import ExamCard from "../dashboardComponents/ExamCard";
 
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const StudentStatisticsPage = () => {
   const student = useSelector((state) => state.student.user);
 
   const [studentId, setStudentId] = useState(null);
+  const [technology, setTechnology] = useState("");
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -50,51 +52,86 @@ const StudentStatisticsPage = () => {
   }, [studentId]);
 
   const examHistoryColumns = [
-    { key: 'examName', label: 'Exam Name', sortable: true },
-    { key: 'date', label: 'Date', sortable: true },
-    { 
-      key: 'score', 
-      label: 'Score', 
+    { key: "examName", label: "Exam Name", sortable: true },
+    { key: "date", label: "Date", sortable: true },
+    {
+      key: "score",
+      label: "Score",
       sortable: true,
       render: (score) => (
         <div className="flex items-center space-x-2">
-          <span className={`font-semibold ${score >= 50 ? 'text-green-600' : score >= 30 ? 'text-yellow-600' : 'text-red-600'}`}>
+          <span
+            className={`font-semibold ${
+              score >= 50
+                ? "text-green-600"
+                : score >= 30
+                ? "text-yellow-600"
+                : "text-red-600"
+            }`}
+          >
             {score}
           </span>
         </div>
-      )
+      ),
     },
     {
-      key: 'status',
-      label: 'Status',
+      key: "status",
+      label: "Status",
       render: (status) => (
-        <span className={`px-2 py-1 capitalize rounded-full text-xs font-medium ${
-          status === 'pass' 
-            ? 'bg-green-100 text-green-800'
-            : status === 'fail'
-            ? 'bg-red-100 text-red-800'
-            : 'bg-yellow-100 text-yellow-800'
-        }`}>
+        <span
+          className={`px-2 py-1 capitalize rounded-full text-xs font-medium ${
+            status === "pass"
+              ? "bg-green-100 text-green-800"
+              : status === "fail"
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800"
+          }`}
+        >
           {status}
         </span>
-      )
+      ),
     },
-    { 
-      key: 'proctorAlerts', 
-      label: 'Proctoring Alerts',
+    {
+      key: "proctorAlerts",
+      label: "Proctoring Alerts",
       render: (alerts) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          alerts === 0 
-            ? 'bg-green-100 text-green-800'
-            : alerts <= 2
-            ? 'bg-yellow-100 text-yellow-800'
-            : 'bg-red-100 text-red-800'
-        }`}>
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            alerts === 0
+              ? "bg-green-100 text-green-800"
+              : alerts <= 2
+              ? "bg-yellow-100 text-yellow-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
           {alerts}
         </span>
-      )
-    }
+      ),
+    },
   ];
+
+  useEffect(() => {
+    if (!student.college_mail) return;
+
+    axiosStudent
+      .get("/student/gettechnology", {
+        params: { email: student.college_mail },
+      })
+      .then((res) => {
+        setTechnology(res.data.technology);
+      })
+      .catch((error) => {
+        console.error("Error:", error.response?.data || error.message);
+      });
+  }, [student.college_mail]);
+
+  useEffect(() => {
+    axiosStudent.post("/updateleaderboard", {
+      student_mail: student.college_mail,
+      technology: technology,
+      score: data?.examStats?.averageMarks,
+    })
+  }, [data?.examStats.averageMarks])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -125,7 +162,11 @@ const StudentStatisticsPage = () => {
           />
           <MetricCard
             title="Total Flags"
-            value={data?.violationDistribution?.map((val) => val.value).reduce((a, b) => a + b, 0) ?? 0}
+            value={
+              data?.violationDistribution
+                ?.map((val) => val.value)
+                .reduce((a, b) => a + b, 0) ?? 0
+            }
             icon={AlertTriangle}
             colorClass="text-red-600"
             bgColorClass="bg-red-100"
@@ -207,11 +248,11 @@ const StudentStatisticsPage = () => {
             </div>
             {data?.completedExams?.length > 0 ? (
               <div className="space-y-4">
-              {data?.completedExams?.map((exam) => (
-                <ExamCard key={exam.id} exam={exam} type="completed" />
-              ))}
-            </div>
-            ):(
+                {data?.completedExams?.map((exam) => (
+                  <ExamCard key={exam.id} exam={exam} type="completed" />
+                ))}
+              </div>
+            ) : (
               <p className="text-gray-500 text-center">
                 No completed exams yet.
               </p>
@@ -227,7 +268,6 @@ const StudentStatisticsPage = () => {
             searchable={true}
             filterable={true}
           />
-
         </div>
       </main>
     </div>

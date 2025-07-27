@@ -48,14 +48,14 @@ const UploadQuestions = () => {
             keys["optiond"],
           ],
           correct:
-            typeof keys["correctanswer"] === "string"
-              ? keys["correctanswer"].split(",").map((ans) => ans.trim())
-              : Array.isArray(keys["correctanswer"])
-              ? keys["correctanswer"]
-              : [keys["correctanswer"]],
+            typeof keys["correctoption"] === "string"
+              ? keys["correctoption"].split(",").map((ans) => ans.trim())
+              : Array.isArray(keys["correctoption"])
+              ? keys["correctoption"]
+              : [keys["correctoption"]],
 
-          multiple_response: Array.isArray(keys["correctanswer"])
-            ? keys["correctanswer"].length > 1
+          multiple_response: Array.isArray(keys["correctoption"])
+            ? keys["correctoption"].length > 1
             : false,
           marks: keys["marks"],
         };

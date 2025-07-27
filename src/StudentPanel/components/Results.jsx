@@ -17,6 +17,7 @@ const Results = () => {
   if (!state) return null;
 
   const { score, questionResults, totalMarks, passMark, result, show } = state;
+  console.log(questionResults)
 
   useEffect(() => {
     if (show) {

@@ -130,14 +130,6 @@ const Test = () => {
       tabSwitchListenerRef.current = monitorTabSwitch(setViolations);
     }
 
-    if (
-  antiCheating.switchingScreen &&
-  violations.tabSwitchingViolation === antiCheating.switchingScreen
-) {
-  handleSubmit();
-}
-
-
     if (antiCheating.noiseDetection) {
       enableMicStream(setMicStream, setViolations);
     }
@@ -152,6 +144,13 @@ const Test = () => {
       }
     };
   }, [antiCheating, hasSubmitted]);
+
+  if (
+    antiCheating.switchingScreen &&
+    violations.tabSwitchingViolation === antiCheating.switchingScreen
+  ) {
+    handleSubmit();
+  }
 
   const cleanupSecurity = () => {
     if (micStream) {
@@ -415,6 +414,7 @@ const Test = () => {
       ((results.passPercentage || 0) / 100) * totalMarks
     );
     const timeTaken = Math.floor((attemptEnd - new Date(attemptStart)) / 60000);
+    const totalViolations = Object.values(violations).reduce((sum, count) => sum + count, 0);
 
     const formData = new FormData();
     formData.append("examId", examId);
@@ -452,6 +452,15 @@ const Test = () => {
 
     try {
       const res = await axiosStudent.post("/student/complete", formData);
+      await axiosStudent.post("/updateLeaderBoardbyexam", {
+        examId,
+        student_mail: data.user.college_mail,
+        score,
+        correct,
+        incorrect,
+        violations: totalViolations,
+        totalMarks,
+      });
 
       cleanupSecurity();
       toast.success("Exam submitted successfully!");
@@ -471,7 +480,6 @@ const Test = () => {
       });
     } catch (err) {
       toast.error("Error submitting exam");
-      console.error(err);
     }
   };
 
@@ -488,8 +496,10 @@ const Test = () => {
       <div className="w-full h-fit bg-[#C3E76D] flex justify-between items-center p-3 ">
         <div className="flex items-center gap-1 text-gray-700">
           <div className='w-10 h-10 bg-[url("/Qubee.png")] bg-cover bg-center sm:hidden xl:block' />
-          <p className="sm:hidden xl:block">ProctorQube - Online Assessment | </p>  
-          <p>{title}</p> 
+          <p className="sm:hidden xl:block">
+            ProctorQube - Online Assessment |{" "}
+          </p>
+          <p>{title}</p>
           <p className="sm:hidden xl:block">
             {new Date(createdAt).toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -611,7 +621,7 @@ const Test = () => {
                   className={
                     currentIndex === index
                       ? "text-yellow-400 font-semibold"
-                      : "text-red-100"
+                      : "text-white"
                   }
                 >
                   {index + 1}

@@ -755,6 +755,14 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
           className="w-full h-10 mt-5 border-1 border-secondary text-sm font-bold text-center pt-2 cursor-pointer text-[#00C951] hover:bg-green-500 hover:text-white transition-all duration-200 "
           onClick={() => {
             const { from, to } = settings.availability.timeLimitDays;
+            const { examTime, questionTime } = settings.answerTimeControl;
+
+            if (!examTime && !questionTime) {
+              toast.error(
+                "At least one of 'examTime' or 'questionTime' is required."
+              );
+              return;
+            }
 
             if (!from || !to) {
               toast.error("Both 'From' and 'To' dates are required.");

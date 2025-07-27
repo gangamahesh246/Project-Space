@@ -169,8 +169,8 @@ const Preview = ({ setIsOpen, data, coverFile }) => {
             {data.settings?.antiCheating?.webcam ? "Yes" : "No"}
           </p>
           <p>
-            <strong>Copy-Paste Prevention:</strong>{" "}
-            {data.settings?.antiCheating?.copyPastePrevention ? "Yes" : "No"}
+            <strong>Noice Detection:</strong>{" "}
+            {data.settings?.antiCheating?.noiseDetection ? "Yes" : "No"}
           </p>
           <p>
             <strong>Screen Switch Allowed:</strong>{" "}
@@ -178,31 +178,10 @@ const Preview = ({ setIsOpen, data, coverFile }) => {
           </p>
         </div>
         <div className="mt-4 space-y-2">
-          <h3 className="text-lg font-semibold text-gray-800">Auto Submit</h3>
-          <p>
-            <strong>Auto Submit at End:</strong>{" "}
-            {data.settings?.autoSubmit?.autoSubmitAtEnd ? "Yes" : "No"}
-          </p>
-          <p>
-            <strong>Disable Auto Submit:</strong>{" "}
-            {data.settings?.autoSubmit?.disableAutoSubmit ? "Yes" : "No"}
-          </p>
-        </div>
-        <div className="mt-4 space-y-2">
           <h3 className="text-lg font-semibold text-gray-800">Results</h3>
           <p>
             <strong>Display Score:</strong>{" "}
             {data.settings?.results?.displayScore?.enabled ? "Yes" : "No"}
-          </p>
-          <p>
-            <strong>Show Ranking List:</strong>{" "}
-            {data.settings?.results?.displayScore?.showRankingList
-              ? "Yes"
-              : "No"}
-          </p>
-          <p>
-            <strong>Total Points:</strong>{" "}
-            {data.settings?.results?.displayScore?.totalPoints}
           </p>
           <p>
             <strong>Pass Percentage:</strong>{" "}
@@ -236,10 +215,6 @@ const Preview = ({ setIsOpen, data, coverFile }) => {
           <p>
             <strong>Late Time Allowed (mins):</strong>{" "}
             {data.settings?.availability?.lateTime}
-          </p>
-          <p>
-            <strong>Permanent:</strong>{" "}
-            {data.settings?.availability?.permanent ? "Yes" : "No"}
           </p>
         </div>
         <div className="mt-4 space-y-2">

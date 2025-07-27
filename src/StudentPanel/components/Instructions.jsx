@@ -85,7 +85,7 @@ const ExamInstructions = () => {
         </p>
 
         <div className="mb-6 text-[15px]">
-          <h3 className="text-lg font-semibold mb-2">Marks</h3>
+          <h3 className="text-lg font-semibold mb-1">Marks</h3>
           <p>
             <strong>Negative marking: </strong>{" "}
             {instructions?.settings?.results?.displayScore?.negativeMarking}

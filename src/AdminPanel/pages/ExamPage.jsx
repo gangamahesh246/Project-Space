@@ -99,7 +99,7 @@ const ExamPage = () => {
 
   return (
     <div className="w-full h-full bg-white flex gap-5 overflow-y-auto hide-scrollbar">
-      <div className="w-full h-full">
+      <div className="w-full h-fit pb-15">
         <div className="w-full h-16 bg-white shadow-lg flex items-center justify-between px-4">
           <button
             className="bg-[#C3E76D] px-2 py-3 rounded-sm text-sm flex items-center gap-1 cursor-pointer text-gray-700"

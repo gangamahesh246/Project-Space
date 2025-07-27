@@ -42,30 +42,30 @@ const PracticeTests = () => {
   }, [student.college_mail]);
 
   useEffect(() => {
-  if (!technology) return;
+    if (!technology) return;
 
-  axiosStudent
-    .get("/practice-tests", {
-      params: { technology },
-    })
-    .then((res) => {
-      const allQuestions = res.data[0]?.questions || [];
+    axiosStudent
+      .get("/practice-tests", {
+        params: { technology },
+      })
+      .then((res) => {
+        const allQuestions = res.data[0]?.questions || [];
 
-      if (allQuestions.length === 0) {
-        toast.info("No practice tests available for this technology.");
-        return;
-      }
+        if (allQuestions.length === 0) {
+          toast.info("No practice tests available for this technology.");
+          return;
+        }
 
-      const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 15);
+        const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 15);
 
-      setPracticeTests(selected);
-      console.log("Selected 15 Practice Questions:", selected);
-    })
-    .catch((err) => {
-      console.error("Error fetching practice tests:", err);
-    });
-}, [technology]);
+        setPracticeTests(selected);
+        console.log("Selected 15 Practice Questions:", selected);
+      })
+      .catch((err) => {
+        console.error("Error fetching practice tests:", err);
+      });
+  }, [technology]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -123,54 +123,65 @@ const PracticeTests = () => {
     updated[qIndex] = Array.isArray(updated[qIndex]) ? [] : undefined;
     setUserAnswers(updated);
   };
-
+ 
   const handleSubmit = () => {
-    const questionResults = userAnswers.map((answer, qIndex) => {
-      const question = PracticeTests[qIndex];
-      const options = question.options;
+    const questionResults = [];
 
-      const correctTextArray = Array.isArray(question.correctAnswer)
-        ? question.correctAnswer
-        : [question.correctAnswer];
+    for (let i = 0; i < PracticeTests.length; i++) {
+      const question = PracticeTests[i];
 
-      const correctIndices = correctTextArray
-        .map((text) => options.indexOf(text))
-        .filter((i) => i !== -1); 
+      const normalizedAnswers = userAnswers.map((ans) => {
+        if (Array.isArray(ans)) return ans;
+        return ans != null ? [ans] : [];
+      });
 
-      const selectedIndices = Array.isArray(answer) ? answer : [answer];
+      const answer = normalizedAnswers[i];
+      if (!answer || answer.length === 0) continue;
 
-      const indexToLetter = (i) => String.fromCharCode(65 + i);
+      const selectedOptions = Array.isArray(answer)
+        ? answer.map((index) => String.fromCharCode(65 + index))
+        : [String.fromCharCode(65 + answer)];
 
-      const selectedAnswers = selectedIndices.map(indexToLetter);
-      const correctAnswers = correctIndices.map(indexToLetter);
+      const normalize = (arr) =>
+        arr.map((val) => String(val).trim().toUpperCase()).sort();
+
+      const correctArray = question.correctAnswer || []; 
+      const correctOptions = correctArray.map((optIndex) =>
+        String.fromCharCode(65 + optIndex)
+      );
+
+      const sortedCorrect = normalize(correctOptions);
+      const sortedAnswer = normalize(selectedOptions);
 
       const isCorrect =
-        selectedIndices.length === correctIndices.length &&
-        selectedIndices.every((a) => correctIndices.includes(a));
+        JSON.stringify(sortedCorrect) === JSON.stringify(sortedAnswer);
 
-      return {
+      questionResults.push({
         questionText: question.question,
-        options,
-        selectedAnswers,
-        correctAnswers,
+        options: question.options,
+        correctAnswers: sortedCorrect,
+        selectedAnswers: sortedAnswer,
         isCorrect,
-      };
-    });
+      });
+    }
 
-    const show = true;
-    console.log("Evaluation Results:", questionResults);
+    console.log("Practice Test Results:", questionResults);
+    toast.success("Practice submission complete! Check console for results.");
     navigate("/student/exam/results", {
-      state: { questionResults, show },
+      state: {
+        questionResults,
+        show: true,
+      },
     });
   };
 
   return (
-    <div className="p-6 rounded shadow">
+    <div className="p-6">
       <h1 className="text-2xl text-amber-500 font-bold mb-4">
         Practice Questions
       </h1>
 
-      {PracticeTests.map((question, index) => {
+      {PracticeTests?.map((question, index) => {
         const isMultipleCorrect = question.correctAnswer.length > 1;
         return (
           <div key={index} className="mb-6 border-b border-gray-300 pb-4">
@@ -217,12 +228,14 @@ const PracticeTests = () => {
         );
       })}
 
+      {PracticeTests && 
       <button
         onClick={handleSubmit}
         className="bg-amber-400 hover:bg-amber-500 cursor-pointer focus:outline-none text-white font-semibold px-4 py-2 rounded"
       >
         Submit
       </button>
+      }      
     </div>
   );
 };

@@ -26,6 +26,7 @@ import AddStudent from "./Components/StudentPage/AddStudent";
 import UploadStudents from "./Components/StudentPage/UploadStudents";
 import StudentPersonalDetails from "./Components/StudentPage/StudentPersonalDetails";
 import Profile from "./pages/Profile";
+import More from "./pages/More";
 import axiosInstance from "../utils/axiosInstance";
 import { logout } from "../slices/adminAuthSlice";
 
@@ -159,7 +160,7 @@ const MainPanel = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        <div className={`w-full bg-white`}>
+        <div className="w-full h-full bg-white">
             <div className="w-full h-8 px-2 py-7 flex justify-between items-center border-b-1 border-gray-300">
               <div className="flex justify-center items-center gap-2">
                 <HiMenu
@@ -190,7 +191,7 @@ const MainPanel = () => {
               </div>
             </div>
 
-          <div className="w-full h-full overflow-auto hide-scrollbar bg-[#fcf8de]">
+          <div className="w-full h-full overflow-auto hide-scrollbar bg-gray-100">
             <Routes>
               <Route index element={<DashBoard />} />
               <Route path="dashboard" element={<DashBoard />} />
@@ -222,6 +223,7 @@ const MainPanel = () => {
                 />
               </Route>
 
+              <Route path="more" element={<More />} />
               <Route path="profile" element={<Profile />} />
               <Route
                 path="*"

@@ -30,6 +30,8 @@ import InterviewQuestions from "./pages/InterviewQuestions";
 import PracticeTests from "./pages/PracticeTests";
 import ExamInstructions from "./components/Instructions";
 import Results from "./components/Results";
+import LeaderBoard from "./pages/LeaderBoard";
+import RankByExam from "./components/RankByExam";
 
 let dashboardNavs = [
   {
@@ -73,8 +75,8 @@ const StudentPanel = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    if (data?.user?.student_id) {
-      socket.emit("registerStudent", data.user.student_id);
+    if (data?.user?.college_mail) {
+      socket.emit("registerStudent", data.user.college_mail);
     }
 
     const handleExamAssigned = (examData, assignedBy) => {
@@ -87,37 +89,19 @@ const StudentPanel = () => {
         {
           type: "assigned",
           title: examData.basicInfo.title,
-          category: examData.basicInfo.category,
-          coverPreview: examData.basicInfo.coverPreview,
           assignedBy: assignedBy || "Admin",
           timeFrom: examData.settings.availability.timeLimitDays.from,
           timeTo: examData.settings.availability.timeLimitDays.to,
           hourFrom: examData.settings.availability.timeLimitHours.from,
           hourTo: examData.settings.availability.timeLimitHours.to,
-          timestamp: new Date().toISOString(),
-        },
-      ]);
-    };
-
-    const handleExamDeleted = ({ examId }) => {
-      toast.warning("An exam was deleted from your list.");
-      const audio = new Audio("/sounds/notification.mp3");
-      audio.play();
-      setNotificationCount((prev) => prev + 1);
-      setNotifications((prev) => [
-        ...prev,
-        {
-          type: "deleted",
         },
       ]);
     };
 
     socket.on("examAssigned", handleExamAssigned);
-    socket.on("examDeleted", handleExamDeleted);
 
     return () => {
       socket.off("examAssigned", handleExamAssigned);
-      socket.off("examDeleted", handleExamDeleted);
     };
   }, [data?.user?.college_mail]);
 
@@ -276,20 +260,12 @@ const StudentPanel = () => {
                         key={idx}
                         className="flex items-center gap-3 p-3 border-b border-gray-300"
                       >
-                        {notif.coverPreview ? (
-                          <img
-                            src={`http://localhost:3000/public${notif.coverPreview}`}
-                            alt="Cover"
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 flex items-center justify-center bg-red-200 text-gray-600 rounded">
-                            <MdOutlineDelete />
-                          </div>
-                        )}
                         <div className="flex justify-center items-center">
                           <p className="text-sm font-semibold capitalize text-primary">
                             Title: {notif.title}
+                          </p>
+                          <p className="text-sm font-semibold capitalize text-primary">
+                            Title: {notif.assignedBy}
                           </p>
                         </div>
                       </div>
@@ -319,12 +295,14 @@ const StudentPanel = () => {
                 <Route index element={<StudentExamPage />} />
                 <Route path="instructions" element={<ExamInstructions />} />
                 <Route path="results" element={<Results />} />
+                <Route path="rankbyexam" element={<RankByExam />} />
               </Route>
 
               <Route path="profile" element={<StudentProfilePage />} />
               <Route path="dashboard" element={<StudentStatisticsPage />} />
               <Route path="interview-questions" element={<InterviewQuestions />} />           
               <Route path="practice-tests" element={<PracticeTests />} />           
+              <Route path="leaderboard" element={<LeaderBoard />} />           
 
               <Route
                 path="*"

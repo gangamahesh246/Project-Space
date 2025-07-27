@@ -172,11 +172,11 @@ const AddQuestions = ({ setActiveTab }) => {
             keys["optiond"],
           ],
           correct:
-            typeof keys["correctanswer"] === "string"
-              ? keys["correctanswer"].split(",").map((ans) => ans.trim())
-              : Array.isArray(keys["correctanswer"])
-              ? keys["correctanswer"]
-              : [keys["correctanswer"]],
+            typeof keys["correctoption"] === "string"
+              ? keys["correctoption"].split(",").map((ans) => ans.trim())
+              : Array.isArray(keys["correctoption"])
+              ? keys["correctoption"]
+              : [keys["correctoption"]],
           marks: keys["marks"],
         };
       });
