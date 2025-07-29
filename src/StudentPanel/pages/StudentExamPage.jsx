@@ -162,6 +162,8 @@ const StudentExamPage = () => {
     }
   }, [studentId]);
 
+  console.log(exams);
+
   const filteredExams = exams.filter((e) => {
     const matchesStatus = status === "all status" || e.status === status;
     const matchesTitle = e.examId?.basicInfo?.title

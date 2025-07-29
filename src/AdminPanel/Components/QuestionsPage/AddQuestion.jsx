@@ -3,9 +3,11 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
-
+import { useSelector } from "react-redux";
 
 const AddQuestion = () => {
+  const faculty = useSelector((state) => state.login.user);
+
   const location = useLocation();
   const selectcategory = location.state?.selectedCategory || "";
   const [category, setCategory] = useState(selectcategory);
@@ -35,52 +37,49 @@ const AddQuestion = () => {
   };
 
   const handleAddQuestion = async () => {
-    const correct =
-      multipleResponse && Array.isArray(correctAnswers)
-        ? [...correctAnswers]
-        : [correctAnswers?.[0] || ""];
+  const correct =
+    multipleResponse && Array.isArray(correctAnswers)
+      ? [...correctAnswers]
+      : [correctAnswers?.[0] || ""];
 
-    const isValid = correct.every(
-      (ans) =>
-        typeof ans === "string" &&
-        ["A", "B", "C", "D"].includes(ans.trim().toUpperCase())
-    );
+  const isValid = correct.every(
+    (ans) =>
+      typeof ans === "string" &&
+      ["A", "B", "C", "D"].includes(ans.trim().toUpperCase())
+  );
 
-    if (!isValid) {
-      toast.info("Please select valid correct answers");
-      return;
-    }
+  if (!isValid) {
+    toast.info("Please select valid correct answers (A, B, C, or D)");
+    return;
+  }
 
-    const newQuestion = {
-      question,
-      options,
-      correct,
-      marks: parseInt(marks),
-      multiple_response: multipleResponse,
-    };
+  const newQuestion = {
+    question,
+    options,
+    correct: correct.map((ans) => ans.trim().toUpperCase()),
+    marks: parseInt(marks),
+    multiple_response: multipleResponse,
+  };
 
-    const newQuestionData = {
-      category,
-      questions: [newQuestion],
-    };
+  try {
+    const res = await axiosInstance.post("/uploadquestions", {
+      faculty_id: faculty._id,
+      category: category,
+      questions: [newQuestion], 
+    });
 
-    try {
-      const res = await axiosInstance.post(
-        "/uploadquestions",
-        newQuestionData
-      );
-      toast.success(res.data.message);
+    toast.success(res.data.message);
 
-      setQuestion("");
-      setOptions(["", "", "", ""]);
-      setCorrectAnswers([""]);
-      setCorrectCount(1);
-      setMarks(1);
-      setMultipleResponse(false);
-    } catch (error) {
-      toast.error(error?.response?.data?.message || error.message);
-    }
-  };
+    setQuestion("");
+    setOptions(["", "", "", ""]);
+    setCorrectAnswers([""]);
+    setCorrectCount(1);
+    setMarks(1);
+    setMultipleResponse(false);
+  } catch (error) {
+    toast.error(error?.response?.data?.message || error.message);
+  }
+};
 
   return (
     <div className="w-full h-fit bg-white sm:p-3 xl:p-10 flex justify-center items-center">
@@ -202,7 +201,7 @@ const AddQuestion = () => {
         <div className="flex justify-end">
           <button
             onClick={handleAddQuestion}
-            className="text-white px-4 py-2 rounded-lg bg-green-500 cursor-pointer"
+            className="text-white px-4 py-2 rounded-lg bg-green-500 cursor-pointer focus:outline-none"
           >
             Add Question
           </button>

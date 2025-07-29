@@ -12,7 +12,10 @@ import axiosInstance from "../../../utils/axiosInstance";
 const PreSelected = ({ handleFileUpload, handleLocalExcelDownload, file }) => (
   <div className="p-4 xl:h-5/6 flex flex-col items-center justify-center gap-2">
     <div className="w-full flex justify-end">
-      <Download onClick={handleLocalExcelDownload} className="w-9 h-9 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer" />
+      <Download
+        onClick={handleLocalExcelDownload}
+        className="w-9 h-9 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer"
+      />
     </div>
 
     <RiFileExcel2Fill size={100} color="#00C951" />
@@ -41,6 +44,8 @@ const PreSelected = ({ handleFileUpload, handleLocalExcelDownload, file }) => (
   </div>
 );
 const Categories = () => {
+  const admin = useSelector((state) => state.login.user._id);
+  
   const dispatch = useDispatch();
   const [qquestions, setQQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -48,7 +53,11 @@ const Categories = () => {
 
   useEffect(() => {
     axiosInstance
-      .get("/getquestions")
+      .get("/getquestions", {
+        params: {
+          faculty_id: admin,
+        },
+      })
       .then((response) => {
         setQQuestions(response.data);
         const allCats = [...new Set(response.data.map((q) => q.category))];
@@ -136,7 +145,7 @@ const AddQuestions = ({ setActiveTab }) => {
 
   const handleLocalExcelDownload = () => {
     const link = document.createElement("a");
-    link.href = "/assets/Questions_Format.xlsx"; 
+    link.href = "/assets/Questions_Format.xlsx";
     link.setAttribute("download", "Questions_Format.xlsx");
     document.body.appendChild(link);
     link.click();
@@ -244,7 +253,11 @@ const AddQuestions = ({ setActiveTab }) => {
         </div>
         <div className="w-full xl:h-98.5 overflow-y-auto">
           {isActive === "PreSelected" ? (
-            <PreSelected handleFileUpload={handleFileUpload} handleLocalExcelDownload={handleLocalExcelDownload} file={file} />
+            <PreSelected
+              handleFileUpload={handleFileUpload}
+              handleLocalExcelDownload={handleLocalExcelDownload}
+              file={file}
+            />
           ) : (
             <Categories />
           )}

@@ -47,6 +47,7 @@ const Finish = ({ coverFile }) => {
 
       formData.append("questions", JSON.stringify(data.questions));
       formData.append("settings", JSON.stringify(data.settings));
+      formData.append("faculty_id", admin.user._id);
 
       const response = await axiosInstance.post("/postexam", formData, {
         headers: {

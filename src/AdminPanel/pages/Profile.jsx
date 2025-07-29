@@ -55,7 +55,7 @@ const Profile = () => {
         });
       })
       .catch((err) => {
-        toast.error("Error fetching profile:", err);
+        toast.info("create profile first");
       });
   }, []);
 

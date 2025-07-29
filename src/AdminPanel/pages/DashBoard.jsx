@@ -25,9 +25,13 @@ import {
   studentPerformanceData,
   cheatingFlagsData
 } from '../../AdminPanel/data/mockData';
+import { useSelector } from 'react-redux';
 
 
 const DashBoard = () => {
+  const admin = useSelector((state) => state.login.user._id);
+  console.log(admin);
+
   const examActivityColumns = [
     { key: 'examName', label: 'Exam Name', sortable: true },
     { key: 'faculty', label: 'Faculty', sortable: true },

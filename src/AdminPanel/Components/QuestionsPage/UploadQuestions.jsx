@@ -7,8 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { Download } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
+import { useSelector } from "react-redux";
 
 const UploadQuestions = () => {
+  const faculty = useSelector((state) => state.login.user);
+
   const location = useLocation();
   const selectcategory = location.state?.selectedCategory || "";
   const navigate = useNavigate();
@@ -63,6 +66,7 @@ const UploadQuestions = () => {
 
       try {
         const response = await axiosInstance.post("/uploadquestions", {
+          faculty_id: faculty._id,
           category,
           questions: formattedQuestions,
         });
@@ -131,7 +135,7 @@ const UploadQuestions = () => {
           <input
             id="fileInput"
             type="file"
-            accept=".xlsx, .xls"
+            accept=".xlsx, .xls, .csv"
             className="hidden"
             onChange={handleFileUpload}
           />

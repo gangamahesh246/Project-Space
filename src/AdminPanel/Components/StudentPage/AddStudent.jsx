@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
+import { useSelector } from "react-redux";
 
 const AddStudent = () => {
+  const admin = useSelector((state) => state.login.user._id);
+
   const location = useLocation();
   const { selectedTechnology = "" } = location.state || {};
 
@@ -17,12 +20,12 @@ const AddStudent = () => {
     }
 
     try {
-      const studentData = {
-        technology,
-        student_mail: email,
-      };
 
-      const res = await axiosInstance.post("/uploadstudent", studentData);
+      const res = await axiosInstance.post("/uploadstudent", {
+        faculty_id: admin,
+        technology: technology,
+        student_mail: email,
+      });
 
       toast.success(res.data.message);
       setEmail("");

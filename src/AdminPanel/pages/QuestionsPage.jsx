@@ -10,8 +10,11 @@ import { useNavigate } from "react-router-dom";
 import { MdOutlineDelete } from "react-icons/md";
 import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosInstance";
+import { useSelector } from "react-redux";
 
 const QuestionsPage = () => {
+  const admin = useSelector((state) => state.login.user._id);
+
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [isActive, setIsActive] = useState("all");
@@ -21,17 +24,23 @@ const QuestionsPage = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    axiosInstance
-      .get("/getquestions")
-      .then((response) => {
-        setQuestions(response.data);
-        const allCats = [...new Set(response.data.map((q) => q.category))];
-        setCategories(allCats);
-      })
-      .catch((error) => {
-        toast.error(error?.response?.data?.message || error.message);
-      });
-  }, [questions]);
+  axiosInstance
+    .get("/getquestions", {
+      params: {
+        faculty_id: admin, 
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+      setQuestions(response.data);
+      const allCats = [...new Set(response.data.map((q) => q.category))];
+      setCategories(allCats);
+    })
+    .catch((error) => {
+      toast.error(error?.response?.data?.message || error.message);
+    });
+}, []); 
+
 
   const filteredQuestions = (
     isActive === "all"
@@ -45,7 +54,10 @@ const QuestionsPage = () => {
 
   const deleteCategory = (category) => {
     axiosInstance
-      .delete('/deletecategory', { data: { category } })
+      .delete('/deletecategory', { data: { 
+        faculty_id: admin,
+        category: category
+      } })
       .then((response) => {
         toast.success(response.data.message);
         setQuestions((prevQuestions) =>
@@ -184,7 +196,7 @@ const QuestionsPage = () => {
                       {String.fromCharCode(65 + idx)}. {option}
                     </p>
                   ))}
-                  <p className="flex gap-1">
+                  <p className="flex gap-1 capitalize">
                     Correct Answer:
                     {question.correct.map((c, i) => (
                       <span key={i}>{c}</span>

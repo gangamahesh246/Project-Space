@@ -172,7 +172,7 @@ const MainPanel = () => {
                   }}
                 />
                 <p className="font_primary font-bold capitalize text-[#008738]">
-                  Hello, {profile.fullName}!🖐️
+                  Hello, {profile?.fullName}!🖐️
                 </p>
               </div>
               <div className="flex justify-center items-center gap-2">
@@ -181,12 +181,12 @@ const MainPanel = () => {
                   onClick={() => navigate("/admin/profile")}
                   className="w-10 h-10 rounded-full bg-no-repeat bg-cover border-2 border-[#008738] cursor-pointer"
                   style={{
-                    backgroundImage: `url(${encodeURI(profile.photo)})`,
+                    backgroundImage: `url(${encodeURI(profile?.photo)})`,
                   }}
                   alt="profile"
                 ></div>
                 <p className="font_primary capitalize font-semibold text-sm text-[#008738]">
-                  {profile.fullName}
+                  {profile?.fullName}
                 </p>
               </div>
             </div>

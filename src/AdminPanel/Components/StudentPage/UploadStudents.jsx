@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
-import { useLocation, useNavigate } from "react-router-dom";
+import { data, useLocation, useNavigate } from "react-router-dom";
 import { TbFileUpload } from "react-icons/tb";
 import { Download } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
+import { useSelector } from "react-redux";
 
 const UploadStudents = () => {
+  const admin = useSelector((state) => state.login.user._id);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedTechnology = "" } = location.state || {};
@@ -42,13 +45,16 @@ const UploadStudents = () => {
 
       try {
         const response = await axiosInstance.post("/uploadstudents", {
-          technology,
-          students: emails,
+          data: {
+            faculty_id: admin,
+            technology: technology,
+            students: emails
+          } 
         });
 
         if (response.status === 201) {
           toast.success(
-            `✅ ${response.data.added} added, ❌ ${response.data.skipped} skipped`
+            `${response.data.added} added, ${response.data.skipped} skipped`
           );
         } else {
           toast.info(response.data.message);

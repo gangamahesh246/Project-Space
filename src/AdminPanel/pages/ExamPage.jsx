@@ -11,8 +11,10 @@ import { useNavigate } from "react-router-dom";
 import { LuExternalLink } from "react-icons/lu";
 import { toast } from "react-toastify";
 import socket from "../../utils/socket";
+import { useSelector } from "react-redux";
 
 const ExamPage = () => {
+  const admin = useSelector((state) => state.login.user._id);
   const navigate = useNavigate();
   const [status, setStatus] = useState("all status");
   const [exam, setExam] = useState([]);
@@ -21,57 +23,53 @@ const ExamPage = () => {
   const [search, setSearch] = useState("");
 
   const fetchExams = () => {
-    axiosInstance
-      .get("/getexam")
-      .then((res) => {
-        const updatedExams = res.data?.map((exam) => {
-          const availability = exam?.settings?.availability || {};
-          const { timeLimitDays = {}, timeLimitHours = {} } = availability;
+  axiosInstance
+    .get("/getexam", {
+      params: { faculty_id: admin },
+    })
+    .then((res) => {
+      const updatedExams = res.data?.map((exam) => {
+        const now = new Date();
 
-          const now = new Date();
-          const { from, to } = timeLimitDays;
-          const { from: timeFrom, to: timeTo } = timeLimitHours;
+        const fromDate = exam?.fromDate ? new Date(exam.fromDate) : null;
+        const toDate = exam?.toDate ? new Date(exam.toDate) : null;
 
-          let status = "inactive";
+        const fromTime = exam?.fromTime || "";
+        const toTime = exam?.toTime || "";
 
-          if (from && to) {
-            const fromDate = new Date(from);
-            const toDate = new Date(to);
+        let status = "inactive";
 
-            if (now >= fromDate && now <= toDate) {
-              if (timeFrom && timeTo) {
-                const [fromHours, fromMinutes] = timeFrom
-                  .split(":")
-                  .map(Number);
-                const [toHours, toMinutes] = timeTo.split(":").map(Number);
+        if (fromDate && toDate && now >= fromDate && now <= toDate) {
+          if (fromTime && toTime) {
+            const [fromHours, fromMinutes] = fromTime.split(":").map(Number);
+            const [toHours, toMinutes] = toTime.split(":").map(Number);
 
-                const start = new Date(now);
-                start.setHours(fromHours, fromMinutes, 0, 0);
+            const startTime = new Date(now);
+            startTime.setHours(fromHours, fromMinutes, 0, 0);
 
-                const end = new Date(now);
-                end.setHours(toHours, toMinutes, 59, 999);
+            const endTime = new Date(now);
+            endTime.setHours(toHours, toMinutes, 59, 999);
 
-                if (now >= start && now <= end) {
-                  status = "active";
-                }
-              } else {
-                status = "active";
-              }
-            }
-          }
+            if (now >= startTime && now <= endTime) {
+              status = "active";
+            }
+          } else {
+            status = "active";
+          }
+        }
 
-          return {
-            ...exam,
-            status,
-          };
-        });
+        return {
+          ...exam,
+          status,
+        };
+      });
 
-        setExam(updatedExams);
-      })
-      .catch((error) =>
-        toast.error(error?.response?.data?.message || error.message)
-      );
-  };
+      setExam(updatedExams);
+    })
+    .catch((error) =>
+      toast.error(error?.response?.data?.message || error.message)
+    );
+};
 
   useEffect(() => {
     fetchExams();
@@ -94,11 +92,15 @@ const ExamPage = () => {
   const filteredExams = exam.filter(
     (e) =>
       (status === "all status" || e.status === status) &&
-      e.basicInfo.title.toLowerCase().includes(search.toLowerCase())
+      e.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  console.log(filteredExams);
+  if (!filteredExams) {
+    return <div className="w-full h-full flex justify-center items-center">No Exams Found</div>;
+  }
   return (
-    <div className="w-full h-full bg-white flex gap-5 overflow-y-auto hide-scrollbar">
+    <div className="w-full h-full flex gap-5 overflow-y-auto hide-scrollbar">
       <div className="w-full h-fit pb-15">
         <div className="w-full h-16 bg-white shadow-lg flex items-center justify-between px-4">
           <button
@@ -135,14 +137,14 @@ const ExamPage = () => {
                 className="w-full h-fit bg-white shadow-sm hover:shadow-md p-2 mt-2 flex items-center sm:gap-2 md:gap-3 xl:gap-5 rounded-lg"
               >
                 <img
-                  src={item.basicInfo.coverPreview}
+                  src={item.coverPreview}
                   alt="Cover"
                   className="w-30 h-30 object-cover rounded"
                 />
                 <div>
                   <div className="flex items-center justify-between text-lg font_primary font-semibold">
                     <p className="flex items-center gap-2">
-                      {item.basicInfo.title}{" "}
+                      {item.title}{" "}
                       <LuExternalLink
                         className="cursor-pointer"
                         color="green"
@@ -150,7 +152,7 @@ const ExamPage = () => {
                           navigate("/admin/exam/takenlist", {
                             state: {
                               id: item._id,
-                              title: item.basicInfo.title,
+                              title: item.title,
                             },
                           })
                         }
@@ -167,10 +169,10 @@ const ExamPage = () => {
                     </p>
                   </div>
                     <p className="font_primary text-sm text-gray-500">
-                      Category: {item.basicInfo.category}
+                      Category: {item.category}
                     </p>
-                  <div className={`flex items-center ${item.settings?.answerTimeControl?.examTime ? "sm:gap-5 xl:gap-25" : "sm:gap-5 xl:gap-15" } text-sm font_primary text-green-600`}>
-                    <p className="text-gray-500 text-sm font-primary">{item.settings?.answerTimeControl?.examTime ? `Duration: ${item.settings?.answerTimeControl?.examTime} min` : `Duration: ${item.settings?.answerTimeControl?.questionTime} sec/question`}</p>
+                  <div className={`flex items-center ${item.examTime ? "sm:gap-5 xl:gap-25" : "sm:gap-5 xl:gap-15" } text-sm font_primary text-green-600`}>
+                    <p className="text-gray-500 text-sm font-primary">{item.examTime ? `Duration: ${item.examTime} min` : `Duration: ${item.questionTime} sec/question`}</p>
                     <div className="flex items-center gap-1">
                     <p
                     className="hover:underline cursor-pointer"
@@ -194,15 +196,15 @@ const ExamPage = () => {
                     <div className="gap-1 mt-4 text-sm font_primary md:flex">
                       <p className="text-gray-500">
                         Open:{" "}
-                        {item.settings?.availability?.timeLimitDays?.from
+                        {item.fromDate
                           ? `${new Date(
-                              item.settings.availability.timeLimitDays.from
+                              item.fromDate
                             ).toLocaleDateString("en-GB", {
                               day: "2-digit",
                               month: "short",
                               year: "numeric",
                             })} at ${new Date(
-                              item.settings.availability.timeLimitDays.from
+                              item.fromDate
                             ).toLocaleTimeString("en-GB", {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -213,15 +215,15 @@ const ExamPage = () => {
 
                       <p className="text-gray-500">
                         -{" "}
-                        {item.settings?.availability?.timeLimitDays?.to
+                        {item.toDate
                           ? `${new Date(
-                              item.settings.availability.timeLimitDays.to
+                              item.toDate
                             ).toLocaleDateString("en-GB", {
                               day: "2-digit",
                               month: "short",
                               year: "numeric",
                             })} at ${new Date(
-                              item.settings.availability.timeLimitDays.to
+                              item.toDate
                             ).toLocaleTimeString("en-GB", {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -232,10 +234,10 @@ const ExamPage = () => {
                     </div>
                 </div>
                 <div className="flex flex-col items-center gap-5 pl-2 sm:pr-1 md:pr-0 border-l-1 border-gray-300">
-                  {item.settings?.availability?.timeLimitDays?.from && (
+                  {item.fromDate && (
                     <FaRegEdit
                       className={`cursor-pointer ${
-                        new Date(item.settings.availability.timeLimitDays.to) <
+                        new Date(item.toDate) <
                         new Date()
                           ? "opacity-50 cursor-not-allowed pointer-events-none"
                           : ""
@@ -244,7 +246,7 @@ const ExamPage = () => {
                       onClick={() => {
                         if (
                           new Date(
-                            item.settings.availability.timeLimitDays.to
+                            item.toDate
                           ) >= new Date()
                         ) {
                           setisOpen(true);
