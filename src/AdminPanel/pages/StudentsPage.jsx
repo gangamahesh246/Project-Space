@@ -25,7 +25,6 @@ const StudentsPage = () => {
     axiosInstance
       .get("/getstudents", { params: { faculty_id: admin } })
       .then((response) => {
-        console.log(response.data);
         setStudents(response.data);
         const allTechs = [
           ...new Set(
@@ -45,23 +44,15 @@ const StudentsPage = () => {
     setIsActive(tech);
   };
 
-  const filteredStudents = students
-    .filter((item) => {
-      const techMatch = isActive === "all" || item.technology === isActive;
+  const filteredStudents = students.filter((item) => {
+    const techMatch = isActive === "all" || item.technology === isActive;
 
-      const hasMatchingStudent = item.students.some((stu) =>
-        stu.student_mail.toLowerCase().includes(search.toLowerCase())
-      );
+    const mailMatch = item.student_mail
+      .toLowerCase()
+      .includes(search.toLowerCase());
 
-      return techMatch && hasMatchingStudent;
-    })
-    .flatMap((item) =>
-      item.students
-        .filter((stu) =>
-          stu.student_mail.toLowerCase().includes(search.toLowerCase())
-        )
-        .map((stu) => stu.student_mail)
-    );
+    return techMatch && mailMatch;
+  });
 
   const deleteTechnology = (tech) => {
     axiosInstance
@@ -164,7 +155,7 @@ const StudentsPage = () => {
                       size={isActive === tech ? 20 : 18}
                       className="text-amber-500"
                     />
-                    <p>{tech}</p>         
+                     <p>{tech}</p> 
                   </div>
                   <div
                     onClick={(e) => {
@@ -173,7 +164,7 @@ const StudentsPage = () => {
                     }}
                     className="hover:bg-red-100 rounded-full p-[2px] cursor-pointer"
                   >
-                    <MdOutlineDelete size={18} color="red" />         
+                  <MdOutlineDelete size={18} color="red" />       
                   </div>
                 </div>
               </div>
@@ -236,12 +227,12 @@ const StudentsPage = () => {
                 }
                 className="flex flex-col gap-3 w-full cursor-pointer"
               >
-                <p>{student}</p>           
+              <p>{student.student_mail}</p>  
               </div>
               <p className="text-[12px] text-red-500 ml-5 cursor-pointer whitespace-nowrap">
                 <MdOutlineDelete
                   size={15}
-                  onClick={() => handleDelete(student)}
+                  onClick={() => handleDelete(student.student_mail)}
                 />
               </p>
             </div>

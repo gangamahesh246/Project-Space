@@ -8,8 +8,11 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ExamCard = ({ exam, type }) => {
+  const navigate = useNavigate();
+
   const isUpcoming = type === "upcoming";
   const isCompleted = type === "completed";
 
@@ -92,7 +95,7 @@ const ExamCard = ({ exam, type }) => {
             new Date(exam.date).toDateString() ===
               new Date().toDateString() && (
               <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
-                      Starting Soon   
+                      Starting Soon  
               </span>
             )}
 
@@ -112,7 +115,14 @@ const ExamCard = ({ exam, type }) => {
             </button>
           )}
           {isCompleted && (
-            <button className="flex items-center space-x-1 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+            <button
+              onClick={() =>
+                navigate("/student/exam/rankbyexam", {
+                  state: { examId: exam.id },
+                })
+              }
+              className="flex items-center space-x-1 bg-amber-100 text-amber-500 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-200 cursor-pointer transition-colors"
+            >
               <Eye className="w-4 h-4" />
               <span>View Results</span>
             </button>

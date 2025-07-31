@@ -20,22 +20,22 @@ const StudentExamPage = () => {
   const [status, setStatus] = useState("all status");
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    if (!StudentMail) return;
+ useEffect(() => {
+  if (!StudentMail) return;
 
-    axiosStudent
-      .get("/getstudentId", {
-        params: {
-          student_mail: StudentMail,
-        },
-      })
-      .then((response) => {
-        setStudentId(response.data.studentId);
-      })
-      .catch((error) => {
-        console.error("Error fetching student ID:", error);
-      });
-  }, [StudentMail]);
+  axiosStudent
+    .get("/getstudentId", {
+      params: {
+        student_mail: StudentMail,
+      },
+    })
+    .then((response) => {
+      setStudentId(response.data.studentId);
+    })
+    .catch((error) => {
+      console.error("Error fetching student ID:", error);
+    });
+}, [StudentMail]);
 
   useEffect(() => {
     socket.on("examDeleted", ({ examId }) => {

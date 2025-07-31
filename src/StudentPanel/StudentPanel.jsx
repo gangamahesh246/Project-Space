@@ -230,7 +230,7 @@ const StudentPanel = () => {
                 }}
               />
               <p className="text-sm font-bold capitalize font_primary text-[#008738]">
-                Welcome back, {profile?.fullname || data?.user?.username}🖐️
+                Hello, {profile?.fullname || data?.user?.username}🖐️
               </p>
             </div>
             <div className="flex justify-center items-center gap-2">
@@ -260,12 +260,12 @@ const StudentPanel = () => {
                         key={idx}
                         className="flex items-center gap-3 p-3 border-b border-gray-300"
                       >
-                        <div className="flex justify-center items-center">
+                        <div className="flex justify-center items-center gap-5">
                           <p className="text-sm font-semibold capitalize text-primary">
                             Title: {notif.title}
                           </p>
                           <p className="text-sm font-semibold capitalize text-primary">
-                            Title: {notif.assignedBy}
+                            Assigned By: {notif.assignedBy}
                           </p>
                         </div>
                       </div>

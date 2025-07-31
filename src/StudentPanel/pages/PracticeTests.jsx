@@ -123,7 +123,7 @@ const PracticeTests = () => {
     updated[qIndex] = Array.isArray(updated[qIndex]) ? [] : undefined;
     setUserAnswers(updated);
   };
- 
+
   const handleSubmit = () => {
     const questionResults = [];
 
@@ -145,7 +145,7 @@ const PracticeTests = () => {
       const normalize = (arr) =>
         arr.map((val) => String(val).trim().toUpperCase()).sort();
 
-      const correctArray = question.correctAnswer || []; 
+      const correctArray = question.correctAnswer || [];
       const correctOptions = correctArray.map((optIndex) =>
         String.fromCharCode(65 + optIndex)
       );
@@ -167,10 +167,11 @@ const PracticeTests = () => {
 
     console.log("Practice Test Results:", questionResults);
     toast.success("Practice submission complete! Check console for results.");
+
     navigate("/student/exam/results", {
       state: {
         questionResults,
-        show: true,
+        show: true, 
       },
     });
   };
@@ -228,14 +229,14 @@ const PracticeTests = () => {
         );
       })}
 
-      {PracticeTests && 
-      <button
-        onClick={handleSubmit}
-        className="bg-amber-400 hover:bg-amber-500 cursor-pointer focus:outline-none text-white font-semibold px-4 py-2 rounded"
-      >
-        Submit
-      </button>
-      }      
+      {PracticeTests && (
+        <button
+          onClick={handleSubmit}
+          className="bg-amber-400 hover:bg-amber-500 cursor-pointer focus:outline-none text-white font-semibold px-4 py-2 rounded"
+        >
+          Submit
+        </button>
+      )}
     </div>
   );
 };

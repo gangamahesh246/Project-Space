@@ -20,6 +20,8 @@ import StepWrapper from "./Components/CreateExam/StepWrapper";
 import AddQuestion from "./Components/QuestionsPage/AddQuestion";
 import UploadQuestions from "./Components/QuestionsPage/UploadQuestions";
 import TakenList from "./Components/Takenlist/TakenList";
+import Violations from "./Components/Takenlist/Violations";
+import AddAdmin from "./pages/AddAdmin";
 import ExamQuestions from "./Components/Takenlist/ExamQuestions";
 import Statistics from "./Components/Takenlist/Statistics";
 import AddStudent from "./Components/StudentPage/AddStudent";
@@ -141,7 +143,9 @@ const MainPanel = () => {
               </div>
 
               <div className="pt-4 mt-4 border-t border-gray-300 space-y-3">
-                <div className="flex items-center px-4 py-3 rounded-xl cursor-pointer text-gray-700 hover:bg-[#C3E76D]">
+                <div 
+                onClick={() => navigate("/admin/add-admin")}
+                className="flex items-center px-4 py-3 rounded-xl cursor-pointer text-gray-700 hover:bg-[#C3E76D]">
                   <AiOutlineUsergroupAdd size={18} />
                   <p className="ml-3 text-sm font-medium font_primary">
                     Add Admin
@@ -200,6 +204,7 @@ const MainPanel = () => {
                 <Route index element={<ExamPage />} />
                 <Route path="create-exam" element={<StepWrapper />} />
                 <Route path="takenlist" element={<TakenList />} />
+                <Route path="violations" element={<Violations />} />
                 <Route
                   path="exam-questions/:examId"
                   element={<ExamQuestions />}
@@ -224,6 +229,7 @@ const MainPanel = () => {
               </Route>
 
               <Route path="more" element={<More />} />
+              <Route path="add-admin" element={<AddAdmin />} />
               <Route path="profile" element={<Profile />} />
               <Route
                 path="*"

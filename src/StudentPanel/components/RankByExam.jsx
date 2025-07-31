@@ -9,7 +9,6 @@ const RankByExam = () => {
     const location = useLocation();
     const { examId } = location.state;
     const college_mail = useSelector((state) => state.student.user.college_mail);
-    console.log(examId)
 
     const [data, setData] = useState([])
 
@@ -19,13 +18,11 @@ const RankByExam = () => {
                 examId: examId
             }
         }).then((res) => {
-            console.log(res.data)
             setData(res.data)
         }).catch((err) => {
             toast.info("No Data Found")
         })
     }, [examId]);
-
 
   return (
     <div className='w-full h-full bg-gray-100 p-3'>

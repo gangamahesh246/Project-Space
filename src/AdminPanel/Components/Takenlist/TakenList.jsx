@@ -3,12 +3,12 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Download } from "lucide-react";
 import qs from "qs";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../utils/axiosInstance";
 import axiosStudent from "../../../utils/axiosStudent";
-import axios from "axios";
 
 const TakenList = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { id, title } = location.state || "";
 
@@ -17,6 +17,9 @@ const TakenList = () => {
   const [unfinshedMails, setUnfinshedMails] = useState(null);
   const [studentIds, setStudentIds] = useState([]);
   const [attempts, setAttempts] = useState([]);
+  const [search, setSearch] = useState("");
+  const [unfinish, setUnfinish] = useState("");
+  const [unfinishSearch, setUnfinishSearch] = useState("");
 
   const buttonClass = (type) =>
     isActive === type ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700";
@@ -24,11 +27,9 @@ const TakenList = () => {
   const renderActiveComponent = () => {
     switch (isActive) {
       case "completed":
-        return <Completed attempts={attempts} examId={id} />;
+        return <Completed attempts={attempts} examId={id} setSearch={setSearch} search={search} navigate={navigate} />;
       case "unfinished":
-        return <Unfinished unfinshedMails={unfinshedMails} saveAs={saveAs} Download={Download} />;
-      case "rankings":
-        return <Rankings />;
+        return <Unfinished unfinshedMails={unfinshedMails} saveAs={saveAs} Download={Download} setSearch={setSearch} unfinishSearch={unfinishSearch} setUnfinishSearch={setUnfinishSearch} />;
       default:
         return <Completed />;
     }
@@ -104,6 +105,7 @@ const TakenList = () => {
     })
     .then((res) => {
       setUnfinshedMails(res.data.map((student) => student.mail));
+      setUnfinish(res.data.length)
     })
     .catch((err) =>
       console.log("ERROR:", err.response?.data || err.message)
@@ -125,7 +127,7 @@ const TakenList = () => {
             )}`}
             onClick={() => setIsActive("completed")}
           >
-            Completed {1}
+            Completed {attempts.length}
           </button>
           <button
             className={`rounded-lg cursor-pointer px-4 py-2 ${buttonClass(
@@ -133,15 +135,7 @@ const TakenList = () => {
             )}`}
             onClick={() => setIsActive("unfinished")}
           >
-            Unfinished {0}
-          </button>
-          <button
-            className={`rounded-lg cursor-pointer px-4 py-2 ${buttonClass(
-              "rankings"
-            )}`}
-            onClick={() => setIsActive("rankings")}
-          >
-            Rankings
+            Unfinished {unfinish}
           </button>
         </div>
         <Suspense fallback="Loading...">{renderActiveComponent()}</Suspense>
@@ -152,7 +146,7 @@ const TakenList = () => {
 
 export default TakenList;
 
-const Completed = ({ attempts, examId }) => {
+const Completed = ({ attempts, examId, setSearch, search, navigate}) => {
   const formatCustomDate = (iso) => {
     const date = new Date(iso);
     const options = { timeZone: "Asia/Kolkata", hour12: true };
@@ -187,18 +181,24 @@ const Completed = ({ attempts, examId }) => {
   };
   
   const sorted = [...attempts]
-  .filter((a) => a.lastAttemptStats)
-  .sort(
-    (a, b) =>
-      (b.lastAttemptStats.score || 0) - (a.lastAttemptStats.score || 0)
-  )
-  .map((item, index) => ({
-    ...item,
-    lastAttemptStats: {
-      ...item.lastAttemptStats,
-      rank: index + 1,
-    },
-  }));
+  .filter(
+    (a) =>
+      a.lastAttemptStats &&
+      (!search ||
+        a.lastAttemptStats.student_mail?.toLowerCase().includes(search.toLowerCase()))
+  )
+  .sort(
+    (a, b) =>
+      (b.lastAttemptStats.score || 0) - (a.lastAttemptStats.score || 0)
+  )
+  .map((item, index) => ({
+    ...item,
+    lastAttemptStats: {
+      ...item.lastAttemptStats,
+      rank: index + 1,
+    },
+  }));
+  console.log(search)
 
  useEffect(() => {
   if (sorted.length === 0) return;
@@ -250,8 +250,9 @@ const handleDownloadAttempts = () => {
       <div className="h-fit flex justify-between items-center">
         <input
           type="text"
-          className="border border-gray-300 rounded-lg p-2 text-sm"
+          className="border border-gray-300 rounded-lg p-2 text-sm focus:outline-none"
           placeholder="Search"
+          onChange={(e) => setSearch(e.target.value)}
         />
         <Download size={20} onClick={handleDownloadAttempts} className='w-8 h-8 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer' />
       </div>
@@ -266,6 +267,7 @@ const handleDownloadAttempts = () => {
               <th>Start time</th>     
               <th>Last operation time</th>     
               <th>Time spend</th> 
+              <th>Violations</th> 
             </tr>
           </thead>
           <tbody className="text-gray-600">
@@ -292,6 +294,18 @@ const handleDownloadAttempts = () => {
                       ? getDurationHHMMSS(stats.attemptStart, stats.attemptEnd)
                       : "N/A"}
                   </td>
+                  <td>
+                    <button 
+                    onClick={() => {
+                      navigate("/admin/exam/violations", {
+                        state: {
+                          violationPhotos: attempt.lastAttemptStats.violationPhotos,
+                          violations: attempt.lastAttemptStats.violations,
+                        }
+                      })
+                    }}
+                    className="text-blue-500 hover:underline transition-all cursor-pointer">View</button>
+                  </td>
                 </tr>
               );
             })}
@@ -302,7 +316,7 @@ const handleDownloadAttempts = () => {
   );
 };
 
-const Unfinished = ({unfinshedMails, Download, saveAs}) => {
+const Unfinished = ({unfinshedMails, Download, saveAs, unfinishSearch, setUnfinishSearch}) => {
   if (!unfinshedMails || unfinshedMails.length === 0) {
     return (
       <div className="w-full h-full p-2 flex justify-center items-center">
@@ -338,7 +352,8 @@ const Unfinished = ({unfinshedMails, Download, saveAs}) => {
         <input
           type="text"
           className="border border-gray-300 rounded-lg p-2 text-sm"
-          placeholder="Search"
+          placeholder="Search"          
+          onChange={(e) => setUnfinishSearch(e.target.value)}
         />
         <Download size={20} onClick={handleDownload} className='w-8 h-8 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer' />
       </div>
@@ -352,7 +367,8 @@ const Unfinished = ({unfinshedMails, Download, saveAs}) => {
           </thead>
           <tbody className="text-gray-600">
             <tr className="border-b [&>td]:p-2 text-center">
-              {unfinshedMails.map((mail, index) => (
+              {unfinshedMails.filter((mail) => !unfinishSearch || mail.toLowerCase().includes(unfinishSearch.toLowerCase())
+              ).map((mail, index) => (
                 <>
                 <td>{index + 1}</td>
                 <td key={index}>{mail}</td>

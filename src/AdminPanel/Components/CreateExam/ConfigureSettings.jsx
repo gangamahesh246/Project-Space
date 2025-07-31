@@ -1,28 +1,24 @@
-import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { PiStudentBold } from "react-icons/pi";
-import { MdOutlineDelete } from "react-icons/md";
-import * as XLSX from "xlsx";
 import { useDispatch, useSelector } from "react-redux";
-import { RiFileExcel2Fill } from "react-icons/ri";
 import { setSettings } from "../../../slices/ExamSlice";
 import { toast } from "react-toastify";
-import { Download } from "lucide-react";
 import axiosInstance from "../../../utils/axiosInstance";
 import socket from "../../../utils/socket";
 
 const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
+  const admin = useSelector((state) => state.login.user._id);
+
   const dispatch = useDispatch();
   const time = useSelector((state) => state.exam.settings);
 
-  const [file, setFile] = useState(null);
   const [students, setStudents] = useState([]);
   const [technology, setTechnology] = useState([]);
   const [isActive, setIsActive] = useState("");
 
   useEffect(() => {
     axiosInstance
-      .get("/getstudents")
+      .get("/getstudents", { params: { faculty_id: admin } })
       .then((response) => {
         setStudents(response.data);
         const allTechs = [
@@ -98,15 +94,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
       webcam: false,
     },
   });
-
-  const handleLocalExcelDownload = () => {
-    const link = document.createElement("a");
-    link.href = "/assets/Student_Emails.xlsx";
-    link.setAttribute("download", "Student_Emails.xlsx");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   const updateExam = async (id, examData) => {
     try {
@@ -208,35 +195,6 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
     }));
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = (evt) => {
-      const data = evt.target.result;
-      const workbook = XLSX.read(data, { type: "binary" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: true });
-
-      const studentEmails = jsonData
-        .map((entry) => entry["Student Email"])
-        .filter(Boolean);
-      toast.success("File uploaded successfully");
-
-      setLocalSettings((prev) => ({
-        ...prev,
-        assignExamTo: {
-          ...prev.assignExamTo,
-          specificUsers: studentEmails,
-        },
-      }));
-    };
-
-    reader.readAsBinaryString(file);
-  };
-
   const handleDisplayScoreChange = (enabled) => {
     setLocalSettings((prev) => ({
       ...prev,
@@ -303,9 +261,12 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const handleTechClick = (tech) => {
     setIsActive(tech);
 
-    const filtered = students
-      .filter((student) => student.technology === tech)
-      .map((student) => student.student_mail);
+    const filtered =
+      tech === "all"
+        ? students.map((s) => s.student_mail)
+        : students
+            .filter((s) => s.technology === tech)
+            .map((s) => s.student_mail);
 
     setLocalSettings((prev) => ({
       ...prev,
@@ -543,43 +504,9 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
         <p className="w-full block font-semibold border-l-4 border-secondary pl-2 mt-10 ml-5">
           Assign Exam
         </p>
-        <p className="text-gray-500 text-sm ml-7">(Through college mails)</p>
-        <div className="w-fit xl:ml-10 xl:mt-3 sm:flex sm:flex-col lg:flex-row items-center sm:gap-5 xl:gap-10">
-          <div className="flex h-fit flex-col items-center shadow-sm gap-2 p-3 rounded">
-            <div className="w-full flex justify-end">
-              <Download
-                onClick={handleLocalExcelDownload}
-                className="w-8 h-8 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer"
-              />
-            </div>
-            <RiFileExcel2Fill size={30} color="#00C951" />
-            <p className="text-gray-500 font_primary text-center text-sm">
-              Drag & drop files here or select a file to upload questions in
-              bulk
-            </p>
-            <p className="text-gray-500 font_primary text-center text-sm">
-              Supports Excel(xlsx) files.
-            </p>
-            <p className="text-gray-500 font_primary text-center text-sm">
-              Note: The file should have the following column: Student Email.
-            </p>
-            <label
-              htmlFor="fileInput"
-              className="bg-green-500 text-white rounded-md font-semibold py-2 px-4 cursor-pointer text-center"
-            >
-              <span>{file ? file.name : "Upload file"}</span>
-            </label>
-            <input
-              id="fileInput"
-              type="file"
-              accept=".xlsx, .xls"
-              required
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-          </div>
+        <div className="w-fit xl:ml-10 xl:mt-3 sm:flex sm:flex-col lg:flex-row items-center sm:ml-5 sm:gap-5 xl:gap-10">
           <div
-            className={`w-80 h-50 bg-white shadow-sm rounded overflow-y-auto ${
+            className={`w-80 h-fit bg-white shadow-sm rounded overflow-y-auto ${
               isVisible ? "block" : "hidden"
             }`}
           >
@@ -597,34 +524,33 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
             )}
           </div>
         </div>
-        <p className="text-gray-500 text-sm ml-7">(Through Technology)</p>
-        <div className="w-50 sm:ml-2 xl:ml-10 xl:mt-3 py-2 bg-white shadow-sm rounded">
-          {technology.map((tech, idx) => (
-            <div className="w-full" key={idx}>
-              <div
-                onClick={() => handleTechClick(tech)}
-                className={`flex justify-between items-center sm:px-2 text-[12px] font-semibold h-7 md:pl-5 pr-3 cursor-pointer capitalize ${
-                  isActive === tech
-                    ? "bg-green-100 text-green-500"
-                    : "text-black"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <PiStudentBold
-                    size={isActive === tech ? 20 : 18}
-                    className="text-green-500"
-                  />
-                  <p>{tech}</p>
-                </div>
+        <div className="w-50 sm:ml-5 xl:ml-10 xl:mt-3 py-2 bg-white shadow-sm rounded">
+          {technology
+            .filter(
+              (cat) =>
+                typeof cat === "string" &&
+                cat.toLowerCase()
+            )
+            .map((tech, idx) => (
+              <div className="w-full" key={idx}>
                 <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="hover:bg-red-100 rounded-full p-[2px] cursor-pointer"
-                ></div>
+                  onClick={() => handleTechClick(tech)}
+                  className={`flex justify-between items-center text-[12px] font-semibold h-7 md:pl-5 pr-3 cursor-pointer capitalize ${
+                    isActive === tech
+                      ? "bg-green-100 text-green-500"
+                      : "text-black"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <PiStudentBold
+                      size={isActive === tech ? 20 : 18}
+                      className="text-green-500"
+                    />
+                     <p>{tech}</p> 
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 

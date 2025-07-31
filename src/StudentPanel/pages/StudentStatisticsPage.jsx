@@ -10,7 +10,6 @@ import DataTable from "../dashboardComponents/DataTable";
 import ExamCard from "../dashboardComponents/ExamCard";
 
 import { useSelector } from "react-redux";
-import axios from "axios";
 
 const StudentStatisticsPage = () => {
   const student = useSelector((state) => state.student.user);
