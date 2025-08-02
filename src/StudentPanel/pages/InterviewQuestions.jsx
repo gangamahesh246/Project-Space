@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { MdCancel } from "react-icons/md";
 import axiosStudent from "../../utils/axiosStudent";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const InterviewQuestions = () => {
   const navigate = useNavigate();
@@ -17,8 +18,8 @@ const InterviewQuestions = () => {
   useEffect(() => {
     if (!student.college_mail) return;
 
-    axiosStudent
-      .get("/getstudentId", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
         params: {
           student_mail: student.college_mail,
         },
@@ -27,7 +28,7 @@ const InterviewQuestions = () => {
         const id = response.data.studentId;
         setStudentId(id);
 
-        return axiosStudent.get("/student/gettechnology", {
+        return axios.get(`${import.meta.env.VITE_Base_URL}/student/gettechnology`, {
           params: { email: student.college_mail },
         });
       })

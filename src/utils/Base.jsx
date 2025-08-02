@@ -11,7 +11,7 @@ const Base = ({ setBase64Path }) => {
     const fetchBase64 = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/image-to-base64?url=${encodeURIComponent(
+          `${import.meta.env.VITE_Base_URL}/api/image-to-base64?url=${encodeURIComponent(
             imageUrl
           )}`
         );

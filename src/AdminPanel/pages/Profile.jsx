@@ -39,8 +39,8 @@ const Profile = () => {
   const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
-    axiosInstance
-      .get("/getprofile", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getprofile`, {
         params: { employeeId: data.user.employeeId },
       })
       .then((response) => {
@@ -100,7 +100,7 @@ const Profile = () => {
 
   const handleSubmit = async () => {
     try {
-      const url = "http://localhost:3000/profile";
+      const url = '/profile';
 
       const formData = new FormData();
 
@@ -123,7 +123,7 @@ const Profile = () => {
         },
       };
 
-      const response = await axios.post(url, formData, config);
+      const response = await axiosInstance.post(url, formData, config);
 
       toast.success(response.data.message || "Profile saved successfully");
     } catch (err) {

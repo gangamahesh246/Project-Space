@@ -30,7 +30,6 @@ import { useSelector } from 'react-redux';
 
 const DashBoard = () => {
   const admin = useSelector((state) => state.login.user._id);
-  console.log(admin);
 
   const examActivityColumns = [
     { key: 'examName', label: 'Exam Name', sortable: true },
@@ -121,7 +120,6 @@ const DashBoard = () => {
     <div className="min-h-screen bg-gray-100">
 
       <main className="max-w-7xl mx-auto p-3">
-        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <MetricCard
             title="Total Exams Conducted"
@@ -172,7 +170,6 @@ const DashBoard = () => {
           />
         </div>
 
-        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 mb-8">
           <div className="xl:col-span-2">
             <LineChart
@@ -200,7 +197,6 @@ const DashBoard = () => {
           </div>
         </div>
 
-        {/* Tables Section */}
         <div className="space-y-8">
           <DataTable
             title="Recent Exam Activity Log"

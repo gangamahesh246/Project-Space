@@ -1,20 +1,39 @@
 import React, { useState, useEffect } from "react";
 import axiosStudent from "../../utils/axiosStudent";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Award } from "lucide-react";
+import axios from "axios";
 
 const LeaderBoard = () => {
   const student = useSelector((state) => state.student.user);
 
   const [technology, setTechnology] = useState("");
+  const [studentId, setStudentId] = useState(null);
   const [leaderBoardData, setLeaderBoardData] = useState([]);
   const [active, setActive] = useState("global");
 
   useEffect(() => {
     if (!student.college_mail) return;
 
-    axiosStudent
-      .get("/student/gettechnology", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
+        params: {
+          student_mail: student.college_mail,
+        },
+      })
+      .then((response) => {
+        setStudentId(response.data.studentId);
+      })
+      .catch((error) => {
+        console.error("Error fetching student ID:", error);
+      });
+  }, [student.college_mail]);
+
+  useEffect(() => {
+    if (!student.college_mail) return;
+
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/student/gettechnology`, {
         params: { email: student.college_mail },
       })
       .then((res) => {
@@ -41,7 +60,6 @@ const LeaderBoard = () => {
       ? leaderBoardData
       : leaderBoardData.filter((entry) => entry.technology === technology);
 
-  console.log(filteredData);
   return (
     <div className="w-full h-full bg-gray-100 p-3">
       <div className="w-full h-13 bg-white shadow-sm rounded flex items-center gap-2">
@@ -70,9 +88,18 @@ const LeaderBoard = () => {
         LeaderBoard
       </h1>
       {active === "global" ? (
-        <GlobalLeaderBoard leaderBoardData={filteredData} Award={Award} college_mail={student.college_mail} />
+        <GlobalLeaderBoard
+          leaderBoardData={filteredData}
+          Award={Award}
+          college_mail={student.college_mail}
+          studentId={studentId}
+        />
       ) : (
-        <TechWiseLeaderBoard leaderBoardData={filteredData} Award={Award} college_mail={student.college_mail} />
+        <TechWiseLeaderBoard
+          leaderBoardData={filteredData}
+          Award={Award}
+          college_mail={student.college_mail}
+        />
       )}
     </div>
   );
@@ -80,58 +107,102 @@ const LeaderBoard = () => {
 
 export default LeaderBoard;
 
-const GlobalLeaderBoard = ({leaderBoardData, Award, college_mail}) => {
+const GlobalLeaderBoard = ({
+  leaderBoardData,
+  Award,
+  college_mail,
+  studentId
+}) => {
   return (
     <div className="bg-white rounded shadow p-4">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b text-amber-500">
-              <th className="py-2">#</th>
-              <th className="py-2">Student Mail</th>
-              <th className="py-2">Technology</th>
-              <th className="py-2">Average Score</th>
-              <th className="py-2 flex items-center">Rank<Award className="w-5 h-5" /></th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderBoardData.map((entry, index) => (
-              <tr key={entry._id} className={`border-b border-gray-300 text-sm hover:bg-gray-50 ${entry.student_mail === college_mail ? 'font-bold bg-amber-50 text-amber-400' : 'hover:bg-gray-50' }`}>
-                <td className="py-2 px-1">{index + 1}</td>
-                <td className="py-2 px-1">{entry.student_mail}</td>
-                <td className="py-2 px-1">{entry.technology}</td>
-                <td className="py-2 px-1 font-semibold">{entry.score}</td>
-                <td className="py-2 px-1 font-semibold">{index + 1}</td>
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b text-amber-500">
+            <th className="py-2">#</th>
+            <th className="py-2">Student Mail</th>
+            <th className="py-2">Technology</th>
+            <th className="py-2">Average Score</th>
+            <th className="py-2 flex items-center">
+              Rank
+              <Award className="w-5 h-5" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {leaderBoardData.map((entry, index) => {
+            const isCurrentStudent = entry.student_mail === college_mail;
+
+            if (isCurrentStudent) {
+              axios
+                .post(`${import.meta.env.VITE_Base_URL}/globalrank`, {
+                  student_id: studentId, 
+                  rank: index + 1,
+                  totalstudents: leaderBoardData.length
+                })
+                .catch((err) => {
+                  console.error(
+                    "Error posting global rank:",
+                    err.response?.data || err.message
+                  );
+                });
+            }
+
+            return (
+              <tr
+                key={entry._id}
+                className={`border-b border-gray-300 text-sm hover:bg-gray-50 ${
+                  isCurrentStudent
+                    ? "font-bold bg-amber-50 text-amber-400"
+                    : "hover:bg-gray-50"
+                }`}
+              >
+                <td className="py-2 px-1">{index + 1}</td>     
+                <td className="py-2 px-1">{entry.student_mail}</td> 
+                <td className="py-2 px-1">{entry.technology}</td> 
+                <td className="py-2 px-1 font-semibold">{entry.score}</td> 
+                <td className="py-2 px-1 font-semibold">{index + 1}</td> 
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
-const TechWiseLeaderBoard = ({leaderBoardData, Award, college_mail}) => {
+const TechWiseLeaderBoard = ({ leaderBoardData, Award, college_mail }) => {
   return (
     <div className="bg-white rounded shadow p-4">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b text-amber-500">
-              <th className="py-2">#</th>
-              <th className="py-2">Student Mail</th>
-              <th className="py-2">Average Score</th>
-              <th className="py-2 flex items-center">Rank<Award className="w-5 h-5" /></th>
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b text-amber-500">
+            <th className="py-2">#</th>
+            <th className="py-2">Student Mail</th>
+            <th className="py-2">Average Score</th>
+            <th className="py-2 flex items-center">
+              Rank
+              <Award className="w-5 h-5" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {leaderBoardData.map((entry, index) => (
+            <tr
+              key={entry._id}
+              className={`border-b border-gray-300 text-sm ${
+                entry.student_mail === college_mail
+                  ? "font-bold bg-amber-50 text-amber-400"
+                  : "hover:bg-gray-50"
+              }`}
+            >
+              <td className="py-2 px-1">{index + 1}</td>
+              <td className="py-2 px-1">{entry.student_mail}</td>
+              <td className="py-2 px-1 font-semibold">{entry.score}</td>
+              <td className="py-2 px-1 font-semibold">{index + 1}</td>
             </tr>
-          </thead>
-          <tbody>
-            {leaderBoardData.map((entry, index) => (
-              <tr key={entry._id} className={`border-b border-gray-300 text-sm ${entry.student_mail === college_mail ? 'font-bold bg-amber-50 text-amber-400' : 'hover:bg-gray-50' }`}>
-                <td className="py-2 px-1">{index + 1}</td>
-                <td className="py-2 px-1">{entry.student_mail}</td>
-                <td className="py-2 px-1 font-semibold">{entry.score}</td>
-                <td className="py-2 px-1 font-semibold">{index + 1}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };

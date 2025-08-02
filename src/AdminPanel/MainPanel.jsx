@@ -31,6 +31,7 @@ import Profile from "./pages/Profile";
 import More from "./pages/More";
 import axiosInstance from "../utils/axiosInstance";
 import { logout } from "../slices/adminAuthSlice";
+import axios from "axios";
 
 let dashboardNavs = [
   { name: "dashboard", path: "/admin/dashboard", icon: <MdOutlineDashboard /> },
@@ -71,8 +72,8 @@ const MainPanel = () => {
 
   useEffect(() => {
     if (!data.token) return;
-    axiosInstance
-      .get("/matchprofile", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/matchprofile`, {
         params: {
           employeeId: data.user.employeeId,
           username: "",

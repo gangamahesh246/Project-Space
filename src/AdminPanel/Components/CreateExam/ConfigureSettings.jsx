@@ -5,6 +5,7 @@ import { setSettings } from "../../../slices/ExamSlice";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
 import socket from "../../../utils/socket";
+import axios from "axios";
 
 const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const admin = useSelector((state) => state.login.user._id);
@@ -37,8 +38,8 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
 
   useEffect(() => {
     if (isOpen && id) {
-      axiosInstance
-        .get(`/getexam/${id}`)
+      axios
+        .get(`${import.meta.env.VITE_Base_URL}/getexam/${id}`)
         .then((res) => {
           if (res.data?.settings) {
             setLocalSettings(res.data.settings);

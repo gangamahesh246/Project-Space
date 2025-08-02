@@ -3,7 +3,7 @@ import store from "../store";
 import { logout } from "../slices/adminAuthSlice";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.VITE_Base_URL,
 });
 
 axiosInstance.interceptors.request.use(

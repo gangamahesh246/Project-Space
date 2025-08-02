@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosInstance";
 import socket from "../../../utils/socket";
+import axios from "axios";
 
 const Finish = ({ coverFile }) => {
   const navigate = useNavigate();
@@ -19,8 +20,8 @@ const Finish = ({ coverFile }) => {
   const [adminName, setAdminName] = useState("");
 
   useEffect(() => {
-    axiosInstance
-      .get("/matchprofile", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/matchprofile`, {
         params: {
           employeeId: admin.user.employeeId,
         },

@@ -4,6 +4,7 @@ import axiosStudent from '../../utils/axiosStudent';
 import { Award } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const RankByExam = () => {
     const location = useLocation();
@@ -13,7 +14,7 @@ const RankByExam = () => {
     const [data, setData] = useState([])
 
     useEffect(() => {
-        axiosStudent.get('/getLeaderBoardbyexam', {
+        axios.get(`${import.meta.env.VITE_Base_URL}/getLeaderBoardbyexam`, {
             params: {
                 examId: examId
             }

@@ -18,7 +18,6 @@ import { HiMenu } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import socket from "../utils/socket";
-import { MdOutlineDelete } from "react-icons/md";
 
 import axiosStudent from "../utils/axiosStudent";
 import { logoutStudent } from "../slices/studentAuthSlice";

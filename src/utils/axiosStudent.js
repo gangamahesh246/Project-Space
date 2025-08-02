@@ -3,7 +3,7 @@ import store from "../store";
 import { logoutStudent } from "../slices/studentAuthSlice";
 
 const axiosStudent = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.VITE_Base_URL,
 });
 
 axiosStudent.interceptors.request.use(

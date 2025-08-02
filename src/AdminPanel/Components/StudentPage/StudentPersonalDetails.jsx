@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import axiosStudent from "../../../utils/axiosStudent";
+import axios from "axios";
 
 const StudentPersonalDetails = () => {
   const location = useLocation();
@@ -42,8 +43,8 @@ const StudentPersonalDetails = () => {
   useEffect(() => {
     if (!studentMail) return;
 
-    axiosStudent
-      .get("/getstudentId", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
         params: {
           student_mail: studentMail,
         },
@@ -87,8 +88,8 @@ const StudentPersonalDetails = () => {
   useEffect(() => {
     if (!studentId) return;
 
-    axiosStudent
-      .get("/student", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/student`, {
         params: { student_id: studentId },
       })
       .then((res) => {
@@ -115,8 +116,8 @@ const StudentPersonalDetails = () => {
   }, [studentId]);
 
   useEffect(() => {
-    axiosStudent
-      .get("/student/getprofile/", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/student/getprofile/`, {
         params: { email: studentMail },
       })
       .then((res) => {
@@ -449,53 +450,3 @@ const ExamCard = ({ exam }) => (
     </div>
   </div>
 );
-
-const calculateAverageScore = (exams) => {
-  let scores = [];
-  exams.forEach((exam) => {
-    exam.attempts?.forEach((a) => {
-      if (typeof a?.score === "number") scores.push(a.score);
-    });
-  });
-  if (scores.length === 0) return 0;
-  return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-};
-
-const calculatePassPercentage = (exams) => {
-  const total = exams.length;
-  const passed = exams.filter((e) =>
-    e.attempts?.some((a) => a.result === "pass")
-  ).length;
-  return total === 0 ? 0 : ((passed / total) * 100).toFixed(2);
-};
-
-const getHighestScore = (exams) => {
-  let scores = [];
-  exams.forEach((exam) =>
-    exam.attempts?.forEach((a) => {
-      if (typeof a?.score === "number") scores.push(a.score);
-    })
-  );
-  return scores.length === 0 ? 0 : Math.max(...scores);
-};
-
-const getLowestScore = (exams) => {
-  let scores = [];
-  exams.forEach((exam) =>
-    exam.attempts?.forEach((a) => {
-      if (typeof a?.score === "number") scores.push(a.score);
-    })
-  );
-  return scores.length === 0 ? 0 : Math.min(...scores);
-};
-
-const calculateRecentScore = (exams) => {
-  let recentAttempts = exams
-    .flatMap((exam) => exam.attempts || [])
-    .sort((a, b) => new Date(b.attemptStart) - new Date(a.attemptStart))
-    .slice(0, 5);
-  let scores = recentAttempts.map((a) => a.score).filter(Boolean);
-  return scores.length === 0
-    ? 0
-    : (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
-};

@@ -25,6 +25,7 @@ import {
   Trophy,
 } from "lucide-react";
 import axiosStudent from "../../utils/axiosStudent";
+import axios from "axios";
 
 const StudentProfilePage = () => {
   const student = useSelector((state) => state.student.user);
@@ -57,6 +58,8 @@ const StudentProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [studentId, setStudentId] = useState(null);
   const [studentStats, setStudentStats] = useState(null);
+  const [globalRank, setGlobalRank] = useState(null);
+  const [totalStudents, setTotalStudents] = useState(null);
   const [examsData, setExamsData] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [recentExamsData, setRecentExamsData] = useState([
@@ -71,8 +74,8 @@ const StudentProfilePage = () => {
   useEffect(() => {
     if (!student.college_mail) return;
 
-    axiosStudent
-      .get("/getstudentId", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
         params: {
           student_mail: student.college_mail,
         },
@@ -115,8 +118,8 @@ const StudentProfilePage = () => {
   useEffect(() => {
     if (!studentId) return;
 
-    axiosStudent
-      .get("/student", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/student`, {
         params: { student_id: studentId },
       })
       .then((res) => {
@@ -143,11 +146,22 @@ const StudentProfilePage = () => {
   }, [studentId]);
 
   useEffect(() => {
+    axios.get(`${import.meta.env.VITE_Base_URL}/getglobalrank`, { params: { student_id: studentId }})
+    .then((res) => {
+      setGlobalRank(res.data.globalrank);
+      setTotalStudents(res.data.totalstudents);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+  }, [])
+
+  useEffect(() => {
     if (!isEditing) {
       setLoading(true);
 
-      axiosStudent
-        .get("/student/getprofile/", {
+      axios
+        .get(`${import.meta.env.VITE_Base_URL}/student/getprofile`, {
           params: { email: student.college_mail },
         })
         .then((res) => {
@@ -278,7 +292,7 @@ const StudentProfilePage = () => {
 
       toast.success("Profile updated successfully");
 
-      const res = await axiosStudent.get("/student/getprofile/", {
+      const res = await axios.get(`${import.meta.env.VITE_Base_URL}/student/getprofile`, {
         params: { email: student.college_mail },
       });
 
@@ -517,15 +531,9 @@ const StudentProfilePage = () => {
 
           <StatCard
             icon={<Trophy className="w-8 h-8" />}
-            title="Leaderboard Rank"
-            value={
-              <CountUp
-                end={studentStats?.leaderboardRank}
-                duration={1.5}
-                prefix="#"
-              />
-            }
-            subtitle={`Out of ${studentStats?.totalStudents}`}
+            title="Global Rank"
+            value={`#${globalRank}` || 0}
+            subtitle={`Out of ${totalStudents}` || 0}
             color="bg-orange-500"
           />
         </div>

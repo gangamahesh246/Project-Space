@@ -27,7 +27,7 @@ const SignIn = ({ setRegister }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3000/studentregister", {
+      const res = await axios.post(`${import.meta.env.VITE_Base_URL}/studentregister`, {
         username: data.username,
         college_mail: data.college_mail,
         password: data.password,

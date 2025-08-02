@@ -7,7 +7,6 @@ const AddAdmin = () => {
   const [employeeId, setEmployeeId] = useState("");
   const [isOpen, setisOpen] = useState(false);
 
-  console.log(employeeId);
   const handleAddAdmin = async () => {
     await axiosInstance
       .post("/add-admin", { email })

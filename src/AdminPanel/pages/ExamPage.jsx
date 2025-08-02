@@ -95,7 +95,6 @@ const ExamPage = () => {
       e.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  console.log(filteredExams);
   if (!filteredExams) {
     return <div className="w-full h-full flex justify-center items-center">No Exams Found</div>;
   }

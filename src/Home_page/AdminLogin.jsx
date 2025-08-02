@@ -31,7 +31,7 @@ const AdminLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3000/adminlogin", data);
+      const res = await axios.post(`${import.meta.env.VITE_Base_URL}/adminlogin`, data);
       const { token, user, message } = res.data;
 
       if (!user || !user.isAdmin) {

@@ -33,7 +33,7 @@ const StudentLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3000/studentlogin", data); 
+      const res = await axios.post(`${import.meta.env.VITE_Base_URL}/studentlogin`, data); 
       const { token, user, message } = res.data;
 
       if (!user || user.isAdmin) {

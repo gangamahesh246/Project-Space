@@ -3,9 +3,8 @@ import { useLocation } from "react-router-dom";
 
 const Violations = () => {
   const location = useLocation();
-
   const data = location.state;
-  console.log(data);
+
   return (
     <div className="w-full h-full bg-white px-5">
       <p className="text-2xl font-bold text-amber-500 py-4">Report</p>

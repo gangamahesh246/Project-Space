@@ -7,7 +7,7 @@ import {
 import Home from "./Home_page/Home";
 import StudentLogin from "./Home_page/StudentLogin"; 
 import AdminLogin from "./Home_page/AdminLogin"; 
-import  MainPanel  from "./AdminPanel/MainPanel";
+import MainPanel  from "./AdminPanel/MainPanel";
 import StudentPanel from "./StudentPanel/StudentPanel";
 import Test from "./StudentPanel/components/Test";
 import { ToastContainer } from "react-toastify";

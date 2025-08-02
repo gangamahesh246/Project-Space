@@ -1,15 +1,14 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axiosInstance from "../../../utils/axiosInstance";
 
 const ExamQuestions = () => {
   const { examId } = useParams();
   const [examQuestions, setExamQuestions] = useState([]);
 
   useEffect(() => {
-    axiosInstance
-      .get(`/getexamquestions/${examId}`)
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getexamquestions/${examId}`)
       .then((response) => {
         setExamQuestions(response.data.questions);
       })

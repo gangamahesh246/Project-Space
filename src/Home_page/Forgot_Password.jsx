@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const Forgot_Password = ({ setForgot }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [step, setStep] = useState("send"); // send, verify, reset
+  const [step, setStep] = useState("send"); 
   const [data, setData] = useState({
     email: "",
     newPassword: "",
@@ -27,7 +27,7 @@ const Forgot_Password = ({ setForgot }) => {
   const SendOtp = async () => {
     if (!data.email) return toast.error("Please enter your email");
     try {
-      const res = await axios.post("http://localhost:3000/send-otp", {
+      const res = await axios.post(`${import.meta.env.VITE_Base_URL}/send-otp`, {
         email: data.email,
       });
       toast.success(res.data.message);
@@ -40,7 +40,7 @@ const Forgot_Password = ({ setForgot }) => {
   const VerifyOtp = async () => {
     if (!data.otp) return toast.error("Enter the OTP");
     try {
-      const res = await axios.post("http://localhost:3000/verify-otp", {
+      const res = await axios.post(`${import.meta.env.VITE_Base_URL}/verify-otp`, {
         email: data.email,
         otp: data.otp
       });
@@ -54,7 +54,7 @@ const Forgot_Password = ({ setForgot }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3000/forgot-password", {
+      const res = await axios.post(`${import.meta.env.VITE_Base_URL}/forgot-password`, {
         email: data.email,
         newPassword: data.newPassword,
       });

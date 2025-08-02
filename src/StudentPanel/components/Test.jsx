@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { MdAccessTime } from "react-icons/md";
 import { GoPerson } from "react-icons/go";
+import axios from "axios";
 
 const Test = () => {
   const location = useLocation();
@@ -222,8 +223,8 @@ const Test = () => {
   }, []);
 
   useEffect(() => {
-    axiosStudent
-      .get(`/getexamquestions/${examId}`)
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getexamquestions/${examId}`)
       .then((res) => {
         setExamQuestions(res.data.questions);
         setTitle(res.data.basicInfo.title);
@@ -289,8 +290,8 @@ const Test = () => {
   useEffect(() => {
     if (!data.user.college_mail) return;
 
-    axiosStudent
-      .get("/getstudentId", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
         params: {
           student_mail: data.user.college_mail,
         },

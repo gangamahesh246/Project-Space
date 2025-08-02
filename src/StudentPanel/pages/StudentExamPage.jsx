@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axiosStudent from "../../utils/axiosStudent";
 import { toast } from "react-toastify";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useRef } from "react";
 import socket from "../../utils/socket";
@@ -23,8 +23,8 @@ const StudentExamPage = () => {
  useEffect(() => {
   if (!StudentMail) return;
 
-  axiosStudent
-    .get("/getstudentId", {
+  axios
+    .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
       params: {
         student_mail: StudentMail,
       },
@@ -109,7 +109,7 @@ const StudentExamPage = () => {
   useEffect(() => {
     const fetchAndUpdateExams = async () => {
       try {
-        const res = await axiosStudent.get("/student", {
+        const res = await axios.get(`${import.meta.env.VITE_Base_URL}/student`, {
           params: { student_id: studentId },
         });
 
@@ -161,8 +161,6 @@ const StudentExamPage = () => {
       fetchAndUpdateExams();
     }
   }, [studentId]);
-
-  console.log(exams);
 
   const filteredExams = exams.filter((e) => {
     const matchesStatus = status === "all status" || e.status === status;

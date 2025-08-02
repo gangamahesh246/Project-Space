@@ -10,6 +10,7 @@ import DataTable from "../dashboardComponents/DataTable";
 import ExamCard from "../dashboardComponents/ExamCard";
 
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const StudentStatisticsPage = () => {
   const student = useSelector((state) => state.student.user);
@@ -21,8 +22,8 @@ const StudentStatisticsPage = () => {
   useEffect(() => {
     if (!student.college_mail) return;
 
-    axiosStudent
-      .get("/getstudentId", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
         params: {
           student_mail: student.college_mail,
         },
@@ -112,8 +113,8 @@ const StudentStatisticsPage = () => {
   useEffect(() => {
     if (!student.college_mail) return;
 
-    axiosStudent
-      .get("/student/gettechnology", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/student/gettechnology`, {
         params: { email: student.college_mail },
       })
       .then((res) => {

@@ -4,6 +4,7 @@ import { MdCancel } from "react-icons/md";
 import axiosStudent from "../../utils/axiosStudent";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const PracticeTests = () => {
   const navigate = useNavigate();
@@ -19,8 +20,8 @@ const PracticeTests = () => {
   useEffect(() => {
     if (!student.college_mail) return;
 
-    axiosStudent
-      .get("/getstudentId", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentId`, {
         params: {
           student_mail: student.college_mail,
         },
@@ -29,7 +30,7 @@ const PracticeTests = () => {
         const id = response.data.studentId;
         setStudentId(id);
 
-        return axiosStudent.get("/student/gettechnology", {
+        return axios.get(`${import.meta.env.VITE_Base_URL}/student/gettechnology`, {
           params: { email: student.college_mail },
         });
       })

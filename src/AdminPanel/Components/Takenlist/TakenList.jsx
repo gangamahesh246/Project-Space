@@ -6,6 +6,7 @@ import qs from "qs";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../utils/axiosInstance";
 import axiosStudent from "../../../utils/axiosStudent";
+import axios from "axios";
 
 const TakenList = () => {
   const navigate = useNavigate();
@@ -53,8 +54,8 @@ const TakenList = () => {
   useEffect(() => {
     if (!studentMails) return;
 
-    axiosStudent
-      .get("/getstudentIds", {
+    axios
+      .get(`${import.meta.env.VITE_Base_URL}/getstudentIds`, {
         params: {
           student_mails: studentMails,
         },
@@ -95,8 +96,8 @@ const TakenList = () => {
   useEffect(() => {
   if (!unfinished || unfinished.length === 0) return;
 
-  axiosStudent
-    .get("/getstudentmails", {
+  axios
+    .get(`${import.meta.env.VITE_Base_URL}/getstudentmails`, {
       params: {
         student_ids: unfinished,
       },
@@ -198,22 +199,6 @@ const Completed = ({ attempts, examId, setSearch, search, navigate}) => {
       rank: index + 1,
     },
   }));
-  console.log(search)
-
- useEffect(() => {
-  if (sorted.length === 0) return;
-
-  const payload = sorted.map((item) => ({
-    student_id: item.student_id,
-    exam_id: examId,
-    rank: item.lastAttemptStats.rank,
-  }));
-
-  axiosStudent
-    .put("/rank", payload)
-    .then(() => console.log())
-    .catch((err) => console.error("Failed to update ranks", err));
-}, [examId]);
 
 const handleDownloadAttempts = () => {
   const dataToExport = sorted
