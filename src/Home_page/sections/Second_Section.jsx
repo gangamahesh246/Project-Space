@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import { VscFilePdf } from "react-icons/vsc";
 import { IoAccessibility } from "react-icons/io5";
 import { MdOutlineSecurity } from "react-icons/md";
+import person1 from '../../assets/person_1.jpeg';
+import person2 from '../../assets/person_2.jpeg';
+import person3 from '../../assets/person_3.jpeg';
 
 const Second_Section = () => {
   const isDesktop = useMediaQuery({ minWidth: 1200 })
@@ -16,7 +19,10 @@ const Second_Section = () => {
           transition={{ duration: 1, ease: "easeInOut" }}
           className="sm:w-[150px] sm:h-[350px] md:w-[200px] md:h-[400px] lg:w-[250px] lg:h-[450px] xl:w-[300px] xl:h-[520px] border-3 border-aliceblue rounded-[150px] pl-4"
         >
-          <div className="w-full h-full rounded-[150px] bg-[url(person_1.jpeg)] bg-cover bg-center"></div>
+          <div 
+          className="w-full h-full rounded-[150px] bg-cover bg-center"
+          style={{ backgroundImage: `url(${person1})` }}
+          ></div>
         </motion.div>
         <motion.div
           initial={{ y: isDesktop ? 50 : 0 }}
@@ -24,7 +30,10 @@ const Second_Section = () => {
           transition={{ duration: 1, ease: "easeInOut" }}
           className="sm:w-[150px] sm:h-[350px] md:w-[200px] md:h-[400px] lg:w-[250px] lg:h-[450px] xl:w-[300px] xl:h-[520px] border-3 border-aliceblue rounded-[150px] pt-4 -mt-20"
         >
-          <div className="w-full h-full rounded-[150px] bg-[url(person_2.jpeg)] bg-cover bg-center"></div>
+          <div 
+          className="w-full h-full rounded-[150px] bg-cover bg-center"
+          style={{ backgroundImage: `url(${person2})` }}
+          ></div>
         </motion.div>
         <motion.div
           initial={{ x: isDesktop ? 50 : 0 }}
@@ -32,7 +41,10 @@ const Second_Section = () => {
           transition={{ duration: 1, ease: "easeInOut" }}
           className="sm:w-[150px] sm:h-[350px] md:w-[200px] md:h-[400px] lg:w-[250px] lg:h-[450px] xl:w-[300px] xl:h-[520px] border-3 border-aliceblue rounded-[150px] pr-4"
         >
-          <div className="w-full h-full rounded-[150px] bg-[url(person_3.jpeg)] bg-cover bg-center"></div>
+          <div 
+          className="w-full h-full rounded-[150px] bg-cover bg-center"
+          style={{ backgroundImage: `url(${person1})` }}
+          ></div>
         </motion.div>
       </div>
       <div className="xl:w-full xl:h-[100vh] sm:pt-40 lg:pt-60 flex flex-col items-center gap-5 sm:overflow-hidden">
