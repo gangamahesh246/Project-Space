@@ -43,7 +43,7 @@ const Second_Section = () => {
         >
           <div 
           className="w-full h-full rounded-[150px] bg-cover bg-center"
-          style={{ backgroundImage: `url(${person1})` }}
+          style={{ backgroundImage: `url(${person3})` }}
           ></div>
         </motion.div>
       </div>
