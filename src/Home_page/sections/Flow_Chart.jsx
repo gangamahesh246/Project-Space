@@ -75,7 +75,7 @@ export default function FlowChart() {
             </Grid>
             {index < steps.length - 1 && (
               <Grid item>
-                <ArrowForwardIcon fontSize="medium" className="text-primary sm:rotate-90 md:rotate-0" />
+                <ArrowForwardIcon fontSize="medium" className="text-primary xs:rotate-90 md:rotate-0" />
               </Grid>
             )}
           </React.Fragment>

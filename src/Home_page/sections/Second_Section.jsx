@@ -12,7 +12,7 @@ const Second_Section = () => {
   const isDesktop = useMediaQuery({ minWidth: 1200 })
   return (
     <section className="sm:w-full xl:h-[163vh] bg-aliceblue">
-      <div className="w-full h-[45vh] bg-primary pt-30 flex justify-center items-center sm:gap-2 md:gap-5 ">
+      <div className="w-full h-[45vh] xs:hidden sm:flex bg-primary pt-30 flex justify-center items-center sm:gap-2 md:gap-5 ">
         <motion.div
           initial={{ x: isDesktop ? -50 : 0 }}
           whileInView={{ x: 0 }}
@@ -47,7 +47,7 @@ const Second_Section = () => {
           ></div>
         </motion.div>
       </div>
-      <div className="xl:w-full xl:h-[100vh] sm:pt-40 lg:pt-60 flex flex-col items-center gap-5 sm:overflow-hidden">
+      <div className="xl:w-full xl:h-[100vh] xs:p-5 sm:pt-40 lg:pt-60 flex flex-col items-center gap-5 sm:overflow-hidden">
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -69,25 +69,25 @@ const Second_Section = () => {
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: "easeInOut" }}
-          className="w-full sm:flex sm:flex-col md:flex md:flex-row md:justify-center md:items-center sm:items-center lg:gap-20 xl:gap-30"
+          className="w-full xs:flex xs:flex-col xs:justify-center xs:items-center xs:gap-5 md:flex md:flex-row md:justify-center md:items-center lg:gap-20 xl:gap-30"
         >
           <div className="sm:w-[270px] sm:h-[250px] md:pl-3 xl:w-[300px] xl:h-[300px] flex flex-col justify-center items-center gap-5">
             <VscFilePdf className="text-primary" size={50} />
-            <p className="text-primary font_primary sm:text-lg xl:text-xl">
+            <p className="text-primary xs:pl-4 font_primary sm:text-lg xl:text-xl">
               <strong>Create an exam in minutes</strong> by uploading an
               existing exam as PDF
             </p>
           </div>
           <div className="sm:w-[270px] sm:h-[250px] xl:w-[300px] xl:h-[300px] flex flex-col justify-center items-center gap-5">
             <IoAccessibility className="text-primary" size={50} />
-            <p className="text-primary font_primary sm:text-lg xl:text-xl">
+            <p className="text-primary xs:pl-4 font_primary sm:text-lg xl:text-xl">
               <strong>Empower every student</strong> by customizing exams to
               each student's individual needs
             </p>
           </div>
           <div className="sm:w-[270px] sm:h-[250px] md:pr-3 xl:w-[300px] xl:h-[300px] flex flex-col justify-center items-center gap-5">
             <MdOutlineSecurity className="text-primary" size={50} />
-            <p className="text-primary font_primary sm:text-lg xl:text-xl">
+            <p className="text-primary xs:pl-4 font_primary sm:text-lg xl:text-xl">
               <strong>Prevent cheating</strong> with our secure browser lockdown
               mode
             </p>

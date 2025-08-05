@@ -52,17 +52,17 @@ const StudentLogin = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-[#F2F2F2] flex justify-center items-center">
-      <div className="w-[90%] h-[80%] bg-white shadow-xs">
-        <div className="sm:hidden xl:block w-20 h-20 bg-[#B6E2FF] sm:top-160 sm:left-50 rotate-[60deg] absolute xl:left-10 xl:top-30"></div>
-        <div className="sm:hidden xl:block w-[100px] h-[100px] border-7 border-[#3B669D] rounded-full absolute md:left-150 md:top-7 xl:left-180"></div>
-        <div className="sm:hidden xl:block w-8 h-8 bg-green-300 rounded-full absolute left-250 top-27"></div>
-        <div className="sm:hidden xl:block w-[60px] h-[60px] border-7 border-green-300 rounded-full absolute md:left-130 md:top-110 "></div>
-        <div className="sm:hidden xl:block w-10 h-10 bg-[#B6E2FF] rotate-45 absolute left-250 top-143"></div>
+    <div className="w-full h-screen bg-[#F2F2F2] p-5 flex justify-center items-center">
+      <div className="w-[90%] h-[80%] sm:bg-white shadow-xs">
+        <div className="xs:hidden xl:block w-20 h-20 bg-[#B6E2FF] sm:top-160 sm:left-50 rotate-[60deg] absolute xl:left-10 xl:top-30"></div>
+        <div className="xs:hidden xl:block w-[100px] h-[100px] border-7 border-[#3B669D] rounded-full absolute md:left-150 md:top-7 xl:left-180"></div>
+        <div className="xs:hidden xl:block w-8 h-8 bg-green-300 rounded-full absolute left-250 top-27"></div>
+        <div className="xs:hidden xl:block w-[60px] h-[60px] border-7 border-green-300 rounded-full absolute md:left-130 md:top-110 "></div>
+        <div className="xs:hidden xl:block w-10 h-10 bg-[#B6E2FF] rotate-45 absolute left-250 top-143"></div>
 
-        <div className='sm:hidden xl:block w-90 h-90 bg-[url("/abssss.png")] bg-no-repeat bg-cover absolute top-75 left-30 '></div>
-        <div className='sm:top-15 sm:-left-5 sm:w-130 sm:h-130 xl:w-80 xl:h-80 md:hidden xl:block bg-[url("/abstract.png")] bg-no-repeat bg-cover absolute xl:top-50 xl:left-265'></div>
-        <div className='sm:hidden xl:block w-80 h-80 bg-[url("/abs.png")] -rotate-45 bg-no-repeat bg-cover absolute -top-10 left-60'></div>
+        <div className='xs:hidden xl:block w-90 h-90 bg-[url("/abssss.png")] bg-no-repeat bg-cover absolute top-75 left-30 '></div>
+        <div className='xs:hidden xs:top-15 xs:-left-5 xs:w-130 xs:h-130 xl:w-80 xl:h-80 md:hidden xl:block bg-[url("/abstract.png")] bg-no-repeat bg-cover absolute xl:top-50 xl:left-265'></div>
+        <div className='xs:hidden xl:block w-80 h-80 bg-[url("/abs.png")] -rotate-45 bg-no-repeat bg-cover absolute -top-10 left-60'></div>
       </div>
       <AnimatePresence>
         {forgot ? (

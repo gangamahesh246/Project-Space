@@ -6,8 +6,8 @@ import { FaTwitter } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="sm:w-full xl:h-[75vh] bg-primary text-center xl:p-7 sm:flex sm:flex-col sm:justify-center sm:items-center">
-      <div className="sm:w-full sm:h-fit lg:h-5/6 border-b-[1px] border-[#a4bfce] sm:flex sm:flex-col xl:flex-row sm:justify-center sm:items-center gap-5">
+    <footer className="sm:w-full xl:h-[75vh] bg-primary text-center xl:p-7 xs:flex xs:flex-col xs:justify-center xs:items-center">
+      <div className="sm:w-full sm:h-fit lg:h-5/6 border-b-[1px] border-[#a4bfce] xs:flex xs:flex-col xl:flex-row xs:justify-center xs:items-center gap-5">
         <div className="sm:w-fit xl:w-1/2 h-full text-left p-10">
           <p className="text-[#a4bfce] font_primary text-3xl font-extrabold">
             Live Monitoring Enabled

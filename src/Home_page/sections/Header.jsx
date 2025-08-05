@@ -6,8 +6,8 @@ const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="sm:h-[80vh] xl:h-[100vh] bg-primary">
-      <div className="lg:block sm:hidden w-full h-fit">
+    <section className="xs:h-[80vh] xl:h-[100vh] bg-primary">
+      <div className="lg:block xs:hidden w-full h-fit">
         <motion.img
           initial={{ x: -20 }}
           animate={{ x: 0 }}
@@ -92,8 +92,8 @@ const Header = () => {
           />
         </svg>
       </div>
-      <div className="sm:w-[450px] h-fit md:w-[700px] lg:w-[800px] xl:w-[1200px] absolute top-1/5 left-1/2 -translate-x-1/2">
-        <p className="sm:font_primary text-4xl font-extrabold tracking-wide text-center lg:text-5xl xl:text-7xl pt-10 text-white">
+      <div className="xs:w-[370px] sm:w-[450px] h-fit md:w-[700px] lg:w-[800px] xl:w-[1200px] absolute sm:top-1/5 left-1/2 -translate-x-1/2">
+        <p className="sm:font_primary text-4xl font-extrabold tracking-wide text-center lg:text-5xl xl:text-7xl xs:pt-5 sm:pt-10 text-white">
           Master Every Exam. Unlock Your Future.
         </p>
         <p className="sm:font_secondary text-2xl font-extrabold tracking-wide text-center pt-10 capitalize text-secondary lg:text-3xl xl:text-4xl">
