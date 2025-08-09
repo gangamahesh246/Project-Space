@@ -3,6 +3,7 @@ import { GoPlus } from "react-icons/go";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
 import { IoIosClose } from "react-icons/io";
+import { useMediaQuery } from "react-responsive";
 
 import ConfigureSettings from "../Components/CreateExam/ConfigureSettings";
 import axiosInstance from "../../utils/axiosInstance";
@@ -14,6 +15,8 @@ import socket from "../../utils/socket";
 import { useSelector } from "react-redux";
 
 const ExamPage = () => {
+  const isXs = useMediaQuery({ maxWidth: 372 });
+
   const admin = useSelector((state) => state.login.user._id);
   const navigate = useNavigate();
   const [status, setStatus] = useState("all status");
@@ -103,12 +106,12 @@ const ExamPage = () => {
       <div className="w-full h-fit pb-15">
         <div className="w-full h-16 bg-white shadow-lg flex items-center justify-between px-4">
           <button
-            className="bg-[#C3E76D] px-2 py-3 rounded-sm text-sm flex items-center gap-1 cursor-pointer text-gray-700"
+            className="bg-[#C3E76D] xs:p-2 sm:px-2 sm:py-3 rounded-sm text-sm flex items-center gap-1 cursor-pointer text-gray-700"
             onClick={() => {
               navigate("/admin/exam/create-exam");
             }}
           >
-            <GoPlus size={20} /> <p className="sm:hidden md:block">New exam</p>
+            <GoPlus size={20} /> <p className="xs:hidden md:block">New exam</p>
           </button>
           <div className="flex items-center gap-2">
             <input
@@ -128,12 +131,12 @@ const ExamPage = () => {
             </select>
           </div>
         </div>
-        <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 bg-gray-100 items-center sm:gap-2 xl:gap-3 sm:px-4 md:px-30 xl:px-5 xl:pb-4 lg:px-35">
+        <div className="w-full h-fit xs:grid xs:grid-cols-1 xl:grid-cols-2 bg-gray-100 items-center xs:gap-2 xl:gap-3 xs:px-4 md:px-30 xl:px-5 xl:pb-4 lg:px-35">
           {filteredExams?.map((item, i) => {
             return (
               <div
                 key={i}
-                className="w-full h-fit bg-white shadow-sm hover:shadow-md p-2 mt-2 flex items-center sm:gap-2 md:gap-3 xl:gap-5 rounded-lg"
+                className="w-full h-fit bg-white shadow-sm hover:shadow-md p-2 mt-2 flex items-center xs:gap-2 md:gap-3 xl:gap-5 rounded-lg"
               >
                 <img
                   src={item.coverPreview}
@@ -143,7 +146,7 @@ const ExamPage = () => {
                 <div>
                   <div className="flex items-center justify-between text-lg font_primary font-semibold">
                     <p className="flex items-center gap-2">
-                      {item.title}{" "}
+                      {item.title}
                       <LuExternalLink
                         className="cursor-pointer"
                         color="green"
@@ -171,7 +174,8 @@ const ExamPage = () => {
                       Category: {item.category}
                     </p>
                   <div className={`flex items-center ${item.examTime ? "sm:gap-5 xl:gap-25" : "sm:gap-5 xl:gap-15" } text-sm font_primary text-green-600`}>
-                    <p className="text-gray-500 text-sm font-primary">{item.examTime ? `Duration: ${item.examTime} min` : `Duration: ${item.questionTime} sec/question`}</p>
+                    {isXs ? <p></p> :
+                    <p className="text-gray-500 text-sm font-primary">{item.examTime ? `Duration: ${item.examTime} min` : `Duration: ${item.questionTime} sec/question`}</p> }
                     <div className="flex items-center gap-1">
                     <p
                     className="hover:underline cursor-pointer"
@@ -180,7 +184,7 @@ const ExamPage = () => {
                     }
                   >
                     Questions
-                  </p>{" "}
+                  </p>
                   |
                   <p
                     className="hover:underline cursor-pointer"
@@ -189,10 +193,10 @@ const ExamPage = () => {
                     }
                   >
                     Statistics
-                  </p>
+                  </p> 
                   </div>
                   </div>
-                    <div className="gap-1 mt-4 text-sm font_primary md:flex">
+                    <div className="gap-1 mt-4 xs:text-xs sm:text-sm font_primary md:flex">
                       <p className="text-gray-500">
                         Open:{" "}
                         {item.fromDate
@@ -232,7 +236,7 @@ const ExamPage = () => {
                       </p>
                     </div>
                 </div>
-                <div className="flex flex-col items-center gap-5 pl-2 sm:pr-1 md:pr-0 border-l-1 border-gray-300">
+                <div className="flex flex-col items-center gap-5 pl-2 xs:pr-1 md:pr-0 border-l-1 border-gray-300">
                   {item.fromDate && (
                     <FaRegEdit
                       className={`cursor-pointer ${

@@ -241,7 +241,7 @@ const handleDownloadAttempts = () => {
         />
         <Download size={20} onClick={handleDownloadAttempts} className='w-8 h-8 p-2 rounded bg-amber-300 text-gray-600 cursor-pointer' />
       </div>
-      <div>
+      <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm text-left">
           <thead className="bg-gray-100 text-gray-700">
             <tr className="[&>th]:p-2 [&>th]:font-semibold text-center">

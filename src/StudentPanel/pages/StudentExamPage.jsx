@@ -255,22 +255,22 @@ const StudentExamPage = () => {
           )}
         {activeOrLateExams?.length > 0 && (
           <>
-            <p className="text-gray-500 text-sm mt-4 font-semibold px-4">
+            <p className="text-gray-500 xs:text-xs sm:text-sm mt-4 font-semibold px-4">
               Active Exams
             </p>
-            <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
+            <div className="w-full h-fit xs:grid xs:grid-cols-1 xl:grid-cols-2 items-center xs:gap-2 xl:gap-5 xs:px-4 md:px-7 xl:px-4">
               {activeOrLateExams.map((item, i) => (
                 <div
                   key={`upcoming-${i}`}
-                  className="w-full h-fit bg-white shadow-sm hover:shadow-md sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-md xs:p-2 md:p-2 mt-2 flex justify-center items-center xs:gap-2 md:gap-3 xl:gap-3 rounded-lg"
                 >
                   <img
                     src={item.examId?.basicInfo?.coverPreview}
                     alt="Cover"
-                    className="sm:w-25 sm:h-25 md:w-30 md:h-30 object-cover rounded"
+                    className="xs:w-25 xs:h-35 sm:h-25 md:w-30 md:h-30 object-cover rounded"
                   />
                   <div className="w-[80%] h-fit">
-                    <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
+                    <div className="flex flex-wrap justify-between items-center gap-5 xs:text-sm sm:text-lg font_primary font-semibold">
                       <p>{item.examId?.basicInfo?.title}</p>
                       <p
                         className={`px-2 py-1 rounded text-xs font-semibold capitalize justify-end ${
@@ -351,22 +351,22 @@ const StudentExamPage = () => {
         )}
         {inactiveExams.length > 0 && (
           <>
-            <p className="capitalize text-gray-500 text-sm mt-4 font-semibold px-4">
+            <p className="capitalize text-gray-500 xs:text-xs sm:text-sm mt-4 font-semibold px-4">
               Upcoming / expired exams
             </p>
-            <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
+            <div className="w-full h-fit xs:grid xs:grid-cols-1 xl:grid-cols-2 items-center xs:gap-2 xl:gap-5 xs:px-4 md:px-7 xl:px-4">
               {inactiveExams?.map((item, i) => (
                 <div
                   key={`upcoming-${i}`}
-                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg xs:p-2 md:p-2 mt-2 flex justify-center items-center xs:gap-2 md:gap-3 xl:gap-3 rounded-lg"
                 >
                   <img
                     src={item.examId?.basicInfo?.coverPreview}
                     alt="Cover"
-                    className="sm:w-25 sm:h-25 md:w-30 md:h-30 object-cover rounded"
+                    className="xs:w-25 xs:h-35 sm:h-25 md:w-30 md:h-30 object-cover rounded"
                   />
                   <div className="w-[80%] h-fit">
-                    <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
+                    <div className="flex flex-wrap justify-between items-center gap-5 xs:text-sm sm:text-lg font_primary font-semibold">
                       <p>{item.examId?.basicInfo?.title}</p>
                       <p
                         className={`px-2 py-1 rounded text-xs font-semibold capitalize justify-end ${
@@ -424,22 +424,22 @@ const StudentExamPage = () => {
         )}
         {completedExams.length > 0 && (
           <>
-            <p className="text-gray-500 text-sm mt-6 px-4 font-semibold">
+            <p className="text-gray-500 xs:text-xs sm:text-sm mt-6 px-4 font-semibold">
               Completed Exams
             </p>
-            <div className="w-full h-fit sm:grid sm:grid-cols-1 xl:grid-cols-2 items-center sm:gap-2 xl:gap-5 sm:px-4 md:px-7 xl:px-4">
+            <div className="w-full h-fit xs:grid xs:grid-cols-1 xl:grid-cols-2 items-center xs:gap-2 xl:gap-5 xs:px-4 md:px-7 xl:px-4">
               {completedExams?.map((item, i) => (
                 <div
                   key={`completed-${i}`}
-                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg sm:p-2 md:p-2 mt-2 flex justify-center items-center sm:gap-2 md:gap-3 xl:gap-3 rounded-lg"
+                  className="w-full h-fit bg-white shadow-sm hover:shadow-lg xs:p-2 md:p-2 mt-2 flex justify-center items-center xs:gap-2 md:gap-3 xl:gap-3 rounded-lg"
                 >
                   <img
                     src={item.examId?.basicInfo?.coverPreview}
                     alt="Cover"
-                    className="sm:w-25 sm:h-25 md:w-30 md:h-30 object-cover rounded"
+                    className="xs:w-25 sm:h-25 xs:h-35 md:w-30 md:h-30 object-cover rounded"
                   />
                   <div className="w-[80%] h-fit">
-                    <div className="flex flex-wrap justify-between items-center gap-5 text-lg font_primary font-semibold">
+                    <div className="flex flex-wrap justify-between items-center gap-5 xs:text-sm sm:text-lg font_primary font-semibold">
                       <p>{item.examId?.basicInfo?.title}</p>
                       <p className="px-2 py-1 rounded text-xs font-semibold capitalize justify-end bg-blue-200 text-blue-600">
                         {item.status}

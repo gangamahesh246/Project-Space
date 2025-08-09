@@ -52,7 +52,7 @@ const StudentLogin = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-[#F2F2F2] p-5 flex justify-center items-center">
+    <div className="w-full h-screen bg-[#F2F2F2] flex justify-center items-center">
       <div className="w-[90%] h-[80%] sm:bg-white shadow-xs">
         <div className="xs:hidden xl:block w-20 h-20 bg-[#B6E2FF] sm:top-160 sm:left-50 rotate-[60deg] absolute xl:left-10 xl:top-30"></div>
         <div className="xs:hidden xl:block w-[100px] h-[100px] border-7 border-[#3B669D] rounded-full absolute md:left-150 md:top-7 xl:left-180"></div>

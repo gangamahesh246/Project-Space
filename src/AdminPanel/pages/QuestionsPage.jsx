@@ -12,8 +12,11 @@ import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosInstance";
 import { useSelector } from "react-redux";
 
+import { useMediaQuery } from "react-responsive";
+
 const QuestionsPage = () => {
   const admin = useSelector((state) => state.login.user._id);
+  const isXs = useMediaQuery({ maxWidth: 372 });
 
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
@@ -71,27 +74,28 @@ const QuestionsPage = () => {
   }
 
   return (
-    <div className="w-full h-full bg-gray-100 flex sm:gap-1 md:gap-3 overflow-y-auto hide-scrollbar sm:p-1 md:p-3">
-      <div className={`${isOpen ? "md:w-15 md:transition-all md:duration-300" : "md:w-1/3 md:transition-all md:duration-300"} h-full bg-white flex flex-col gap-5 sm:p-2 md:p-5`}>
+    <div className="w-full h-full bg-gray-100 flex xs:gap-1 md:gap-3 overflow-y-auto hide-scrollbar xs:p-1 md:p-3">
+      {isXs ? "" : 
+      <div className={`${isOpen ? "md:w-15 md:transition-all md:duration-300" : "md:w-1/3 md:transition-all md:duration-300"} h-full bg-white flex flex-col gap-5 xs:p-2 md:p-5`}>
         <div className="flex justify-between items-center">
-          <p className={`${isOpen ? "hidden" : "sm:text-lg md:text-xl font-bold text-gray-900"}`}>Questions</p>
+          <p className={`${isOpen ? "hidden" : "xs:text-lg md:text-xl font-bold text-gray-900"}`}>Questions</p>
           <p className="text-xl font-bold text-gray-500">
-            <RiMenuFoldFill className="sm:hidden md:block cursor-pointer" onClick={() => setIsOpen(!isOpen)} />
+            <RiMenuFoldFill className="xs:hidden md:block cursor-pointer" onClick={() => setIsOpen(!isOpen)} />
           </p>
         </div>
-        <div className={`${isOpen ? "hidden" : "sm:w-25 md:w-full h-10 flex items-center px-2 gap-13 border-1 border-gray-500 rounded-lg"}`}>
+        <div className={`${isOpen ? "hidden" : "xs:w-25 md:w-full h-10 flex items-center px-2 gap-13 border-1 border-gray-500 rounded-lg"}`}>
           <input
             type="text"
             placeholder="Search category"
-            className="sm:text-[12px] md:text-sm outline-none"
+            className="xs:text-[12px] md:text-sm outline-none"
             value={searchCategory}
             onChange={(e) => setSearchCategory(e.target.value)}
           />
           <CiSearch color="green" className="md:mr-1" />
         </div>
         <div className={`${isOpen ? "hidden" : "flex justify-between items-center"}`}>
-          <p className="md:text-lg font-semibold underline flex justify-center text-gray-900 items-center gap-1"><p className="sm:hidden md:block">Question</p> Categories</p>
-          <p className="sm:hidden lg:block text-xl font-bold text-gray-500">
+          <p className="md:text-lg font-semibold underline flex justify-center text-gray-900 items-center gap-1"><p className="xs:hidden md:block">Question</p> Categories</p>
+          <p className="xs:hidden lg:block text-xl font-bold text-gray-500">
             <TiFolderAdd />
           </p>
         </div>
@@ -133,10 +137,10 @@ const QuestionsPage = () => {
               );
             })}
         </div>
-      </div>
-      <div className="w-full h-full bg-white p-5 overflow-y-auto hide-scrollbar">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
+      </div> }
+      <div className="w-full h-full bg-white xs:p-3 sm:p-5 overflow-y-auto hide-scrollbar">
+        <div className="flex items-center justify-between xs:gap-1 sm:gap-0 mb-2">
+          <div className="flex items-center xs:gap-1 sm:gap-3">
             <button
               onClick={() => {
                 if (isActive !== "all") {
@@ -147,9 +151,9 @@ const QuestionsPage = () => {
                   navigate("/admin/questions/add-question");
                 }
               }}
-              className="bg-[#C3E76D] sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-gray-700"
+              className="bg-[#C3E76D] xs:p-1 md:p-2 text-sm rounded-sm flex items-center gap-1 cursor-pointer text-gray-700"
             >
-              <GoPlus size={18}/> <p className="sm:hidden md:block">New question</p>
+              <GoPlus size={18}/> <p className="xs:hidden md:block">New question</p>
             </button>
             <button
               onClick={() => {
@@ -161,16 +165,16 @@ const QuestionsPage = () => {
                   navigate("/admin/questions/upload-questions");
                 }
               }}
-              className="border-1 border-[#C3E76D] sm:p-1 md:p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-[#8ca84c] hover:bg-[#C3E76D] hover:text-gray-700"
+              className="border-1 border-[#C3E76D] xs:p-1 md:p-2 text-sm rounded-sm flex items-center gap-2 cursor-pointer text-[#8ca84c] hover:bg-[#C3E76D] hover:text-gray-700"
             >
-              <TbFileUpload size={20} /> <p className="sm:hidden xl:block">Upload questions</p>
+              <TbFileUpload size={20} /> <p className="xs:hidden xl:block">Upload questions</p>
             </button>
           </div>
           <div className="w-fit h-8 flex justify-around items-center border-1 border-gray-500 rounded-lg ">
             <input
               type="text"
               placeholder="Search"
-              className="w-40 pl-3 h-full text-sm font-semibold outline-none"
+              className="xs:w-35 sm:w-40 pl-3 h-full text-sm font-semibold outline-none"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -185,7 +189,7 @@ const QuestionsPage = () => {
             return (
               <div
                 key={index}
-                className="flex justify-between items-start text-sm font-semibold border-t-1 border-gray-300 text-gray-700 sm:p-1 md:p-3"
+                className="flex justify-between items-start text-sm font-semibold border-t-1 border-gray-300 text-gray-700 xs:p-1 md:p-3"
               >
                 <div className="flex flex-col gap-3 w-full">
                   <p>

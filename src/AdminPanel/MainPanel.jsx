@@ -169,7 +169,7 @@ const MainPanel = () => {
             <div className="w-full h-8 px-2 py-7 flex justify-between items-center border-b-1 border-gray-300">
               <div className="flex justify-center items-center gap-2">
                 <HiMenu
-                  className={`${menu ? "sm:hidden" : "sm:block" } lg:hidden`}
+                  className={`${menu ? "xs:hidden" : "xs:block" } lg:hidden`}
                   size={25}
                   color="#008738"
                   onClick={() => {

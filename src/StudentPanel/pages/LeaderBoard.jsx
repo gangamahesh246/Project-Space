@@ -78,13 +78,13 @@ const LeaderBoard = () => {
           className={`${
             active === "technology"
               ? "bg-amber-400 text-white"
-              : "bg-white text-amber-500 border-2 border-amber-400"
+              : "bg-white text-amber-500 border-2 border-amber-400 focus:outline-none"
           } font-bold py-2 px-8 rounded transition cursor-pointer`}
         >
           Technology
         </button>
       </div>
-      <h1 className="text-2xl text-amber-500 font-bold mb-4 mt-4">
+      <h1 className="text-2xl text-amber-500 font-bold mb-4 mt-4 focus:outline-none">
         LeaderBoard
       </h1>
       {active === "global" ? (
@@ -111,18 +111,18 @@ const GlobalLeaderBoard = ({
   leaderBoardData,
   Award,
   college_mail,
-  studentId
+  studentId,
 }) => {
   return (
-    <div className="bg-white rounded shadow p-4">
-      <table className="w-full text-left border-collapse">
+    <div className="bg-white rounded shadow p-4 overflow-x-auto">
+      <table className="w-full text-left border-collapse min-w-[600px]">
         <thead>
           <tr className="border-b text-amber-500">
             <th className="py-2">#</th>
             <th className="py-2">Student Mail</th>
             <th className="py-2">Technology</th>
             <th className="py-2">Average Score</th>
-            <th className="py-2 flex items-center">
+            <th className="py-2 flex items-center gap-1">
               Rank
               <Award className="w-5 h-5" />
             </th>
@@ -135,9 +135,9 @@ const GlobalLeaderBoard = ({
             if (isCurrentStudent) {
               axios
                 .post(`${import.meta.env.VITE_Base_URL}/globalrank`, {
-                  student_id: studentId, 
+                  student_id: studentId,
                   rank: index + 1,
-                  totalstudents: leaderBoardData.length
+                  totalstudents: leaderBoardData.length,
                 })
                 .catch((err) => {
                   console.error(
@@ -172,35 +172,40 @@ const GlobalLeaderBoard = ({
 
 const TechWiseLeaderBoard = ({ leaderBoardData, Award, college_mail }) => {
   return (
-    <div className="bg-white rounded shadow p-4">
-      <table className="w-full text-left border-collapse">
+    <div className="bg-white rounded shadow p-4 overflow-x-auto">
+      <table className="w-full text-left border-collapse min-w-[600px]">
         <thead>
           <tr className="border-b text-amber-500">
-            <th className="py-2">#</th>
-            <th className="py-2">Student Mail</th>
-            <th className="py-2">Average Score</th>
-            <th className="py-2 flex items-center">
-              Rank
-              <Award className="w-5 h-5" />
+            <th className="py-2 px-2">#</th>
+            <th className="py-2 px-2">Student Mail</th>
+            <th className="py-2 px-2">Technology</th>
+            <th className="py-2 px-2">Average Score</th>
+            <th className="py-2 px-2 flex items-center gap-1">
+              Rank <Award className="w-5 h-5" />
             </th>
           </tr>
         </thead>
         <tbody>
-          {leaderBoardData.map((entry, index) => (
-            <tr
-              key={entry._id}
-              className={`border-b border-gray-300 text-sm ${
-                entry.student_mail === college_mail
-                  ? "font-bold bg-amber-50 text-amber-400"
-                  : "hover:bg-gray-50"
-              }`}
-            >
-              <td className="py-2 px-1">{index + 1}</td>
-              <td className="py-2 px-1">{entry.student_mail}</td>
-              <td className="py-2 px-1 font-semibold">{entry.score}</td>
-              <td className="py-2 px-1 font-semibold">{index + 1}</td>
-            </tr>
-          ))}
+          {leaderBoardData.map((entry, index) => {
+            const isCurrentStudent = entry.student_mail === college_mail;
+
+            return (
+              <tr
+                key={entry._id}
+                className={`border-b border-gray-300 text-sm ${
+                  isCurrentStudent
+                    ? "font-bold bg-amber-50 text-amber-400"
+                    : "hover:bg-gray-50"
+                }`}
+              >
+                <td className="py-2 px-2">{index + 1}</td>
+                <td className="py-2 px-2">{entry.student_mail}</td>
+                <td className="py-2 px-2">{entry.technology}</td>
+                <td className="py-2 px-2 font-semibold">{entry.score}</td>
+                <td className="py-2 px-2 font-semibold">{index + 1}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
