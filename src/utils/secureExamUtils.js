@@ -20,7 +20,7 @@ export const enableMicStream = async (setMicStream, setViolations) => {
     micSource.connect(analyser);
 
     let lastViolationTime = 0;
-    const DECIBEL_THRESHOLD = -50; 
+    const DECIBEL_THRESHOLD = -40; 
     const VIOLATION_INTERVAL = 2000; 
     const minFrequency = 80;
     const maxFrequency = 6000;
