@@ -5,7 +5,6 @@ const Violations = () => {
   const location = useLocation();
   const data = location.state;
 
-  console.log(data.violationPhotos)
   return (
     <div className="w-full h-fit bg-white px-5 pb-12">
       <p className="text-2xl font-bold text-amber-500 py-4">Report</p>
