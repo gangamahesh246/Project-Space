@@ -5,8 +5,9 @@ const Violations = () => {
   const location = useLocation();
   const data = location.state;
 
+  console.log(data.violationPhotos)
   return (
-    <div className="w-full h-full bg-white px-5">
+    <div className="w-full h-fit bg-white px-5 pb-12">
       <p className="text-2xl font-bold text-amber-500 py-4">Report</p>
       <table className="min-w-full table-cell text-sm shadow-sm overflow-hidden">
         <thead className="bg-amber-100 text-amber-500">
@@ -48,7 +49,7 @@ const Violations = () => {
           {data.violationPhotos.map((item, index) => (
             <div className="bg-white p-2 rounded-lg shadow" key={index}>
               <img
-                src={`http://localhost:3000${item}`}
+                src={`${import.meta.env.VITE_Base_URL}${item}`}
                 alt={`Violation ${index + 1}`}
                 className="w-full h-fit object-cover rounded"
               />
