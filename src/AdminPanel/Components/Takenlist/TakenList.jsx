@@ -5,7 +5,6 @@ import { Download } from "lucide-react";
 import qs from "qs";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../../../utils/axiosInstance";
-import axiosStudent from "../../../utils/axiosStudent";
 import axios from "axios";
 
 const TakenList = () => {
@@ -128,7 +127,7 @@ const TakenList = () => {
             )}`}
             onClick={() => setIsActive("completed")}
           >
-            Completed {attempts.length}
+            Completed
           </button>
           <button
             className={`rounded-lg cursor-pointer px-4 py-2 ${buttonClass(

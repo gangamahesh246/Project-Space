@@ -65,6 +65,7 @@ const StudentPanel = () => {
 
   const [menu, setMenu] = useState(false);
   const [notify, setNotify] = useState(false);
+  const [assignedExamIds, setAssignedExamIds] = useState(new Set());
   const [profile, setProfile] = useState({
     fullname: "",
   });
@@ -73,36 +74,36 @@ const StudentPanel = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
-    if (data?.user?.college_mail) {
-      socket.emit("registerStudent", data.user.college_mail);
-    }
+ useEffect(() => {
+  if (data?.user?.college_mail) {
+    socket.emit("registerStudent", data.user.college_mail);
+  }
 
-    const handleExamAssigned = (examData, assignedBy) => {
-      toast.info(`New Exam: ${examData.basicInfo.title}`);
-      const audio = new Audio("/sounds/notification.mp3");
-      audio.play();
-      setNotificationCount((prev) => prev + 1);
-      setNotifications((prev) => [
-        ...prev,
-        {
-          type: "assigned",
-          title: examData.basicInfo.title,
-          assignedBy: assignedBy || "Admin",
-          timeFrom: examData.settings.availability.timeLimitDays.from,
-          timeTo: examData.settings.availability.timeLimitDays.to,
-          hourFrom: examData.settings.availability.timeLimitHours.from,
-          hourTo: examData.settings.availability.timeLimitHours.to,
-        },
-      ]);
-    };
+  const handleExamAssigned = (examData, assignedBy) => {
+    if (assignedExamIds.has(examData._id)) return; 
 
-    socket.on("examAssigned", handleExamAssigned);
+    setAssignedExamIds((prev) => new Set(prev).add(examData._id));
 
-    return () => {
-      socket.off("examAssigned", handleExamAssigned);
-    };
-  }, [data?.user?.college_mail]);
+    toast.info(`New Exam: ${examData.basicInfo.title}`);
+    const audio = new Audio("/sounds/notification.mp3");
+    audio.play();
+    setNotificationCount((prev) => prev + 1);
+    setNotifications((prev) => [
+      ...prev,
+      {
+        type: "assigned",
+        title: examData.basicInfo.title,
+        assignedBy: assignedBy || "Admin",
+      },
+    ]);
+  };
+
+  socket.on("examAssigned", handleExamAssigned);
+
+  return () => {
+    socket.off("examAssigned", handleExamAssigned);
+  };
+}, [data?.user?.college_mail, assignedExamIds]);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
