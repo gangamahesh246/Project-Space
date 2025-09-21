@@ -18,7 +18,6 @@ const ExamCard = ({ exam, type }) => {
 
   const now = new Date();
 
-  // Compute exam start and end times
   const examStart = exam.startTime ? new Date(exam.startTime) : null;
   const examEnd = exam.endTime
     ? new Date(exam.endTime)
@@ -102,19 +101,12 @@ const ExamCard = ({ exam, type }) => {
         </div>
 
         <div className="flex items-center space-x-2">
-          {/* Upcoming badges */}
           {isUpcoming && !hasStarted && hoursUntil <= 2 && (
             <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
               Starting Soon
             </span>
           )}
-          {isUpcoming && hasStarted && !hasEnded && (
-            <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
-              Ongoing
-            </span>
-          )}
 
-          {/* Completed status */}
           {isCompleted && (
             <span
               className={`text-xs font-medium capitalize px-3 py-1 rounded-full ${getStatusColor(
@@ -125,7 +117,6 @@ const ExamCard = ({ exam, type }) => {
             </span>
           )}
 
-          {/* Buttons */}
           {isUpcoming && exam.canStart && (
             <button className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
               <Play className="w-4 h-4" />
