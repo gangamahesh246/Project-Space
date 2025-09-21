@@ -15,20 +15,7 @@ const ExamCard = ({ exam, type }) => {
 
   const isUpcoming = type === "upcoming";
   const isCompleted = type === "completed";
-
-  const now = new Date();
-  const examStart = new Date(exam.startTime); // or exam.settings?.availability?.timeLimitHours?.from
-  const examEnd = new Date(exam.endTime); // optional, for extra validation
-
-  const hoursUntilStart = (examStart - now) / (1000 * 60 * 60); // in hours
-
-  const hasStarted = now >= examStart;
-  const hasEnded = now >= examEnd; // optional
-
-  // pass this to your component
-  exam.hoursUntil = hoursUntilStart;
-  exam.hasStarted = hasStarted;
-  exam.hasEnded = hasEnded;
+  
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -104,17 +91,14 @@ const ExamCard = ({ exam, type }) => {
         </div>
 
         <div className="flex items-center space-x-2">
-          {isUpcoming && !exam.hasStarted && exam.hoursUntil <= 2 && (
-            <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
-              Starting Soon
-            </span>
-          )}
-
-          {isUpcoming && exam.hasStarted && (
-            <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
-              Ongoing
-            </span>
-          )}
+          {isUpcoming &&
+            exam.hoursUntil <= 2 &&
+            new Date(exam.date).toDateString() ===
+              new Date().toDateString() && (
+              <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
+                      Starting Soon  
+              </span>
+            )}
 
           {isCompleted && (
             <span
