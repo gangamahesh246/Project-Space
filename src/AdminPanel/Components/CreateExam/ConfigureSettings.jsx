@@ -247,7 +247,7 @@ const ConfigureSettings = ({ setActiveTab, isOpen, setisOpen, id }) => {
   const isVisible = settings.assignExamTo.specificUsers.length > 0;
 
   const isValidSelection = () => {
-    return settings.assignExamTo.specificUsers.length > 0 || file !== null;
+    return settings.assignExamTo.specificUsers.length > 0 ;
   };
 
   const convertTo12Hour = (timeStr) => {
