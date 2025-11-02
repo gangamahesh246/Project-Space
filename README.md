@@ -1,12 +1,47 @@
-# React + Vite
+# ProctorQube – Online Proctoring System (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ProctorQube is a modern online examination platform designed to ensure secure and fair assessments.
+This repository contains the frontend interface built using React (Vite), featuring AI-based student face verification (via an open-source face recognition model) and a rich, responsive UI for conducting and monitoring online exams.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Features
 
-## Expanding the ESLint configuration
+- **Student & Admin Panels** – Dedicated dashboards for students and faculty.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **AI-Based Face Recognition** – Uses an open-source face recognition model to verify students by comparing their live webcam feed with their ID card photo.
+
+- **Webcam Proctoring** – Captures real-time snapshots to detect violations during exams.
+
+- **Exam Security** – Fullscreen lock, keyboard shortcut blocking, and copy-paste restrictions.
+
+- **Live Exam Timer & Attempts** – Displays countdowns, time limits, and attempt management.
+
+- **Result Visualization** – Displays detailed performance insights with charts and analytics.
+
+- **Real-Time Notifications** – Updates students about assigned or upcoming exams.
+
+---
+
+# Tech Stack
+
+- **Frontend:**	React (Vite) + Tailwind CSS
+- **Face Recognition:**	face-api.js
+- **Charts:**	Chart.js 
+- **State Management:**	Redux Toolkit
+- **Animations:**	Framer Motion
+- **Icons:**	Lucide React
+
+---
+
+# Demo Credentials
+## You can explore the system using the following demo accounts:
+
+### Admin Login
+- AdminId: ADMIN001
+- Password: Admin01
+
+### Student Login
+- Email: 23mh5a4213@acoe.edu.in
+- Password: Mahesh246
+
